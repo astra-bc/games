@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ヘッダーレイアウト案(コンパクト化)</title>
+<style>
+  body { margin:0; background:#3c3c3c; font-family:"DotGothic16","Hiragino Kaku Gothic ProN",monospace; color:#eee; padding:18px 0 40px; }
+  h1 { font-size:16px; text-align:center; letter-spacing:2px; }
+  .case { width:390px; margin:26px auto 0; }
+  .case h2 { font-size:14px; margin:0 0 6px; color:#ffd76a; letter-spacing:1px; }
+  .case p.note { font-size:11px; line-height:1.7; color:#c9c9c9; margin:6px 2px 0; }
+  .phone { background:#6c7a5b; overflow:hidden; border:1px solid #222; position:relative; }
+  .sky { height:46px; background:#6c7a5b; position:relative; }
+  .ground { height:26px; background:#a69164; }
+  .sun { position:absolute; right:120px; top:20px; width:10px; height:10px; background:#ffd94a; border-radius:50%; box-shadow:0 0 6px #ffd94a; }
+
+  /* 共通部品 */
+  .bar { background:rgba(10,14,18,.88); border-bottom:2px solid rgba(255,255,255,.22); box-sizing:border-box; }
+  .lbl { color:#9fb3c8; font-size:9px; letter-spacing:1px; }
+  .val { color:#fff; font-weight:800; }
+  .coinG { background:#3a3324; height:4px; border-radius:2px; overflow:hidden; }
+  .coinG i { display:block; height:100%; width:20%; background:#ffd23f; }
+  .btn { background:#20262c; border:1px solid rgba(255,255,255,.4); color:#fff; font-size:10px; padding:3px 8px; letter-spacing:1px; }
+  .timer { color:#fff; font-weight:900; text-shadow:2px 2px 0 #000; }
+
+  /* 案A: 1行オールインワン */
+  .a-bar { display:flex; align-items:center; gap:10px; padding:4px 8px; height:30px; }
+  .a-item { display:flex; align-items:baseline; gap:4px; }
+  .a-item .val { font-size:15px; }
+  .a-coin { flex:1; min-width:70px; }
+  .a-coin .top { display:flex; justify-content:space-between; align-items:baseline; }
+  .a-coin .val { font-size:12px; }
+  .a-bar .timer { font-size:15px; }
+  .a-bar .btn { padding:2px 6px; }
+
+  /* 案B: 2行圧縮(現行構成の半分) */
+  .b-top { display:flex; align-items:center; justify-content:space-between; padding:3px 10px; height:22px; }
+  .b-top .grp { display:flex; align-items:baseline; gap:4px; }
+  .b-top .val { font-size:14px; }
+  .b-sub { display:flex; align-items:center; justify-content:space-between; padding:2px 8px; }
+  .b-sub .timer { font-size:16px; }
+  .b-sub .btns { display:flex; gap:6px; }
+
+  /* 案C: 左上ミニパネル(バー廃止) */
+  .c-wrap { position:relative; height:72px; }
+  .c-panel { position:absolute; left:6px; top:6px; background:rgba(10,14,18,.82); border:1px solid rgba(255,255,255,.28); padding:4px 8px; font-size:11px; line-height:1.55; }
+  .c-panel .val { font-size:12px; }
+  .c-panel .coinG { margin-top:2px; width:84px; }
+  .c-timer { position:absolute; left:50%; transform:translateX(-50%); top:8px; font-size:16px; }
+  .c-btns { position:absolute; right:6px; top:6px; display:flex; gap:6px; }
+
+  /* 案D: 1行+ゲージ全幅ライン */
+  .d-bar { display:flex; align-items:center; justify-content:space-between; padding:3px 10px; height:24px; }
+  .d-bar .grp { display:flex; align-items:baseline; gap:4px; }
+  .d-bar .val { font-size:14px; }
+  .d-line { height:3px; background:#3a3324; }
+  .d-line i { display:block; height:100%; width:20%; background:#ffd23f; }
+  .d-sub { position:absolute; right:6px; top:34px; display:flex; gap:6px; }
+  .d-timer { position:absolute; left:8px; top:32px; font-size:16px; }
+</style>
+</head>
+<body>
+<h1>ヘッダーコンパクト化 4案(横390px想定)</h1>
+
+<div class="case">
+  <h2>案A: 1行オールインワン(高さ30px)</h2>
+  <div class="phone">
+    <div class="bar a-bar">
+      <span class="a-item"><span class="lbl">SCORE</span><span class="val">1430</span></span>
+      <span class="a-item"><span class="lbl">LV</span><span class="val">2</span></span>
+      <span class="a-coin">
+        <span class="top"><span class="lbl">コイン</span><span class="val">9/45</span></span>
+        <span class="coinG"><i></i></span>
+      </span>
+      <span class="timer">57.25</span>
+      <button class="btn">❚❚</button>
+      <button class="btn">≡</button>
+    </div>
+    <div class="sky"><div class="sun"></div></div>
+    <div class="ground"></div>
+  </div>
+  <p class="note">全部を1行に。タイマーと一時停止(❚❚)・メニュー(≡)もバー内に入るので、プレイエリア上の浮きUIが消える。弱点: 1行が少し混み合う。</p>
+</div>
+
+<div class="case">
+  <h2>案B: 2行圧縮(高さ計48px・現行の約半分)</h2>
+  <div class="phone">
+    <div class="bar">
+      <div class="b-top">
+        <span class="grp"><span class="lbl">SCORE</span><span class="val">1430</span></span>
+        <span class="grp"><span class="lbl">LV</span><span class="val">2</span></span>
+        <span class="grp"><span class="lbl">コイン</span><span class="val">9/45</span><span class="coinG" style="width:52px"><i></i></span></span>
+      </div>
+      <div class="b-sub">
+        <span class="timer">57.25</span>
+        <span class="btns"><button class="btn">再開</button><button class="btn">メニュー</button></span>
+      </div>
+    </div>
+    <div class="sky"><div class="sun"></div></div>
+    <div class="ground"></div>
+  </div>
+  <p class="note">今の構成のままラベルを小さく2行に圧縮。タイマーとボタンはバー2行目に収まり、背景帯がフルで見える。弱点: 案Aよりは背が高い。</p>
+</div>
+
+<div class="case">
+  <h2>案C: 左上ミニパネル(バー廃止・視界最大)</h2>
+  <div class="phone">
+    <div class="c-wrap">
+      <div class="sky" style="height:72px"><div class="sun" style="top:44px"></div>
+        <div class="c-panel">
+          <div><span class="lbl">SCORE</span> <span class="val">1430</span>　<span class="lbl">LV</span> <span class="val">2</span></div>
+          <div><span class="lbl">コイン</span> <span class="val">9/45</span><span class="coinG"><i></i></span></div>
+        </div>
+        <div class="c-timer timer">57.25</div>
+        <div class="c-btns"><button class="btn">❚❚</button><button class="btn">≡</button></div>
+      </div>
+    </div>
+    <div class="ground"></div>
+  </div>
+  <p class="note">全幅バーをやめ、左上の小さなパネルに集約。旅の背景が一番よく見える。弱点: パネルがフィールドに少し重なる(半透明)。</p>
+</div>
+
+<div class="case">
+  <h2>案D: 1行+コインゲージを全幅の細ライン(高さ27px)</h2>
+  <div class="phone" style="position:relative">
+    <div class="bar d-bar">
+      <span class="grp"><span class="lbl">SCORE</span><span class="val">1430</span></span>
+      <span class="grp"><span class="lbl">LV</span><span class="val">2</span></span>
+      <span class="grp"><span class="lbl">コイン</span><span class="val">9/45</span></span>
+    </div>
+    <div class="d-line"><i></i></div>
+    <div class="sky"><div class="sun"></div></div>
+    <div class="ground"></div>
+    <div class="d-timer timer">57.25</div>
+    <div class="d-sub"><button class="btn">再開</button><button class="btn">メニュー</button></div>
+  </div>
+  <p class="note">数値は1行、コインゲージはバー下端の全幅ライン(進み具合が一目で分かる)。タイマーとボタンは今まで通り帯の上に浮かせる。弱点: 浮きUIは残る。</p>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>実装コード準拠 武器・敵仕様一覧</title><style>
+:root{color-scheme:dark;--bg:#0c1115;--panel:#182127;--panel2:#10151b;--line:#354650;--text:#eef5f7;--muted:#b9c7cd;--gold:#ffd166;--cyan:#8fe3f5;--warn:#ffb4a0}
+*{box-sizing:border-box}
+body{margin:0;padding:28px;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans JP",sans-serif;background:linear-gradient(180deg,#0b1014,#152128);color:var(--text)}
+main{max-width:1560px;margin:auto}
+h1{margin:0 0 8px;font-size:28px}
+.lead{margin:0 0 14px;color:var(--muted);line-height:1.8}
+nav.toc{margin:0 0 10px;font-size:13px;line-height:2}
+nav.toc a{color:var(--cyan);text-decoration:none;margin-right:14px;border:1px solid var(--line);border-radius:6px;padding:3px 9px;background:var(--panel)}
+nav.toc a:hover{background:#22303a}
+section{margin-top:34px}
+h2{font-size:20px;margin:0 0 4px}
+.secnote{margin:0 0 12px;color:var(--muted);font-size:13px;line-height:1.7}
+.wrap{overflow:auto;border:1px solid var(--line);border-radius:12px;background:var(--panel)}
+table{width:100%;border-collapse:collapse;min-width:1150px}
+table.narrow{min-width:820px}
+th,td{padding:12px 13px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);vertical-align:top;line-height:1.65;font-size:13.5px}
+th{position:sticky;top:0;background:#23333b;z-index:2;text-align:left;white-space:nowrap}
+td:last-child,th:last-child{border-right:0} tr:last-child td{border-bottom:0}
+tbody tr:nth-child(even){background:rgba(255,255,255,.025)}
+.name{color:var(--gold);font-weight:800;white-space:nowrap;font-size:14px}
+.name small{display:block;color:var(--muted);font-weight:400;font-size:11px;margin-top:3px}
+.code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12.5px;color:#d7f5ff}
+.visual{width:238px;min-width:238px}
+.visual svg{width:222px;display:block;margin:auto}
+.cap{display:block;text-align:center;color:var(--muted);font-size:11px;margin-top:5px;line-height:1.5}
+.sw{display:inline-block;width:11px;height:11px;border-radius:3px;border:1px solid rgba(255,255,255,.35);vertical-align:-1px;margin-right:4px}
+.tag{display:inline-block;padding:1px 7px;border:1px solid var(--line);border-radius:5px;font-size:11px;color:var(--muted);margin-right:5px}
+.tag.warn{color:var(--warn);border-color:#6b4038}
+ul.flat{margin:6px 0 0;padding-left:18px}
+ul.flat li{margin:3px 0}
+.note{margin-top:14px;padding:14px 16px;border:1px solid var(--line);border-radius:10px;background:var(--panel2);color:#dfe9ed;line-height:1.75;font-size:13.5px}
+.note strong{color:var(--gold)}
+.bug{margin-top:14px;padding:16px 18px;border:1px solid #5c3a33;border-radius:10px;background:rgba(120,45,30,.10);line-height:1.8;font-size:13.5px}
+.bug h3{margin:0 0 8px;font-size:15px;color:var(--warn)}
+.bug ol{margin:0;padding-left:20px}
+.bug li{margin:6px 0}
+</style></head>
+<body><main>
+<h1>実装コード準拠 武器・敵仕様一覧</h1>
+<p class="lead">対象コード：<span class="code">ai_action_roguelike_fullscreen_zoom_long_laser.html</span>。数値はすべてHTML内のJavaScript実装から抽出。式で管理される値は式と、既定設定（攻撃力24・敵の体力80・敵の速さ2.1・相棒基礎威力16）での実値を併記します。F＝フレーム（約1/60秒）。図はコードの描画処理（canvas）の座標・色をそのままSVGに転写したものです。</p>
+<nav class="toc">
+<a href="#companion">相棒の基礎値・強化</a><a href="#weapons">相棒武器</a><a href="#player">プレイヤー攻撃・ガード</a><a href="#enemies">通常敵</a><a href="#bosses">ボス</a><a href="#progress">Wave進行・仲間</a>
+</nav>
+
+<section id="companion"><h2>相棒の基礎値と共通強化</h2>
+<p class="secnote">レベルアップ（必要コイン 30→45→75→120→180→270→375→480枚・敵1体につき2枚＋25%で3枚（期待値2.25枚）ドロップ・小判は1.5枚分）で14種からランダム3択（各選択肢にアイコン表示）。武器名の付く強化を選ぶと武器がその種類に切り替わります。内訳：プレイヤー系5＋相棒汎用4＋弓強化1＋武器強化4。</p>
+<div class="wrap"><table class="narrow">
+<thead><tr><th>項目</th><th>実装値</th></tr></thead>
+<tbody>
+<tr><td class="name">基礎ステータス</td><td class="code">HP 300（交戦していない間 +0.32/F 自然回復）／基礎威力 16／索敵射程 240／発射間隔 18F／弾速 8.2／本体半径 13。見た目は葉と茎の付いた桃。撃破されると 360F 後に復活。相棒本体は常時、敵弾を受け止める当たり判定を持つ（等倍ダメージ・ヒーローのガードとは無関係）。</td></tr>
+<tr><td class="name">武器別の索敵射程係数</td><td class="code">通常（弓矢）×1.5／ショットガン ×1.0／レーザー ×1.2／爆弾 ×0.55／蜂の巣（旧ミサイル）×1.45（いずれも 240×射程倍率 に乗算）。矢は移動距離を管理し、<strong>射程円ちょうどで落ちて消える</strong>（射程外へは飛ばない）</td></tr>
+<tr><td class="name">Lv5武器の固定と合体</td><td class="code"><strong>Lv5に達した武器は手持ちに固定</strong>され、別武器に切り替えてもサブ武器として自動で撃ち続ける（武器ごとに独自のクールダウンと索敵）。<strong>撃っている武器自身もLv5なら合体武器</strong>：サブ発射の代わりに弾へ他のLv5武器の特性が合流する——爆弾Lv5=弾が爆発（爆風82×射程倍率）／蜂Lv5=追尾（旋回0.055）／レーザーLv5=最大3体貫通／弓Lv5=威力×1.5・弾速×1.2／ショットガンLv5=±0.26radへ拡散コピー2本追加。レーザーは弾を持たないため、レーザーを構えている間は常にサブ発射方式</td></tr>
+<tr><td class="name">火力強化 <small>5段階</small></td><td class="code">威力 ×1.35／回（累積・全武器に影響）／弾サイズ倍率 [1.35, 1.8, 2.4, 3.2, 4.2]／判定・爆風倍率 [1.2, 1.5, 1.9, 2.5, 3.3]</td></tr>
+<tr><td class="name">連射強化 <small>5段階</small></td><td class="code">発射間隔 ×0.75／回（累積・下限3F・全武器対象）</td></tr>
+<tr><td class="name">弾数強化 <small>5段階</small></td><td class="code">同時弾数 = 1+[6, 14, 30, 60, 100] → 7/15/31/61/101発（上限220）</td></tr>
+<tr><td class="name">射程強化 <small>5段階</small></td><td class="code">索敵射程 240×[1.25, 1.6, 2.1, 2.8, 3.8]（最大912）。画面の破線円も拡大</td></tr>
+<tr><td class="name">弓強化 <small>旧称ショット強化・通常弾専用・5段階</small></td><td class="code">威力×(1+0.7×Lv)・弾速倍率 [1.8, 3, 5, 8, 12]・弾半径 5+2.4×Lv・矢の色は白 #ffffff 固定（Lvによる色変化は廃止）。<strong>Lv3から毒矢</strong>：命中した敵に毒を付与（300F=約5秒・30F毎に矢の威力×0.08（最低1）の継続ダメージ・緑のダメージ数字 #8fd14f・再ヒットで時間リフレッシュ。毒中の敵は体に緑の斑点が明滅。装甲兵の受け止め時も毒は付与される）。選ぶと武器が通常弾に切替。弾速倍率はコード上、通常弾のほか爆弾・ショットガン・ガード解放弾の弾速にも乗算される（レーザー・蜂の巣には影響なし）</td></tr>
+<tr><td class="name">近接強化 <small>5段階</small></td><td class="code">近接攻撃の威力 ×1.35／回・攻撃距離 ×1.2／回（基礎136 → Lv5 約338）</td></tr>
+<tr><td class="name">プレイヤー系強化</td><td class="code">最大体力+40／移動速度×1.15／体力60%回復／ダッシュ強化（速度×1.2・再使用×0.85・持続+2F を一括）</td></tr>
+</tbody></table></div>
+<div class="note"><strong>威力の伸び：</strong>全武器に効くのは<strong>火力強化（×1.35／回）のみ</strong>。レーザー（+45%/Lv）・ショットガン（+25%/Lv）・爆弾（+50%/Lv）・蜂の巣（+20%/Lv）の威力ボーナスは各武器の発射時に適用され、他の武器には影響しない（旧仕様の全武器乗算はインフレ抑制のため廃止）。</div>
+</section>
+
+<section id="weapons"><h2>相棒武器</h2>
+<div class="wrap"><table>
+<thead><tr><th>武器</th><th>コード描画準拠の図</th><th>威力</th><th>弾速・射程・間隔</th><th>挙動</th><th>強化による変化</th></tr></thead>
+<tbody>
+<tr>
+<td class="name">通常ショット<small>weaponMode: orb</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<circle cx="60" cy="70" r="52" fill="none" stroke="rgba(255,255,255,.28)" stroke-width="1.5" stroke-dasharray="8 8"/>
+<g transform="translate(60,70)"><ellipse cx="0" cy="22" rx="14" ry="5" fill="rgba(0,0,0,.25)"/><circle r="13" fill="#f2a0b5" stroke="#c96e87" stroke-width="3"/><rect x="-2" y="-19" width="4" height="6" fill="#7a5230"/><rect x="2" y="-22" width="8" height="5" fill="#4f8f52"/><circle cx="4" cy="-2" r="3" fill="#222"/></g>
+<g id="arrow-shot">
+<g transform="translate(112,70) scale(1.3)"><line x1="-11" y1="0" x2="7" y2="0" stroke="#b98a4e" stroke-width="2.2"/><path d="M-7 0 L-13.3 -4.8 L-10 0 Z M-7 0 L-13.3 4.8 L-10 0 Z" fill="#ffffff"/><path d="M14 0 L6.3 -3.1 L8.1 0 L6.3 3.1 Z" fill="#ffffff" stroke="rgba(90,50,10,.5)" stroke-width="1"/></g>
+<g transform="translate(168,70) scale(1.3)"><line x1="-11" y1="0" x2="7" y2="0" stroke="#b98a4e" stroke-width="2.2"/><path d="M-7 0 L-13.3 -4.8 L-10 0 Z M-7 0 L-13.3 4.8 L-10 0 Z" fill="#ffffff"/><path d="M14 0 L6.3 -3.1 L8.1 0 L6.3 3.1 Z" fill="#ffffff" stroke="rgba(90,50,10,.5)" stroke-width="1"/></g>
+<g transform="translate(124,49) scale(1.3)"><line x1="-11" y1="0" x2="7" y2="0" stroke="#b98a4e" stroke-width="2.2"/><path d="M-7 0 L-13.3 -4.8 L-10 0 Z M-7 0 L-13.3 4.8 L-10 0 Z" fill="#ffffff"/><path d="M14 0 L6.3 -3.1 L8.1 0 L6.3 3.1 Z" fill="#ffffff" stroke="rgba(90,50,10,.5)" stroke-width="1"/></g>
+<g transform="translate(180,49) scale(1.3)"><line x1="-11" y1="0" x2="7" y2="0" stroke="#b98a4e" stroke-width="2.2"/><path d="M-7 0 L-13.3 -4.8 L-10 0 Z M-7 0 L-13.3 4.8 L-10 0 Z" fill="#ffffff"/><path d="M14 0 L6.3 -3.1 L8.1 0 L6.3 3.1 Z" fill="#ffffff" stroke="rgba(90,50,10,.5)" stroke-width="1"/></g>
+<g transform="translate(124,91) scale(1.3)"><line x1="-11" y1="0" x2="7" y2="0" stroke="#b98a4e" stroke-width="2.2"/><path d="M-7 0 L-13.3 -4.8 L-10 0 Z M-7 0 L-13.3 4.8 L-10 0 Z" fill="#ffffff"/><path d="M14 0 L6.3 -3.1 L8.1 0 L6.3 3.1 Z" fill="#ffffff" stroke="rgba(90,50,10,.5)" stroke-width="1"/></g>
+<g transform="translate(180,91) scale(1.3)"><line x1="-11" y1="0" x2="7" y2="0" stroke="#b98a4e" stroke-width="2.2"/><path d="M-7 0 L-13.3 -4.8 L-10 0 Z M-7 0 L-13.3 4.8 L-10 0 Z" fill="#ffffff"/><path d="M14 0 L6.3 -3.1 L8.1 0 L6.3 3.1 Z" fill="#ffffff" stroke="rgba(90,50,10,.5)" stroke-width="1"/></g>
+</g>
+<text x="110" y="130" text-anchor="middle" fill="#b9c7cd" font-size="11">桃の相棒＋白い矢（矢尻・矢羽 #ffffff／シャフト #b98a4e）</text></svg><span class="cap">複数弾は同一角度のまま等間隔レーンで平行発射（広がらない）。各矢はごく緩いカーブを描いて飛ぶ</span></td>
+<td class="code">16 ×(1+0.7×ショットLv) ×火力倍率</td>
+<td class="code">初速 8.2×弾速倍率（毎F×0.975で減速・下限は初速の30%）／飛距離 = 索敵射程（射程円ちょうどで落ちる・寿命240Fは安全上限）／索敵 240×1.5×射程倍率（=360）／間隔 18F基準（連射強化で短縮・下限3F）</td>
+<td>敵が索敵円に入ると自動発射。複数弾は広がらず、進行方向と直角に並んだレーン（間隔＝弾直径+4）から平行に飛ぶ。各矢は±0.002〜0.004rad/F のごく緩い旋回（左右ランダム）でカーブを描き、<strong>飛ぶほど減速</strong>して<strong>射程距離ぶん飛ぶと土色の粒を散らして落ちる</strong>。壁に当たると消滅。弾半径 (5+弓Lv×2.4)×サイズ倍率、弾色は白 #ffffff 固定。見た目は弓矢：木色シャフト #b98a4e＋矢尻・矢羽（2段×上下4枚）・矢筈が白で、描画半径 = max(弾半径×1.5, 8)・全長は描画半径×約6.8・進行方向を向く。Lv1以上は矢尻が発光（半径 描画半径×(0.5+0.18×Lv)）し、Lv本数分の残光トレイル付き。当たり判定は見た目によらず弾半径の円のまま。</td>
+<td class="code">弓強化で威力+70%/Lv・弾速アップ・矢大型化。弾数強化で最大101発同時。</td>
+</tr>
+<tr>
+<td class="name">ショットガン<small>weaponMode: shotgun</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<g transform="translate(52,70)"><ellipse cx="0" cy="22" rx="14" ry="5" fill="rgba(0,0,0,.25)"/><circle r="13" fill="#f2a0b5" stroke="#c96e87" stroke-width="3"/><rect x="-2" y="-19" width="4" height="6" fill="#7a5230"/><rect x="2" y="-22" width="8" height="5" fill="#4f8f52"/><circle cx="4" cy="-2" r="3" fill="#222"/></g>
+<g fill="#ffd18b"><circle cx="100" cy="70" r="4"/><circle cx="132" cy="70" r="4"/><circle cx="164" cy="70" r="4"/><circle cx="196" cy="70" r="4"/><circle cx="97" cy="52" r="4"/><circle cx="126" cy="44" r="4"/><circle cx="155" cy="36" r="4"/><circle cx="184" cy="28" r="4"/><circle cx="97" cy="88" r="4"/><circle cx="126" cy="96" r="4"/><circle cx="155" cy="104" r="4"/><circle cx="184" cy="112" r="4"/><circle cx="112" cy="60" r="4"/><circle cx="146" cy="55" r="4"/><circle cx="180" cy="50" r="4"/><circle cx="112" cy="80" r="4"/><circle cx="146" cy="85" r="4"/><circle cx="180" cy="90" r="4"/></g>
+<text x="110" y="130" text-anchor="middle" fill="#b9c7cd" font-size="11">小粒の橙弾 #ffd18b を扇状に一斉発射</text></svg></td>
+<td class="code">現在威力 ×[0.6, 0.85, 1.1, 1.35, 1.6]（Lv1〜5）/粒</td>
+<td class="code">弾速 7.4×倍速倍率／弾寿命 = 索敵射程÷弾速（切り捨て・全弾が破線の射程円内で消滅）／索敵 240×射程倍率</td>
+<td>弾数 = max(3, 同時弾数)。拡散角 [0.34, 0.52, 0.72, 0.92, 1.15]rad ×(弾数−1)。貫通なし。</td>
+<td class="code">強化で弾数 [9, 18, 36, 72, 120]・威力 +25%/Lv（ショットガンのみ）</td>
+</tr>
+<tr>
+<td class="name">レーザー<small>weaponMode: laser</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<path d="M40 70H208" stroke="#187bff" stroke-width="28" opacity=".20" stroke-linecap="round"/>
+<path d="M40 70H208" stroke="#23c9ff" stroke-width="17" opacity=".45" stroke-linecap="round"/>
+<path d="M40 70H208" stroke="#9ff7ff" stroke-width="8" stroke-linecap="round"/>
+<path d="M40 70H208" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+<g><circle cx="64" cy="66" r="2.4" fill="#ffffff"/><circle cx="88" cy="74" r="2.4" fill="#6ee7ff"/><circle cx="112" cy="65" r="2.4" fill="#ffffff"/><circle cx="136" cy="75" r="2.4" fill="#6ee7ff"/><circle cx="160" cy="66" r="2.4" fill="#ffffff"/><circle cx="184" cy="73" r="2.4" fill="#6ee7ff"/></g>
+<circle cx="40" cy="70" r="14" fill="rgba(120,230,255,.55)"/><circle cx="40" cy="70" r="7" fill="#fff"/>
+<circle cx="208" cy="70" r="18" fill="rgba(100,240,255,.4)"/><circle cx="208" cy="70" r="9" fill="#fff"/>
+<text x="110" y="130" text-anchor="middle" fill="#b9c7cd" font-size="11">4層ビーム＋白い中心線＋両端の発光</text></svg><span class="cap">色は外側から #187bff / #23c9ff / #9ff7ff / #fff</span></td>
+<td class="code">現在威力 ×3 ×(1+0.45×(Lv−1))<br>最大99体貫通</td>
+<td class="code">射程 240×射程倍率×1.2×距離倍率（基礎288）<br>距離倍率 Lv1:1 → [5, 10, 18, 30]<br>間隔 max(24F, 基準×2.2)</td>
+<td>射線上を即着弾で貫通。判定幅は片側 (20+レーザー幅)×サイズ倍率。表示は24F以上残留。命中した敵をノックバックし、命中ごとに水色のダメージ数字とスパーク（6粒）を表示。発射時に画面シェイク（強さ6）。<strong>装甲火炎敵に当たるとビームがそこで止まり</strong>、その先へは貫通しないが、堰き止めた装甲敵自身には<strong>レーザー威力の1/5</strong>のダメージが通る（灰色のダメージ数字 #9fb3c8）。</td>
+<td class="code">強化で幅 +[2, 4, 7, 11, 16]（累積）・威力 +45%/Lv（レーザーのみ）</td>
+</tr>
+<tr>
+<td class="name">爆弾<small>weaponMode: bomb</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<defs><radialGradient id="iron" cx="38%" cy="34%" r="80%"><stop offset="0%" stop-color="#777"/><stop offset="32%" stop-color="#292929"/><stop offset="100%" stop-color="#050505"/></radialGradient></defs>
+<path d="M18 112Q42 62 66 112Q86 74 106 112Q122 84 138 112" fill="none" stroke="#e8bd7a" stroke-width="2.5" stroke-dasharray="5 5"/>
+<ellipse cx="66" cy="114" rx="14" ry="4" fill="rgba(0,0,0,.35)"/><ellipse cx="106" cy="114" rx="12" ry="3.5" fill="rgba(0,0,0,.35)"/>
+<g transform="translate(160,86)"><ellipse cx="0" cy="26" rx="20" ry="6" fill="rgba(0,0,0,.35)"/><circle r="17" fill="url(#iron)" stroke="#9a9a9a" stroke-width="2"/><rect x="-5" y="-24" width="10" height="8" fill="#666"/><path d="M0 -24Q10 -37 18 -28" fill="none" stroke="#d3a04b" stroke-width="4"/><circle cx="19" cy="-29" r="5" fill="#fff58a"/><path d="M19 -29L27 -33M19 -29L27 -25M19 -29L19 -38" stroke="#ff731e" stroke-width="2"/></g>
+<circle cx="160" cy="86" r="34" fill="none" stroke="rgba(255,90,36,.5)" stroke-width="2" stroke-dasharray="4 5"/>
+<text x="110" y="132" text-anchor="middle" fill="#b9c7cd" font-size="11">黒い鉄球爆弾。跳ねながら進み最後に爆発</text></svg><span class="cap">導火線と点滅する火花付き。放物線投擲ではなくバウンド式</span></td>
+<td class="code">現在威力 ×(1+0.5×(Lv−1))（爆風中心100%〜縁45%に距離減衰）</td>
+<td class="code">弾速 5.8×倍速倍率／寿命 38F／索敵 240×0.55×射程倍率（=132・短射程）</td>
+<td>16Fごとに跳ねて減速（×0.78）、最大4バウンドで爆発。壁では反射（×−0.72、バウンド消費）。<strong>本体は敵に接触ダメージを与えず、敵に当たっても消えない（時限＝寿命で必ず爆発、ダメージは爆風のみ）。敵に当たるとすり抜けず跳ね返り（速度×−0.55）、減速して手前で止まる</strong>。爆風半径 82×爆風倍率×判定倍率。<strong>爆風には持続当たり判定</strong>：起爆時に圏内の敵へ即ダメージした後も、爆風円が30Fかけて爆風半径×1.65まで拡大し、後から触れた敵にも1爆発につき1回ダメージ（縁減衰・下限20%）。<strong>装甲火炎敵にも爆風ダメージは通る</strong>（吹き飛びは通常より大きい）。</td>
+<td class="code">爆風倍率 Lv1:1 → [2, 4, 7, 12]・威力 +50%/Lv（爆弾のみ）</td>
+</tr>
+<tr>
+<td class="name">蜂の巣<small>weaponMode: missile（旧ミサイル・内部名は据え置き）</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<path d="M42 96Q66 36 118 66Q142 78 160 54" fill="none" stroke="rgba(255,207,90,.4)" stroke-width="2" stroke-dasharray="6 5"/>
+<path d="M42 96Q64 128 112 108Q146 94 162 62" fill="none" stroke="rgba(255,207,90,.4)" stroke-width="2" stroke-dasharray="6 5"/>
+<g transform="translate(118,66) rotate(-22)"><ellipse cx="-1" cy="-6" rx="6.5" ry="3" fill="rgba(255,255,255,.7)" transform="rotate(-30 -1 -6)"/><ellipse cx="-1" cy="6" rx="6.5" ry="3" fill="rgba(255,255,255,.7)" transform="rotate(30 -1 6)"/><line x1="-9.5" y1="0" x2="-14" y2="0" stroke="#3a2a12" stroke-width="2"/><ellipse rx="10" ry="6" fill="#ffd23f"/><rect x="-7" y="-6" width="2.4" height="12" fill="#3a2a12"/><rect x="-2" y="-6" width="2.4" height="12" fill="#3a2a12"/><rect x="3" y="-6" width="2.4" height="12" fill="#3a2a12"/><circle cx="10" cy="0" r="3.4" fill="#3a2a12"/><circle cx="11" cy="-1" r="1" fill="#fff"/></g>
+<g transform="translate(112,108) rotate(10)"><ellipse cx="-1" cy="-6" rx="6.5" ry="3" fill="rgba(255,255,255,.7)" transform="rotate(-30 -1 -6)"/><ellipse cx="-1" cy="6" rx="6.5" ry="3" fill="rgba(255,255,255,.7)" transform="rotate(30 -1 6)"/><line x1="-9.5" y1="0" x2="-14" y2="0" stroke="#3a2a12" stroke-width="2"/><ellipse rx="10" ry="6" fill="#ffd23f"/><rect x="-7" y="-6" width="2.4" height="12" fill="#3a2a12"/><rect x="-2" y="-6" width="2.4" height="12" fill="#3a2a12"/><rect x="3" y="-6" width="2.4" height="12" fill="#3a2a12"/><circle cx="10" cy="0" r="3.4" fill="#3a2a12"/><circle cx="11" cy="-1" r="1" fill="#fff"/></g>
+<g transform="translate(40,96)"><circle r="11" fill="#f2a0b5" stroke="#c96e87" stroke-width="3"/><rect x="-2" y="-16" width="3" height="5" fill="#7a5230"/><rect x="1" y="-19" width="7" height="4" fill="#4f8f52"/><circle cx="3" cy="-2" r="2.5" fill="#222"/></g>
+<g><circle cx="172" cy="46" r="20" fill="none" stroke="rgba(255,90,65,.95)" stroke-width="2" stroke-dasharray="6 4"/>
+<path d="M145 46H157M187 46H199M172 19V31M172 61V73" stroke="rgba(255,90,65,.95)" stroke-width="2"/>
+<text x="172" y="14" text-anchor="middle" fill="rgba(255,110,75,.9)" font-size="10" font-weight="bold">LOCK 1</text></g>
+<text x="110" y="132" text-anchor="middle" fill="#b9c7cd" font-size="11">ハチ：縞の胴体 #ffd23f/#3a2a12＋羽ばたく白い羽＋針</text></svg><span class="cap">赤い破線円がロック表示。左右へ振り分けて発射後、弧を描いてロック対象へ追尾する</span></td>
+<td class="code">現在威力 ×[1, 1.2, 1.4, 1.6, 1.8]（Lv1〜5・直撃）＋爆風 82×1.44×判定倍率（≒118）。1ロックあたりの発射数 = Lv（Lv1:1発 → Lv5:5発）</td>
+<td class="code">初速 5.4×(0.78+側方偏差×0.04)／寿命 220F／索敵 240×1.45×射程倍率（=348・長射程）</td>
+<td>近い敵から順にロック。1体につき複数匹を左右へ振り分けて発射（発射角 = 直線±0.72rad前後）し、旋回率 0.055rad/F でロック対象を追尾。対象消滅時は最寄りの敵へ再ロック。寿命切れ地点で自爆。見た目はハチ（縞の胴体・羽ばたく羽・針・進行方向を向く）で、挙動は旧ミサイルと同一。</td>
+<td class="code">ロック数 [1, 2, 4, 7, 12]体／1体あたり [2, 2, 3, 4, 5]発</td>
+</tr>
+<tr>
+<td class="name">ガード・吸収弾放出<small>Space長押し→離す</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<g transform="translate(74,70)">
+<circle r="40" fill="rgba(95,205,255,.20)"/>
+<circle r="40" fill="none" stroke="rgba(205,242,255,.95)" stroke-width="4"/>
+<circle r="31.5" fill="none" stroke="rgba(120,220,255,.8)" stroke-width="2.5" stroke-dasharray="8 6"/>
+<path d="M22 0L37 0M-22 0L-37 0M0 22L0 37M0 -22L0 -37M15.6 15.6L26.2 26.2M-15.6 -15.6L-26.2 -26.2M15.6 -15.6L26.2 -26.2M-15.6 15.6L-26.2 26.2" stroke="rgba(235,250,255,.7)" stroke-width="2"/>
+<circle r="10" fill="rgba(255,255,255,.75)"/>
+</g>
+<g fill="#bfeeff"><circle cx="150" cy="34" r="5"/><circle cx="170" cy="58" r="5"/><circle cx="178" cy="88" r="5"/><circle cx="162" cy="114" r="5"/><circle cx="136" cy="122" r="5"/><circle cx="150" cy="14" r="3.4" opacity=".6"/><circle cx="186" cy="50" r="3.4" opacity=".6"/><circle cx="198" cy="90" r="3.4" opacity=".6"/><circle cx="176" cy="124" r="3.4" opacity=".6"/></g>
+<text x="110" y="135" text-anchor="middle" fill="#b9c7cd" font-size="11">水色の防壁と全方位への吸収弾 #bfeeff</text></svg></td>
+<td class="code">1発 = 蓄積エネルギー ÷ 弾数 ×1.15（最低6）</td>
+<td class="code">弾速 7.5×倍速倍率／寿命 70F／弾数 = 蓄積被弾数×2（8〜72発・全方位）</td>
+<td>ガード中はプレイヤー完全無敵。敵弾は相棒が1/3ダメージで受け、元ダメージ量をエネルギーとして蓄積。相棒HP0でガードブレイク（蓄積消滅・360F復活待ち）。</td>
+<td>強化対象外。<span class="tag warn">制限</span>炎（装甲火炎敵の弾）はダメージ軽減のみで蓄積不可。</td>
+</tr>
+</tbody></table></div>
+</section>
+
+<section id="player"><h2>プレイヤー攻撃・ガード</h2>
+<div class="wrap"><table class="narrow">
+<thead><tr><th>操作</th><th>実装値</th><th>備考</th></tr></thead>
+<tbody>
+<tr><td class="name">自動近接</td><td class="code">威力 = 攻撃力設定（既定24）×近接強化／射程 136×近接強化（Lv5 約338）／前方判定 内積≥0.38（約±67°）／ノックバック 13</td><td>操作不要で26F周期、向いている方向へ自動発動。白い刀の斬撃エフェクト付き。敵弾は近接では斬り消せない（弾への対処はガード/ジャストガードの役割）。ヒット時は揺れ＋斬撃音（空振りは風切り音。ヒットストップは連続斬りのカクつき防止のため廃止）。連続ヒットで<strong>三段斬り</strong>：1段目は白の円弧スイープ、2段目は前方を横一文字に薙ぐ先細りの刃（明色塗り#eafcff＋濃色縁#1e7f9e）、3段目は威力2倍・範囲1.3倍の<strong>三日月二閃のクロス斬り</strong>（明色塗り#fff0e8＋濃色縁#a03414）。斬撃は6pxドット格子の粗いバッファに描画してファミコン調に拡大（画面全体は3pxドット化）。近接で倒した敵は左右に両断されて飛び散る。</td></tr>
+<tr><td class="name">飛び道具（Q）</td><td class="code">威力 18／弾速 7（向いている方向へ水平）／弾半径 6／寿命 100F</td><td>弾色 <span class="sw" style="background:#bfe8ff"></span>#bfe8ff。</td></tr>
+<tr><td class="name">チュートリアル</td><td class="code">ページ読み込み後の初回ゲーム開始時のみ、「バトルのきほん」モーダル（ジャストガード／ジャスト回避／はねかえし の3枚組・SVG図解付き）を表示。閉じるまでゲームは一時停止。タイトルBGMは読み込み直後とマウス移動時に自動再生を試行（ブラウザが許可する環境では無操作で鳴る）。許可されない環境向けに「音がならないときはキーを押して」のヒントを表示。</td><td>「はじめる!」ボタンのほか、任意のキー/クリックでも閉じる。全体描画はWORLD_ZOOM=1.25倍（キャラ・敵・オブジェクト・canvas文字が1.25倍で表示され、論理フィールドはその分狭くなる）。HUD文字も約1.25倍。</td></tr>
+<tr><td class="name">ダッシュ（Shift / C / 同方向キー2連打）</td><td class="code">速度 16（縦は×0.72）／持続 10F／CD 70F。<strong>無敵なし・ダッシュ中の被ダメージは全て半減</strong>。2連打判定は1350ms以内・キーリピート除外、連打した方向へ発動。入力は30F(0.5秒)バッファされ、CD中に押してもCDが明けた瞬間に自動発動（Shift/Cも同様）</td><td>川を飛び越えられる。強化で速度・持続・CD改善。<strong>ダッシュアタック</strong>：ダッシュ中に触れた敵（距離72内）へ<strong>近接威力の半分</strong>のダメージ。1ダッシュにつき各敵1回・同一敵へは30F間隔（連続ダッシュの多段ヒット不可）。敵に当たるたびダッシュの勢いが×0.72に減衰し、群れに突っ込むほど移動距離が短くなる。ボス以外は大きく吹き飛び、キルは近接キル扱い（小判ドロップ・両断）。<strong>ジャスト回避</strong>：ダッシュ中に敵弾をかすめる（距離24〜38）かイヌ突進の際（距離70〜82）を抜けると、スローモ約0.37秒＋ダッシュCD即回復＋JUST!表示（連続発動は18F間隔）。</td></tr>
+<tr><td class="name">ガード（Space長押し）</td><td class="code"><strong>ヒーロー自身が半径84の円で防御</strong>（桃は関与せず、ガード中も通常攻撃を継続）。円に入った敵弾はチップダメージ1/3をヒーローが受けつつ吸収・蓄積し、離すと蓄積エネルギーの全方位バーストをヒーロー位置から放出（炎はチップのみで蓄積不可）。<strong>JGを決めた展開の後は即再ガード可（連続JGが途切れない）。スカった（JG不成立のまま解除した）場合は8Fの再展開ロック</strong>＝連打の合間に短い無防備が生まれる。<strong>ジャストガード</strong>：展開直後20F（約0.33秒）以内にガード円で弾・イヌ突進（受付距離160）を受けると成立（連打でもそこそこ決まる甘め設定）。弾は金色の反射弾（威力1.5倍）として最寄りの敵へ<strong>弾き返し</strong>、イヌ突進は<strong>90Fの仰け反り（体幹崩し）</strong>。報酬は近接攻撃力（自動近接・三段斬り・ダッシュアタック）<strong>2倍</strong>（初回300F・チェイン中は+120F/回延長）。成立時は仁王立ち（ノックバック無効・無敵20F）。<strong>1回のガード展開につきJGは1発のみ・固定クールダウンなし</strong>——押し直せば即座に次のJGを狙えるため、連続する弾も1発ずつリズムで弾ける（他の弾は通常のチップ付き吸収）。<strong>連続JGチェイン</strong>：5秒以内の連続成立で×N表示・金属音の音程上昇、×3以上で金色の衝撃波（半径240ノックバック）、<strong>5連続ごとに最大HPの8%回復</strong>。<strong>ガードをスカる（展開中にJG不成立のまま解除）とチェインは0に戻る</strong>。成立演出：軽いフラッシュ＋小さな白リング＋32pxの大表示＋キンッキンッ音のみ（ヒットストップ・スローモ・シェイクは操作リズムを崩すため無し）。</td><td>ガード開始時、半径115内の敵を押し返す。</td></tr>
+</tbody></table></div>
+<div class="note"><strong>プレイヤー基礎値：</strong>HP 360。被弾後は短時間無敵。Waveクリア（ボス処理後）で最大HPの25%回復。</div>
+</section>
+
+<section id="enemies"><h2>通常敵</h2>
+<p class="secnote">1Waveに通常敵 80+30×(Wave−1)体（上限300）が<strong>Wave開始時に全数一括で出現</strong>（バッチ分割の繰り返し湧きは廃止）。撃破ごとにスコア（25×コンボ倍率）と和同開珎風の銅銭（近接キルは1.5枚分の金の小判）を落とす。図は実装のドット絵描画（胴26×32・頭20×18・目・腕・脚・頭上HPバー）を転写。全ての敵は直進が木・川に塞がれると左右に角度をずらして通れる方向へ迂回し、橋も使ってプレイヤーへ回り込む（回避方向は記憶して振動を防止）。Wave2以降は自爆ボマー（約10%）、Wave6（ステージ2＝最初のボス撃破後）以降は分裂ネズミ（4%→+1.5%/Waveで最大10%）・スナイパー（3%→+1.5%/Waveで最大9%）が低い率から漸増して混ざる（ステージ2開幕の難易度スパイク防止）。体型は全て共通のドット絵で、色で見分ける。</p>
+<div class="wrap"><table>
+<thead><tr><th>敵</th><th>コード描画準拠の図</th><th>HP</th><th>移動</th><th>攻撃</th><th>特性</th></tr></thead>
+<tbody>
+<tr>
+<td class="name">通常敵（歩行）<small>色は設定値（既定 #ef5b5b）</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<g fill="#ff9b8e"><circle cx="34" cy="56" r="5"/><path d="M44 54L62 50M44 60L62 62" stroke="#ff9b8e" stroke-width="1.6" opacity=".55" fill="none"/></g>
+<g transform="translate(124,106) scale(1.42)">
+<ellipse cx="0" cy="2" rx="25" ry="8.7" fill="rgba(0,0,0,.28)"/>
+<rect x="-20" y="-70" width="40" height="5" fill="rgba(0,0,0,.6)"/><rect x="-20" y="-70" width="31" height="5" fill="#ffcc58"/>
+<rect x="-13" y="-43" width="26" height="32" fill="#ef5b5b"/>
+<rect x="-10" y="-57" width="20" height="18" fill="#ef5b5b"/>
+<rect x="-6" y="-52" width="4" height="4" fill="#202020"/>
+<rect x="-11" y="-10" width="8" height="12" fill="#202020"/><rect x="3" y="-10" width="8" height="12" fill="#202020"/>
+<rect x="-17" y="-40" width="5" height="22" fill="#ffe6e6"/><rect x="12" y="-40" width="5" height="22" fill="#ffe6e6"/>
+</g>
+<text x="110" y="134" text-anchor="middle" fill="#b9c7cd" font-size="11">角型の体＋頭上HPバー</text></svg><span class="cap">左は偏差射撃の弾 #ff9b8e</span></td>
+<td class="code">設定80 ×2/3×4/5×1/2 ×(1+(Wave−1)×0.2) ×0.82〜1.10<br>Wave1: 17〜23／Wave4: 28〜38</td>
+<td class="code">設定2.1 ×1.12×難易度係数（縦は×0.66）<br>Wave1: 0.59 → Wave4以降: 2.35<br>距離52まで接近</td>
+<td>近接：距離70×範囲係数内で18〜44F毎に72%の確率、威力13×攻撃係数・ノックバック7。<br>射撃：距離80〜250×範囲係数で偏差射撃。威力10×攻撃係数、弾速7.2×弾速係数（Wave1: 2.2 → Wave4+: 8.7）、CD 46〜66F。</td>
+<td>難易度係数 = 0.25+0.75×min(1,(Wave−1)/3)。木・川は迂回し、橋を通ってプレイヤーに接近する。敵弾は寿命が尽きる直前の16Fでフェードアウトして消える（唐突な消滅に見えないように。爆発弾は爆発で終わるため対象外。フェード中も当たり判定は残る）。</td>
+</tr>
+<tr>
+<td class="name">通常敵（飛行）<small>出現率 min(45%, 18%+Wave×2.5%)・専用色 #7fd0ff</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<g fill="#ffd68f"><circle cx="30" cy="62" r="5"/><circle cx="42" cy="48" r="5"/><circle cx="42" cy="76" r="5"/></g>
+<g transform="translate(124,108) scale(1.36)">
+<ellipse cx="0" cy="6" rx="21" ry="7" fill="rgba(0,0,0,.18)"/>
+<rect x="-20" y="-80" width="40" height="5" fill="rgba(0,0,0,.6)"/><rect x="-20" y="-80" width="33" height="5" fill="#ffcc58"/>
+<rect x="-25" y="-42" width="12" height="8" fill="rgba(255,255,255,.7)"/><rect x="13" y="-42" width="12" height="8" fill="rgba(255,255,255,.7)"/>
+<g transform="translate(0,-10)">
+<rect x="-13" y="-43" width="26" height="32" fill="#7fd0ff"/>
+<rect x="-10" y="-57" width="20" height="18" fill="#7fd0ff"/>
+<rect x="-6" y="-52" width="4" height="4" fill="#202020"/>
+<rect x="-11" y="-10" width="8" height="12" fill="#202020"/><rect x="3" y="-10" width="8" height="12" fill="#202020"/>
+<rect x="-17" y="-40" width="5" height="22" fill="#ffe6e6"/><rect x="12" y="-40" width="5" height="22" fill="#ffe6e6"/>
+</g></g>
+<text x="110" y="134" text-anchor="middle" fill="#b9c7cd" font-size="11">水色 #7fd0ff＋白い羽根</text></svg><span class="cap">浮遊して描画。左は3発の散弾 #ffd68f</span></td>
+<td class="code">歩行と同式</td>
+<td class="code">歩行の<strong>2倍速</strong> ×飛行速度係数（Wave毎+8%・最大2倍）。HPは歩行雑魚の<strong>2/3</strong>。上下にゆらゆら揺れながら飛行（振幅約22px・周期約1秒、停止中も揺れ続ける）。距離115まで接近。<strong>川を無視</strong>、木は迂回</td>
+<td>射撃：距離105〜280×範囲係数で、プレイヤーへ向けて<strong>3発の散弾</strong>（±0.45radの広拡散）。威力6×攻撃係数／発、弾速2.1（低速・弾半径7.5の大玉）、寿命180F（到達距離約378を維持）、CD 70〜115F。近接も歩行と同様。</td>
+<td>専用色 <span class="sw" style="background:#7fd0ff"></span>#7fd0ff（歩行敵の設定色とは独立）。体が10px浮いて描画され、両脇に白い羽根が付く。</td>
+</tr>
+<tr>
+<td class="name">装甲火炎敵<small>出現率 14%・歩行固定</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<g><circle cx="52" cy="60" r="9" fill="#ff7a2f" opacity=".85"/><circle cx="58" cy="62" r="5.5" fill="#ffd36a" opacity=".5"/><circle cx="34" cy="46" r="8" fill="#ff7a2f" opacity=".7"/><circle cx="30" cy="76" r="7.5" fill="#ff7a2f" opacity=".7"/><circle cx="14" cy="60" r="6.5" fill="#ff7a2f" opacity=".5"/></g>
+<circle cx="66" cy="104" r="4" fill="#9fb3c8" opacity=".8"/><circle cx="74" cy="110" r="2.8" fill="#9fb3c8" opacity=".5"/>
+<g transform="translate(136,106) scale(1.42)">
+<ellipse cx="0" cy="2" rx="25" ry="8.7" fill="rgba(0,0,0,.28)"/>
+<rect x="-20" y="-70" width="40" height="5" fill="rgba(0,0,0,.6)"/><rect x="-20" y="-70" width="36" height="5" fill="#ffcc58"/>
+<rect x="-13" y="-43" width="26" height="32" fill="#5f6f7e"/>
+<rect x="-10" y="-57" width="20" height="18" fill="#5f6f7e"/>
+<rect x="-6" y="-52" width="4" height="4" fill="#202020"/>
+<rect x="-11" y="-10" width="8" height="12" fill="#202020"/><rect x="3" y="-10" width="8" height="12" fill="#202020"/>
+<rect x="-17" y="-40" width="5" height="22" fill="#ffe6e6"/><rect x="12" y="-40" width="5" height="22" fill="#ffe6e6"/>
+</g>
+<g transform="translate(193,44)">
+<path d="M-11 4 L11 -4" stroke="#f4efe2" stroke-width="4"/>
+<circle cx="-12" cy="1" r="3.4" fill="#f4efe2"/><circle cx="-10" cy="7" r="3.4" fill="#f4efe2"/><circle cx="12" cy="-7" r="3.4" fill="#f4efe2"/><circle cx="10" cy="-1" r="3.4" fill="#f4efe2"/>
+<ellipse cx="0" cy="0" rx="9.5" ry="8" transform="rotate(-23)" fill="#c9563d" stroke="#8a3325" stroke-width="2"/>
+<ellipse cx="-2.5" cy="-2.5" rx="3.2" ry="2.2" transform="rotate(-23 -2.5 -2.5)" fill="rgba(255,255,255,.35)"/>
+</g>
+<text x="110" y="134" text-anchor="middle" fill="#b9c7cd" font-size="11">灰青色 #5f6f7e</text></svg><span class="cap">左上は火炎弾 #ff7a2f、左下は無効化された弾の粒、右上はドロップする骨付き肉</span></td>
+<td class="code">歩行敵と同式 ×1.55<br>Wave1: 26〜36</td>
+<td class="code">歩行の半分（×0.5）</td>
+<td>火炎放射：40Fのバースト中、10Fごとに1方向（狙い角＋ばらつき±0.025rad）へ火炎弾を一列で計4発放つ（1発ずつジャストガードで取れる間隔）。威力5×攻撃係数／弾、弾速3.2×弾速係数、弾半径7〜10、寿命162F（旧108Fの1.5倍＝到達距離1.5倍）。バースト後144〜234F休止（初回のみ72〜107F）。弾色 <span class="sw" style="background:#ff7a2f"></span>#ff7a2f。</td>
+<td><strong>弾の直撃とレーザーを受け止める</strong>（弾は貫通せず灰色の粒 <span class="sw" style="background:#9fb3c8"></span>#9fb3c8 になって消え、レーザーはビームごと堰き止める）が、受け止めた攻撃の<strong>威力の1/5</strong>はダメージとして通る（灰色のダメージ数字）。爆弾本体は当たっても消えない。<strong>近接ダメージは有効。爆風はフルダメージが通り、通常より大きく吹っ飛ぶ</strong>（爆風無効は廃止）。炎はガードで蓄積不可。<strong>撃破時、通常のコインに加えて1/10の確率で骨付き肉 <span class="sw" style="background:#c9563d"></span>#c9563d をドロップ</strong>：拾う（距離46内）と<strong>最大HPの半分を回復</strong>（上限は最大HP・+N HP表示）。落下後40Fはその場に留まり、吸引はされず、600F（約10秒）で消滅。</td>
+</tr>
+<tr>
+<td class="name">自爆ボマー<small>Wave2〜・出現率 約10%</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<circle cx="60" cy="80" r="34" fill="none" stroke="rgba(255,90,36,.55)" stroke-width="2" stroke-dasharray="5 5"/>
+<g transform="translate(124,106) scale(1.42)">
+<ellipse cx="0" cy="2" rx="25" ry="8.7" fill="rgba(0,0,0,.28)"/>
+<rect x="-20" y="-70" width="40" height="5" fill="rgba(0,0,0,.6)"/><rect x="-20" y="-70" width="24" height="5" fill="#ffcc58"/>
+<rect x="-13" y="-43" width="26" height="32" fill="#f08c2e"/>
+<rect x="-10" y="-57" width="20" height="18" fill="#ffd23f"/>
+<rect x="-6" y="-52" width="4" height="4" fill="#202020"/>
+<rect x="-11" y="-10" width="8" height="12" fill="#202020"/><rect x="3" y="-10" width="8" height="12" fill="#202020"/>
+<rect x="-17" y="-40" width="5" height="22" fill="#ffe6e6"/><rect x="12" y="-40" width="5" height="22" fill="#ffe6e6"/>
+</g>
+<text x="110" y="134" text-anchor="middle" fill="#b9c7cd" font-size="11">橙 #f08c2e ⇔ 黄 #ffd23f で点滅</text></svg><span class="cap">左は自爆の爆風範囲(半径95)のイメージ</span></td>
+<td class="code">歩行と同式 ×0.6</td>
+<td class="code">歩行の ×1.7 で突進接近</td>
+<td>距離55まで近づくと自爆：爆風半径95・威力26×攻撃係数（縁で50%減衰）・被弾後無敵40F。<strong>撃破された時も爆発する</strong>。爆風には持続当たり判定（22Fかけて半径×1.4まで拡大・後から触れても1回ダメージ）。射撃なし。<strong>川はジャンプで跳び越える</strong>：進路30px先が川で塞がれると、プレイヤー方向へ60〜250pxの着地可能点を探して弧を描いて跳ぶ（滞空中は影が地面に残り本体が最大34px浮く・跳躍中は他の行動をしない・再ジャンプまで45F）。</td>
+<td>自爆でも撃破扱い（スコア+25・撃破数に加算）。体型は通常敵と共通で色の点滅が目印。川の対岸に逃げても追ってくる。</td>
+</tr>
+<tr>
+<td class="name">スナイパー<small>Wave6（ステージ2）〜・出現率 3%から+1.5%/Waveで最大9%</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<path d="M20 66L104 74" stroke="rgba(255,80,80,.8)" stroke-width="2" stroke-dasharray="8 6"/>
+<g transform="translate(124,106) scale(1.42)">
+<ellipse cx="0" cy="2" rx="25" ry="8.7" fill="rgba(0,0,0,.28)"/>
+<rect x="-20" y="-70" width="40" height="5" fill="rgba(0,0,0,.6)"/><rect x="-20" y="-70" width="28" height="5" fill="#ffcc58"/>
+<rect x="-13" y="-43" width="26" height="32" fill="#d76bd0"/>
+<rect x="-10" y="-57" width="20" height="18" fill="#d76bd0"/>
+<rect x="-6" y="-52" width="4" height="4" fill="#202020"/>
+<rect x="-11" y="-10" width="8" height="12" fill="#202020"/><rect x="3" y="-10" width="8" height="12" fill="#202020"/>
+<rect x="-17" y="-40" width="5" height="22" fill="#ffe6e6"/><rect x="12" y="-40" width="5" height="22" fill="#ffe6e6"/>
+</g>
+<text x="110" y="134" text-anchor="middle" fill="#b9c7cd" font-size="11">マゼンタ #d76bd0。左は照準線</text></svg><span class="cap">照準線は紫のレーザーサイト（外側のにじみ＋破線コア）。残り20Fで実線＋白コア＋銃口発光に変化</span></td>
+<td class="code">歩行と同式 ×0.7</td>
+<td class="code">距離420で停止。照準中は移動しない</td>
+<td>距離650内で60Fの照準線（紫 #ff5fd7系・外側にじみ幅7〜10＋破線コア。残り20Fで実線化＋白い中心線＋銃口が発光拡大）を表示した後、高速弾を1発（弾速15・威力18×攻撃係数・弾半径8）。弾は<strong>木・岩を貫通</strong>（piercesTerrain）し、長い尾を引く発光弾（マゼンタ #ff5fd7＋白コア）として描画。再照準まで170〜230F。通常射撃なし。</td>
+<td>照準線が回避の合図。地形の陰に隠れても狙撃は防げない。立ち止まっていると被弾しやすい。</td>
+</tr>
+<tr>
+<td class="name">分裂ネズミ<small>Wave6（ステージ2）〜・出現率 4%から+1.5%/Waveで最大10%</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<g transform="translate(100,102) scale(1.15)">
+<ellipse cx="0" cy="2" rx="25" ry="8.7" fill="rgba(0,0,0,.28)"/>
+<rect x="-20" y="-70" width="40" height="5" fill="rgba(0,0,0,.6)"/><rect x="-20" y="-70" width="22" height="5" fill="#ffcc58"/>
+<rect x="-13" y="-43" width="26" height="32" fill="#a08d76"/>
+<rect x="-10" y="-57" width="20" height="18" fill="#a08d76"/>
+<rect x="-6" y="-52" width="4" height="4" fill="#202020"/>
+<rect x="-11" y="-10" width="8" height="12" fill="#202020"/><rect x="3" y="-10" width="8" height="12" fill="#202020"/>
+<rect x="-17" y="-40" width="5" height="22" fill="#ffe6e6"/><rect x="12" y="-40" width="5" height="22" fill="#ffe6e6"/>
+</g>
+<g transform="translate(168,112) scale(.72)" opacity=".9">
+<rect x="-13" y="-43" width="26" height="32" fill="#a08d76"/>
+<rect x="-10" y="-57" width="20" height="18" fill="#a08d76"/>
+<rect x="-6" y="-52" width="4" height="4" fill="#202020"/>
+<rect x="-11" y="-10" width="8" height="12" fill="#202020"/><rect x="3" y="-10" width="8" height="12" fill="#202020"/>
+</g>
+<text x="110" y="134" text-anchor="middle" fill="#b9c7cd" font-size="11">灰茶 #a08d76・80%サイズ。右は子ネズミ(55%)</text></svg></td>
+<td class="code">歩行と同式 ×0.55<br>子：親の40%（最低12）</td>
+<td class="code">歩行の ×1.4</td>
+<td>近接のみ（射撃なし）。</td>
+<td>撃破すると55%サイズの子ネズミ2体に分裂（分裂は1回のみ・子も撃破数に加算）。</td>
+</tr>
+<tr>
+<td class="name">鬼の子分<small>五つ首の鬼が召喚</small></td>
+<td class="visual"><svg viewBox="0 0 220 140"><rect width="220" height="140" rx="10" fill="#0d1319"/>
+<g transform="translate(110,106) scale(1.42)">
+<ellipse cx="0" cy="2" rx="25" ry="8.7" fill="rgba(0,0,0,.28)"/>
+<rect x="-20" y="-70" width="40" height="5" fill="rgba(0,0,0,.6)"/><rect x="-20" y="-70" width="40" height="5" fill="#ffcc58"/>
+<rect x="-13" y="-43" width="26" height="32" fill="#9b5de5"/>
+<rect x="-10" y="-57" width="20" height="18" fill="#9b5de5"/>
+<rect x="-6" y="-52" width="4" height="4" fill="#202020"/>
+<rect x="-11" y="-10" width="8" height="12" fill="#202020"/><rect x="3" y="-10" width="8" height="12" fill="#202020"/>
+<rect x="-17" y="-40" width="5" height="22" fill="#ffe6e6"/><rect x="12" y="-40" width="5" height="22" fill="#ffe6e6"/>
+</g>
+<text x="110" y="134" text-anchor="middle" fill="#b9c7cd" font-size="11">紫色 #9b5de5。体型は通常敵と同じ</text></svg></td>
+<td class="code">設定80 ×1.4 = 112（Wave補正なし）</td>
+<td class="code">歩行敵と同式</td>
+<td>通常歩行敵と同じ（近接13／偏差射撃10）。</td>
+<td>ボス戦中180Fごとに召喚、同時最大6体。撃破してもWaveの撃破数には入らない（ボス扱い外だがスコア+25）。</td>
+</tr>
+</tbody></table></div>
+</section>
+
+<section id="bosses"><h2>ボス</h2>
+<p class="secnote">Waveの通常敵50体を倒すと「BOSS INCOMING」表示の900ms後にボスが出現。HP = 敵体力設定 ×18（鬼のみ×35）×(1+(Wave−1)×0.18)。当たり判定は通常敵の5倍（鬼は7.5倍）。ボス戦ではフィールドが通常の約4倍（横2倍×床の縦2倍）に拡張され、境界の石壁まで移動できる。カメラはプレイヤーとボスの中間を注視し、両者が画面に収まるよう0.4〜0.8倍で滑らかに自動ズーム（ボスは常に1.7倍の固定補正で描画され、ズームしても相対サイズは変わらない）。広がった可視範囲は空・地面・グリッドが拡張描画され、余白は出ない。ボスも通常敵と同じ近接（威力13）と障害物迂回移動を行う。撃破スコア +500×Wave。</p>
+<div class="wrap"><table>
+<thead><tr><th>ボス</th><th>コード描画準拠の図</th><th>出現・HP</th><th>攻撃</th><th>固有ギミック</th></tr></thead>
+<tbody>
+<tr>
+<td class="name">イヌ<small>trait: charger</small></td>
+<td class="visual"><svg viewBox="0 0 220 150"><rect width="220" height="150" rx="10" fill="#0d1319"/>
+<g transform="translate(104,84) scale(1.9)">
+<circle cx="0" cy="-8" r="34" fill="none" stroke="#fff3a8" stroke-width="1.2" stroke-dasharray="4 4" opacity=".75"/>
+<rect x="-28" y="-20" width="6" height="10" fill="#eeeae0"/>
+<rect x="-22" y="-14" width="32" height="18" fill="#f2f0e8"/>
+<rect x="6" y="-26" width="18" height="16" fill="#f2f0e8"/>
+<rect x="7" y="-32" width="5" height="7" fill="#d8d4c9"/><rect x="17" y="-32" width="5" height="7" fill="#d8d4c9"/>
+<rect x="24" y="-16" width="6" height="6" fill="#d8d4c9"/>
+<rect x="-18" y="4" width="7" height="12" fill="#eeeae0"/><rect x="-2" y="4" width="7" height="12" fill="#eeeae0"/><rect x="10" y="4" width="7" height="12" fill="#eeeae0"/>
+<rect x="18" y="-22" width="3" height="3" fill="#222"/><rect x="27" y="-15" width="3" height="3" fill="#222"/>
+</g>
+<text x="110" y="143" text-anchor="middle" fill="#b9c7cd" font-size="11">白いドット絵の巨犬 #f2f0e8</text></svg><span class="cap">通常敵と同じ矩形ベースの描画。破線の輪は突進の構え表示</span></td>
+<td class="code">Wave1<br>HP 1440（既定設定時）</td>
+<td>突進：索敵900。<strong>構え開始時のヒーロー位置を目標に固定</strong>し、構え38F（減速・本体のみが金色に明滅、リング表示なし。2段ダッシュ予告は速いオレンジ明滅）→ 目標に届く長さだけ突進（速度約30・10〜40F・距離の1.15倍まで踏み込む）。<strong>突進中は体が黄色くなり流星のような黄色い帯を引く。接触ダメージ（距離70内・16ダメージ／ダッシュ中被弾は8＋被弾無敵45F＋強ノックバック）はこの黄色い間のみ</strong>。通常時の近接攻撃は行わない。35%で<strong>2段ダッシュ</strong>：構えの点滅が速いオレンジになり、1段目の後は<strong>予告なしで即座に</strong>現在位置へ短く遅めの踏み込み（速度20・距離220上限・追い越しなし・判定48px。歩き続けていれば移動量で判定の外へ抜けられる）。その場に留まると直撃、発光中にダッシュで軸をずらせば回避可能。次の突進まで110F。<br>爆弾弾幕：距離640内・CD75F。5方向（±0.48rad）へ弾速約6.5・威力15・爆風70の爆弾を一斉投擲。HP倍率はボス標準の18ではなく<strong>13</strong>（他ボスより約28%低い）。</td>
+<td>歩行型。突進以外は通常の追尾移動。</td>
+</tr>
+<tr>
+<td class="name">サル<small>trait: splitter</small></td>
+<td class="visual"><svg viewBox="0 0 220 150"><rect width="220" height="150" rx="10" fill="#0d1319"/>
+<g transform="translate(108,82) scale(1.85)">
+<rect x="-27" y="0" width="5" height="12" fill="#7a4b32"/><rect x="-27" y="10" width="9" height="5" fill="#7a4b32"/>
+<rect x="-13" y="-12" width="26" height="26" fill="#7a4b32"/>
+<rect x="-10" y="-34" width="20" height="20" fill="#7a4b32"/>
+<rect x="-15" y="-30" width="5" height="8" fill="#7a4b32"/><rect x="10" y="-30" width="5" height="8" fill="#7a4b32"/>
+<rect x="-22" y="-8" width="9" height="6" fill="#7a4b32"/><rect x="13" y="-8" width="9" height="6" fill="#7a4b32"/>
+<rect x="-22" y="-2" width="6" height="14" fill="#7a4b32"/><rect x="16" y="-2" width="6" height="14" fill="#7a4b32"/>
+<rect x="-10" y="14" width="7" height="12" fill="#7a4b32"/><rect x="3" y="14" width="7" height="12" fill="#7a4b32"/>
+<rect x="-6" y="-28" width="12" height="10" fill="#d3a173"/>
+<rect x="-4" y="-26" width="3" height="3" fill="#171717"/><rect x="2" y="-26" width="3" height="3" fill="#171717"/>
+</g>
+<text x="110" y="143" text-anchor="middle" fill="#b9c7cd" font-size="11">茶色のドット絵の猿 #7a4b32＋肌色の顔</text></svg><span class="cap">分裂体は同じ見た目で縮小(親の72%)</span></td>
+<td class="code">Wave2<br>HP 1699（既定設定時）</td>
+<td>ショットガン：距離620内・CD72F。7方向（±0.48rad）へ弾速7・威力10・寿命110Fの弾を一斉発射。</td>
+<td>分裂：累積被ダメージが現在最大HPの22%に達するたびに1体分裂（全個体で最大8体）。分裂のたび本体はサイズ×0.82・最大HP×0.86に縮小。分裂体はHP=親×0.55（最低35）・サイズ×0.72で、160〜420px離れた位置へ散開して出現し、さらに分裂可能。</td>
+</tr>
+<tr>
+<td class="name">キジ<small>trait: wave</small></td>
+<td class="visual"><svg viewBox="0 0 220 150"><rect width="220" height="150" rx="10" fill="#0d1319"/>
+<g transform="translate(106,78) scale(1.6)">
+<rect x="-17" y="6" width="5" height="16" fill="#1e7d63"/><rect x="-10" y="6" width="5" height="20" fill="#2d9a78"/><rect x="-3" y="6" width="5" height="24" fill="#d2b94d"/><rect x="4" y="6" width="5" height="20" fill="#255d9a"/><rect x="11" y="6" width="5" height="16" fill="#9f3d88"/>
+<rect x="-25" y="-12" width="15" height="8" fill="#2d8f70"/><rect x="10" y="-12" width="15" height="8" fill="#2d8f70"/>
+<rect x="-11" y="-22" width="22" height="30" fill="#246b58"/>
+<rect x="0" y="-38" width="14" height="14" fill="#174f42"/>
+<rect x="14" y="-33" width="8" height="5" fill="#e8c74d"/>
+<rect x="3" y="-44" width="6" height="6" fill="#d63f45"/>
+<rect x="8" y="-34" width="3" height="3" fill="#ffdd77"/>
+<rect x="-7" y="8" width="3" height="10" fill="#d9b84a"/><rect x="4" y="8" width="3" height="10" fill="#d9b84a"/>
+</g>
+<g fill="#8fffd8" opacity=".9"><circle cx="26" cy="40" r="4"/><circle cx="20" cy="58" r="4"/><circle cx="16" cy="76" r="4"/><circle cx="20" cy="94" r="4"/><circle cx="26" cy="112" r="4"/></g>
+<text x="110" y="143" text-anchor="middle" fill="#b9c7cd" font-size="11">深緑のドット絵の雉＋5色の尾羽</text></svg><span class="cap">左は波状弾幕の弾 #8fffd8</span></td>
+<td class="code">Wave3<br>HP 1958（既定設定時）</td>
+<td>波状弾幕：CD140F（初回50F）。15方向×5列、うち連続3方向が欠けた「隙間」あり（=12発/列・計60発）。列間隔160ms、弾速5.2〜6.0、威力14、寿命200F。<br>通常射撃：距離105〜640で水平弾（威力11・CD45〜70F）。</td>
+<td>飛行型。川・地形を無視し、距離115まで接近して停止。</td>
+</tr>
+<tr>
+<td class="name">五つ首の鬼<small>trait: fiveHeads</small></td>
+<td class="visual"><svg viewBox="0 0 220 150"><rect width="220" height="150" rx="10" fill="#0d1319"/>
+<g transform="translate(108,92) scale(1.35)">
+<rect x="-39" y="-26" width="6" height="12" fill="#6d28d9"/><rect x="-44" y="-42" width="16" height="16" fill="#7c3aed"/><rect x="-43" y="-47" width="4" height="5" fill="#e8e5ef"/><rect x="-33" y="-47" width="4" height="5" fill="#e8e5ef"/><rect x="-41" y="-37" width="3" height="3" fill="#ffdd77"/><rect x="-34" y="-37" width="3" height="3" fill="#ffdd77"/>
+<rect x="-21" y="-34" width="6" height="20" fill="#6d28d9"/><rect x="-26" y="-50" width="16" height="16" fill="#7c3aed"/><rect x="-25" y="-55" width="4" height="5" fill="#e8e5ef"/><rect x="-15" y="-55" width="4" height="5" fill="#e8e5ef"/><rect x="-23" y="-45" width="3" height="3" fill="#ffdd77"/><rect x="-16" y="-45" width="3" height="3" fill="#ffdd77"/>
+<rect x="-3" y="-42" width="6" height="28" fill="#6d28d9"/><rect x="-8" y="-58" width="16" height="16" fill="#7c3aed"/><rect x="-7" y="-63" width="4" height="5" fill="#e8e5ef"/><rect x="3" y="-63" width="4" height="5" fill="#e8e5ef"/><rect x="-5" y="-53" width="3" height="3" fill="#ffdd77"/><rect x="2" y="-53" width="3" height="3" fill="#ffdd77"/>
+<rect x="15" y="-34" width="6" height="20" fill="#6d28d9"/><rect x="10" y="-50" width="16" height="16" fill="#7c3aed"/><rect x="11" y="-55" width="4" height="5" fill="#e8e5ef"/><rect x="21" y="-55" width="4" height="5" fill="#e8e5ef"/><rect x="13" y="-45" width="3" height="3" fill="#ffdd77"/><rect x="20" y="-45" width="3" height="3" fill="#ffdd77"/>
+<rect x="33" y="-26" width="6" height="12" fill="#6d28d9"/><rect x="28" y="-42" width="16" height="16" fill="#7c3aed"/><rect x="29" y="-47" width="4" height="5" fill="#e8e5ef"/><rect x="39" y="-47" width="4" height="5" fill="#e8e5ef"/><rect x="31" y="-37" width="3" height="3" fill="#ffdd77"/><rect x="38" y="-37" width="3" height="3" fill="#ffdd77"/>
+<rect x="-24" y="-14" width="48" height="34" fill="#6d28d9"/>
+<rect x="-19" y="20" width="12" height="16" fill="#5520a8"/><rect x="7" y="20" width="12" height="16" fill="#5520a8"/>
+</g>
+<text x="110" y="143" text-anchor="middle" fill="#b9c7cd" font-size="11">紫のドット絵の大鬼＋5つの首</text></svg><span class="cap">各頭に白い角と金色の眼。首は見た目の演出で本体HPは単一</span></td>
+<td class="code">Wave4以降（常時）<br>HP 4312（既定設定時・Wave4）</td>
+<td>本体弾幕：距離720内・CD58F。5方向（±0.56rad）へ爆裂弾（威力24・爆風86）×3＋通常弾（威力12）×2。弾速はWave係数準拠。<br>子分召喚：180Fごと・同時最大6体（鬼の子分）。</td>
+<td>単一HPのボス（5本の首は見た目の演出）。撃破でエンディング（仲間選択なし）。</td>
+</tr>
+</tbody></table></div>
+</section>
+
+<section id="progress"><h2>Wave進行・仲間</h2>
+<div class="wrap"><table class="narrow">
+<thead><tr><th>項目</th><th>実装値</th></tr></thead>
+<tbody>
+<tr><td class="name">Wave構成</td><td class="code">通常敵 80+30×(Wave−1)体（上限300）／Wave、<strong>Wave開始時（WAVE表示の700ms後）に全数一括で出現</strong>（バッチ分割の繰り返し湧きは廃止）。雑魚の基礎HPは設定値の2/3×4/5×1/2（ボスは対象外）。レベルアップ必要コイン = [30,45,75,120,180,270,375,480]のテーブル参照（敵1体3枚ドロップ）、回収数はWaveをまたいで持ち越し。<strong>ボスは5Waveごと</strong>（Wave5=イヌ→10=サル→15=キジ→20以降=五つ首の鬼）。中間Waveは全滅で右壁が開いて点滅矢印が出現し、右端まで進むと最大HP12%回復して次のWaveへ（左端から再入場・右へ右へ鬼ヶ島を目指す道中）。ボスWaveは全滅後にBOSS INCOMING→ボスが拡張ワールド右端94%・縦中央から登場し、カメラが通常ズーム0.72から引いて右画面外からフレームイン。</td></tr>
+<tr><td class="name">Wave難易度係数</td><td class="code">係数 = 0.25+0.75×min(1,(Wave−1)/3) → Wave1: 0.25／2: 0.5／3: 0.75／4以降: 1.0。敵移動 ×1.12×係数、敵弾速 ×1.21×係数。雑魚はさらにWaveごとに成長：HP ×(1+(Wave−1)×0.2)、攻撃力 ×(1+(Wave−1)×0.12)、攻撃範囲 ×min(1.6, 1+(Wave−1)×0.05)、飛行速度 ×min(2, 1+(Wave−1)×0.08)。</td></tr>
+<tr><td class="name">ボスHPバー</td><td class="code">ボス戦中、画面下部中央（強化バーの上）に「BOSS ボス名」＋残りHPバー（赤橙グラデ・幅 min(520px,44vw)）を常時表示。毎フレーム hp/maxHp を反映。</td></tr>
+<tr><td class="name">ボス撃破後</td><td class="code">撃破の瞬間にキメ演出：約0.75秒のヒットストップ＋スローモ＋白フラッシュ＋ボスが両断されて飛び散り、約1.8秒後に吸収選択（選択パネルにWaveリザルト＝最大コンボ・獲得コイン・近接キル率を表示）。スコア+500×Wave（1回のみ加算）。プレイヤー最大HPの25%回復、地形を再生成して次Waveへ。<strong>ボス戦中に溜まったレベルアップ権は消えず、次Wave開始直後に選択画面が連続表示される</strong>（ボス戦中はレベルアップ選択が抑止されるが、撃破シーケンスはこれに妨げられない）。イヌ／サル／キジは「仲間にする／しない」の選択。五つ首の鬼撃破でエンディング。</td></tr>
+<tr><td class="name">コンボ</td><td class="code">プレイヤー側の攻撃ヒットで+1（同一フレームは1回）。240F（4秒）間ヒットが無いとリセット、被弾は半減のみ。表示は残り時間に応じて徐々に薄くなり、完全に消えた時点でリセットされる。強化選択中はタイマー停止。撃破スコア = 25 ×(1+min(4, コンボ×0.04))（最大×5）。画面上部中央に表示。</td></tr>
+<tr><td class="name">演出（ジュース）</td><td class="code">撃破時：獲得スコアがポップ表示（キル時のヒットストップと同時多発撃破スローモーションは、連続撃破時に処理落ちのようにカクつくため廃止）。コンボ10/25/50/100で画面フラッシュ＋ジングル。敵は和同開珎風の銅銭を<strong>1体につき3枚</strong>（半径11px・近接キルは1.5枚分の金の小判×3）勢いよく散らばるように落とし（初速±7・位置±20px）、ドロップ後40Fはその場に留まり、以降 距離220内で吸引・回収で+10×価値×コンボ倍率。45F以内の連続回収で回収音の音程が半音ずつ上がる（1オクターブまで）。必要枚数（30/45/75/120/180/270/375/480のテーブル）に達するとレベルアップ発動。コンボ10/25/50でキル演出（シェイク・粒子）が段階強化（停止は伴わない）。HP30%以下で画面四隅が赤く脈動。<strong>危機一髪</strong>：1ランに1回だけ致死ダメージをHP1で耐える（無敵100F＋スローモ＋フラッシュ）。レベルアップ衝撃波は半径280+18×Lv・粒子30+4×Lv・フラッシュとシェイクもLvで増加。死亡時はレベルアップ選択を出さず中央に大型GAME OVER（最終スコア・最大コンボ表示）。<strong>表示0.6秒後から、何かキーまたはクリックでタイトルへ戻れる</strong>。レベルアップ選択直後に衝撃波（半径280・ノックバック＋60F無敵＋フラッシュ）。</td></tr>
+<tr><td class="name">地形生成</td><td class="code">Waveごとに再生成し、<strong>Wave連動のフィールドテーマ</strong>を適用（5Wave区切り）：Wave1〜5=荒野（茶色い地面・小石・木立4〜6箇所）／6〜10=草原（芝生・草むら・木立5〜7箇所）／11〜15=深い森（暗緑の地面・木立8〜11箇所）／16以降=火山（焦げた大地・火の粉・岩場6〜9箇所・川の代わりに溶岩）。岩は木と、溶岩は川と完全に同一の当たり判定（見た目のみ差し替え）。地面は座標ハッシュ固定の斑点テクスチャ付き。蛇行しながら繋がる川が<strong>最大2本</strong>（60%で1本＝幅の25〜75%帯、40%で2本＝左帯14〜42%と右帯58〜86%に分かれ交差しない。各幅58〜74）フィールドを縦断し、それぞれ途中1箇所に木の橋（通行可・橋の上では川判定が無効になる）が架かる。木立2〜3箇所×2〜4本（当たり判定44×46、弾も遮る）。安全経路と開始地点の周辺には配置されない。<strong>田んぼ</strong>：2×2〜3区画（各セル78〜98×56〜70）の塊が1〜2箇所出現（50%で2箇所）。泥水＋あぜ道＋稲の列の見た目で通行は塞がないが、<strong>上に乗っている間は飛行タイプ以外の移動量が1/2</strong>（ダッシュ・ノックバック含む。プレイヤーも対象）。開始地点80px内と他地形との重なりは避けて配置。フィールド境界には通行不可の石壁が描画される（ボス戦では拡張後の境界に移動し、拡張エリアに木立5箇所を追加生成）。Wave切替時は旧地形がフェードアウトし、新地形がフェードインする。画面上部の空は高さの18%（旧34%）に縮小し、床＝プレイ可能域が広い。</td></tr>
+<tr><td class="name">仲間：イヌ</td><td class="code">通常：爆裂弾 3発の扇状（±0.16rad・各 威力×0.9・爆風半径60・弾速6.4・寿命130F=飛距離約832）間隔60F。<br>特性【突進体当たり】240Fごとに最寄りの敵へ40F突進（速度14・距離約560）。経路上の敵に威力×0.8＋ノックバック（1突進につき各敵1回）。突進中は白い残像付き。</td></tr>
+<tr><td class="name">仲間：サル</td><td class="code">通常：5方向の散弾（威力×0.35／発・弾速7・±0.32rad・寿命60F）間隔55F。<br>特性【分身】600Fごとに300F間、分身が出現して散弾を2箇所から発射（実質火力2倍）。</td></tr>
+<tr><td class="name">仲間：キジ</td><td class="code">特性【ミニ波状弾幕】150Fごとに9方向×2列（連続2方向の隙間つき＝計14発、威力×0.4／発・弾速4.5〜4.8・寿命90F・列間130ms）。ボスの波状弾幕の縮小版。</td></tr>
+<tr><td class="name">仲間の共通仕様</td><td class="code">ボス撃破後の選択で加入（各1体・ラン中永続）。プレイヤーの周囲を隊列で追従し、相棒の通常索敵射程（240×射程倍率）内の敵を自動攻撃。本体は無敵で被弾しない。ガード中・強化選択中は攻撃停止。威力は相棒の現在威力に連動。</td></tr>
+<tr><td class="name">仲間の見た目</td><td>相棒サイズに抽象化されたドット絵。<div style="margin-top:8px"><svg viewBox="0 0 300 70" style="width:280px;display:block;background:#0d1319;border-radius:8px">
+<g transform="translate(52,40) scale(1.9)"><rect x="-11" y="-6" width="18" height="11" fill="#f2f0e8"/><rect x="4" y="-13" width="10" height="10" fill="#f2f0e8"/><rect x="5" y="-17" width="3" height="4" fill="#f2f0e8"/><rect x="10" y="-17" width="3" height="4" fill="#f2f0e8"/><rect x="-14" y="-9" width="4" height="6" fill="#d8d4c9"/><rect x="-9" y="5" width="3" height="5" fill="#f2f0e8"/><rect x="1" y="5" width="3" height="5" fill="#f2f0e8"/><rect x="10" y="-10" width="2" height="2" fill="#222"/><rect x="12" y="-6" width="2" height="2" fill="#222"/></g>
+<g transform="translate(150,40) scale(1.9)"><rect x="-7" y="-4" width="14" height="12" fill="#8b5a3c"/><rect x="-6" y="-14" width="12" height="10" fill="#8b5a3c"/><rect x="-4" y="-11" width="8" height="6" fill="#d3a173"/><rect x="-11" y="-2" width="4" height="3" fill="#8b5a3c"/><rect x="7" y="-2" width="4" height="3" fill="#8b5a3c"/><rect x="-11" y="4" width="3" height="6" fill="#8b5a3c"/><rect x="-5" y="8" width="3" height="4" fill="#8b5a3c"/><rect x="2" y="8" width="3" height="4" fill="#8b5a3c"/><rect x="-3" y="-10" width="2" height="2" fill="#171717"/><rect x="1" y="-10" width="2" height="2" fill="#171717"/></g>
+<g transform="translate(246,40) scale(1.9)"><rect x="-8" y="-5" width="13" height="10" fill="#2d8f70"/><rect x="2" y="-12" width="8" height="8" fill="#174f42"/><rect x="10" y="-9" width="4" height="3" fill="#e8c74d"/><rect x="4" y="-15" width="3" height="3" fill="#d63f45"/><rect x="-13" y="-3" width="5" height="2" fill="#d2b94d"/><rect x="-13" y="0" width="5" height="2" fill="#255d9a"/><rect x="-13" y="3" width="5" height="2" fill="#9f3d88"/><rect x="5" y="-10" width="2" height="2" fill="#ffdd77"/><rect x="-3" y="5" width="2" height="5" fill="#d9b84a"/><rect x="2" y="5" width="2" height="5" fill="#d9b84a"/></g>
+</svg></div></td></tr>
+</tbody></table></div>
+</section>
+
+
+</main></body></html>
