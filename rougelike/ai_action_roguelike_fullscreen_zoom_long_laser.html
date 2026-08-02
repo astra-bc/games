@@ -128,7 +128,7 @@
     display: none;
     position: absolute;
     left: 50%;
-    bottom: 170px;
+    bottom: 96px; /* 操作説明が2行に折り返しても被らない高さに置く */
     transform: translateX(-50%);
     width: min(520px, 44vw);
     padding: 8px 14px 11px;
@@ -767,6 +767,98 @@
   .titleKana { margin: 0; font-size: 17px; letter-spacing: 12px; color: #18202a; font-weight: 700; }
   .titleScore { margin: 26px 0 0; font-size: 16px; letter-spacing: 4px; color: #20406a; font-weight: 700; }
   .titleVer { margin: 8px 0 0; font-size: 12px; letter-spacing: 3px; color: #4a6178; }
+  .titleBossMode { margin: 14px 0 0; font-size: 12px; letter-spacing: 2px; color: #4a6178; }
+  .bossModeBtn {
+    display: inline-block;
+    width: auto;
+    margin: 0 2px;
+    padding: 4px 10px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #18202a;
+    background: #e8dfc8;
+    border: 2px solid #4a6178;
+    cursor: pointer;
+  }
+  .bossModeBtn:hover { background: #fff; }
+  /* ボス戦の準備画面: ボスを選んだ後に武器とレベルを選ぶ */
+  #bossSetupOverlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    z-index: 45; /* タイトル(40)より上 */
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 10, 16, .78);
+  }
+  #bossSetupOverlay.open { display: flex; }
+  .bossSetupPanel {
+    width: min(480px, 92vw);
+    padding: 22px 26px 20px;
+    background: #131a22;
+    border: 3px solid rgba(255,255,255,.4);
+    box-shadow: 6px 8px 0 rgba(0,0,0,.4);
+    color: #f2f5f8;
+    text-align: center;
+  }
+  .bossSetupPanel h2 { margin: 0 0 4px; font-size: 19px; letter-spacing: 3px; }
+  .bossSetupPanel .bsLabel { margin: 16px 0 8px; font-size: 12px; letter-spacing: 4px; color: #9fb3c8; }
+  #bsWeapons { display: flex; gap: 8px; justify-content: center; }
+  .bsWeaponBtn {
+    width: 76px;
+    padding: 8px 0 6px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+    font-family: inherit;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: #dfe7ee;
+    background: rgba(255,255,255,.06);
+    border: 2px solid rgba(255,255,255,.3);
+    cursor: pointer;
+  }
+  .bsWeaponBtn img { width: 34px; height: 34px; image-rendering: pixelated; }
+  .bsWeaponBtn.sel { border-color: #ffd23f; background: rgba(255,210,63,.14); color: #ffe9ad; }
+  #bsLevels { display: flex; gap: 8px; justify-content: center; }
+  .bsLvBtn {
+    width: 58px;
+    padding: 7px 0;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    color: #dfe7ee;
+    background: rgba(255,255,255,.06);
+    border: 2px solid rgba(255,255,255,.3);
+    cursor: pointer;
+  }
+  .bsLvBtn.sel { border-color: #ffd23f; background: rgba(255,210,63,.14); color: #ffe9ad; }
+  .bsActions { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+  #bsStart {
+    padding: 10px 34px;
+    font-family: inherit;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 4px;
+    color: #18202a;
+    background: #ffd23f;
+    border: 2px solid #b3342a;
+    cursor: pointer;
+  }
+  #bsBack {
+    padding: 10px 18px;
+    font-family: inherit;
+    font-size: 13px;
+    letter-spacing: 2px;
+    color: #dfe7ee;
+    background: rgba(255,255,255,.08);
+    border: 2px solid rgba(255,255,255,.35);
+    cursor: pointer;
+  }
   .titleStart { margin: 14px 0 0; font-size: 15px; letter-spacing: 5px; color: #3a5a7a; animation: titleBlink 1.4s steps(2) infinite; }
   .titleAudioHint { margin: 8px 0 0; font-size: 12px; letter-spacing: 2px; color: #5f7a92; }
   @keyframes titleBlink { 50% { opacity: .12; } }
@@ -888,9 +980,22 @@
 <body>
 <div id="app">
   <main id="gameWrap">
-    <div id="comboDisplay" style="position:absolute;left:50%;top:104px;transform:translateX(-50%);z-index:28;pointer-events:none;text-align:center;opacity:0;transition:opacity .12s;">
-      <div id="comboNumber" style="font-size:68px;font-weight:900;line-height:.9;letter-spacing:2px;color:#fff;text-shadow:3px 3px 0 #7a1a1a,6px 6px 0 #000;">0 COMBO</div>
+    <div id="comboDisplay" style="position:absolute;left:50%;top:44px;transform:translateX(-50%);z-index:28;pointer-events:none;text-align:center;opacity:0;transition:opacity .12s;">
+      <div id="comboNumber" style="font-size:42px;font-weight:900;line-height:.9;letter-spacing:2px;color:#fff;text-shadow:2px 2px 0 #7a1a1a,4px 4px 0 #000;">0 COMBO</div>
       <div id="comboLabel" style="font-size:14px;font-weight:800;letter-spacing:4px;color:#ffe7a8;text-shadow:0 0 7px #ff6a00;">KEEP ATTACKING</div>
+    </div>
+    <div id="bossSetupOverlay">
+      <div class="bossSetupPanel">
+        <h2 id="bossSetupTitle">ボス戦の準備</h2>
+        <p class="bsLabel">ぶ　き</p>
+        <div id="bsWeapons"></div>
+        <p class="bsLabel">ぶきのレベル</p>
+        <div id="bsLevels"></div>
+        <div class="bsActions">
+          <button id="bsBack">もどる</button>
+          <button id="bsStart">たたかう</button>
+        </div>
+      </div>
     </div>
     <div id="menuWrap">
       <button id="pauseButton" class="topBtn">❚❚</button>
@@ -949,9 +1054,15 @@
         <h1 class="titleLogo">Momo Taro</h1>
         <div class="titleRule"></div>
         <p class="titleKana">モモタロウ</p>
-        <p class="titleVer">ver. 2026.07.29p (build 111)</p>
+        <p class="titleVer">ver. 2026.08.02a (build 123)</p>
         <p class="titleScore">HIGH SCORE <span id="titleHighScore">0</span></p>
         <p class="titleStart">クリック / Enter でスタート</p>
+        <p class="titleBossMode">ボス戦モード:
+          <button class="bossModeBtn" data-boss="1">イヌ</button>
+          <button class="bossModeBtn" data-boss="2">サル</button>
+          <button class="bossModeBtn" data-boss="3">キジ</button>
+          <button class="bossModeBtn" data-boss="4">鬼</button>
+        </p>
         <p class="titleAudioHint">♪ 音がならないときは、なにかキーをおしてください</p>
       </div>
     </div>
@@ -1136,7 +1247,7 @@
           <p>イヌ</p>
           <p>サル</p>
           <p>キジ</p>
-          <p>五つ首の鬼</p>
+          <p>鬼</p>
           <h3>STAFF</h3>
           <p class="staffRole">ディレクター</p>
           <p class="staffName">Makino Seiya</p>
@@ -1465,6 +1576,7 @@
   initAudio();
 
   const keys = new Set();
+  let touchGuardHeld = false; // モバイルのガードボタン押しっぱなし状態
   let state;
   const FLOOR_RATIO = 0.18; // 画面上部の空の比率(旧0.34)。床=プレイ可能域を広く取る
 
@@ -1603,6 +1715,7 @@
       craters: [], // 巨大雑魚の岩が残す凹み跡
       fishJumps: [], // 川から跳ねる魚(環境演出)
       kappa: null,   // Wave12のかっぱ
+      inuGeysers: [], // イヌボスの地中火炎
       paused: false,
       combo: 0,
       comboTimer: 0,
@@ -2065,7 +2178,7 @@
 
     if (c.weaponMode === 'bomb') {
       const speed = 5.8; // 爆弾の弾速は固定(弓強化の影響を受けない)
-      const bombMultiplier = [1,1,1.5,4,7,12][Math.max(1,c.bombLevel)]; // Lv2の爆風を少し縮小(2→1.5)。Lv3以降は現状維持
+      const bombMultiplier = [1,1,1.5,3,5,8][Math.max(1,c.bombLevel)]; // 高Lvの爆風を縮小(旧: 4/7/12。Lv5のDPS突出の下方調整)
       const bombShot = {
         kind:'projectile',
         sourceType:'companionBomb',
@@ -2081,7 +2194,7 @@
         vy:Math.sin(baseAngle)*speed,
         radius:12*c.projectileScale,
         life:57, // 飛距離1.5倍(旧38F)
-        damage:c.damage*1.5*(1+.5*Math.max(0,c.bombLevel-1)), // 基礎威力1.5倍
+        damage:c.damage*3*(1+.5*Math.max(0,c.bombLevel-1)), // 基礎威力を2倍に強化(旧1.5)
         owner:{isPlayer:true},
         color:'#ff8a2b',
         explosive:true,
@@ -2123,7 +2236,7 @@
       let blocker=null;
       const pierced=[];
       for(const h of hits){
-        if(h.enemy.meleeOnly){ beamEnd=h.along; blocked=true; blocker=h.enemy; break; }
+        if(h.enemy.meleeOnly || h.enemy.special==='giant'){ beamEnd=h.along; blocked=true; blocker=h.enemy; break; } // 巨大雑魚も装甲兵と同じくレーザーを堰き止め1/5ダメージ
         pierced.push(h);
         if(pierced.length>=c.laserPierce) break;
       }
@@ -2131,9 +2244,6 @@
         // 連続照射のティックダメージ: 約6F毎に刻む(×1.2→×1.0へ少し減衰。貫通数はそのまま)
         const laserDamage=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1));
         h.enemy.hp -= laserDamage;
-        if(h.enemy.isBoss && h.enemy.bossType?.trait==='splitter'){
-          h.enemy.splitDamage=(h.enemy.splitDamage||0)+laserDamage;
-        }
         showDamageNumber(h.enemy.x,h.enemy.y-h.enemy.height*.65,laserDamage,'#9ff7ff');
         burst(h.enemy.x,h.enemy.y-h.enemy.height*.4,6,'#9ff7ff');
         addCombo();
@@ -2257,7 +2367,9 @@
     c.missileLockTimer=24;
 
     const volleyExtra=(((c.projectileCountBy||{}).missile)||1)-1; // 弾数強化(ハチで取った分)を上乗せ
-    const missilesPerTarget=Math.max(2,c.missileLevel)+volleyExtra; // 同時に最低2匹。レベルと弾数強化で増える
+    // 同時数はレベルで増やさない(処理落ち対策)。常時2匹+弾数強化のぶんだけ。
+    // レベルは攻撃回数(針の数)と攻撃力の伸びに反映する
+    const missilesPerTarget=2+volleyExtra;
     targets.forEach((target,targetIndex)=>{
       const directAngle=Math.atan2((target.y-28)-c.y,target.x-c.x);
 
@@ -2277,14 +2389,14 @@
           vy:Math.sin(launchAngle)*launchSpeed,
           radius:7*c.projectileScale,
           life:600, // 規定回数刺し切るまで長く飛び回れる(最長10秒)
-          damage:c.damage*1.6*[0,1,1.2,1.4,1.6,1.8][c.missileLevel], // 威力2倍(0.8→1.6)
+          damage:c.damage*.8*[0,1,1.45,1.9,2.35,2.8][c.missileLevel], // 全武器バランス調整でさらに下方(1.07→0.8)
           // Lv2からは毒針: 刺さった敵にレベル×1秒(Lv2=2秒,Lv3=3秒…)の継続毒
           poisonOnHit:c.missileLevel>=2 ? Math.max(1,Math.round(c.damage*.1)) : 0,
           poisonDuration:c.missileLevel>=2 ? c.missileLevel*60 : undefined,
           owner:{isPlayer:true},
           color:'#ffcf5a',
           piercesTerrain:true, // ハチは飛んで木の上を越える
-          stingsLeft:(2+c.missileLevel)*2+2, // 爆発せず、刺せる回数=(Lv+2)×2+2回(Lv1=8回…Lv5=16回)。刺し切ると消える
+          stingsLeft:c.missileLevel+3, // 爆発せず、刺せる回数=Lv+3回(Lv1=4回…Lv5=8回)。刺し切ると消える(旧回数の半分)
           target,
           homing:true,
           turnRate:c.missileTurnRate,
@@ -2338,7 +2450,7 @@
         c.weaponMode='missile';
         fireMissiles();
         c.weaponMode=prev;
-        c.subCooldowns[w]=baseCooldown;
+        c.subCooldowns[w]=baseCooldown*2; // 蜂は突出DPSの下方調整で発射間隔2倍
         continue;
       }
       // 二刀流の2人目の武器は、増えた桃の位置から発射する
@@ -2462,7 +2574,9 @@
         ? Math.max(2,Math.round(c.attackInterval/3)) // レーザーは連続照射(約6F毎のティック・連射強化で更に短縮)
         : c.weaponMode==='orb'
           ? Math.max(3,Math.round(baseCooldown/1.875)) // 弓はデフォルトで連射1.875倍(1.5×1.25)
-          : baseCooldown;
+          : c.weaponMode==='missile'
+            ? baseCooldown*2 // 蜂は突出DPSの下方調整で発射間隔2倍
+            : baseCooldown;
     }
   }
 
@@ -2504,7 +2618,6 @@
         const dx=(target.x-p.x)/(d||1), dy=((target.y-25)-p.y)/(d||1);
         const dealt=p.damage*scale;
         target.hp -= dealt;
-        if(target.isBoss&&target.bossType?.trait==='splitter')target.splitDamage=(target.splitDamage||0)+dealt;
         showDamageNumber(target.x,target.y-target.height*.65,dealt,'#ffe18a');
         addCombo();
         target.hurtTimer = 12;
@@ -2558,8 +2671,7 @@
         }else{
           const dealt=b.damage*scale;
           target.hp-=dealt;
-          if(target.isBoss&&target.bossType?.trait==='splitter')target.splitDamage=(target.splitDamage||0)+dealt;
-          showDamageNumber(target.x,target.y-target.height*.65,dealt,'#ffe18a');
+            showDamageNumber(target.x,target.y-target.height*.65,dealt,'#ffe18a');
           addCombo();
           target.hurtTimer=12;
           target.flash=8;
@@ -2764,15 +2876,21 @@
           }
         }
       }
+      if(p.homing && p.homeT!==undefined && --p.homeT<=0) p.homing=false; // 追尾時間切れでロックオン解除(直進に変わる)
       if(p.homing){
         let target=p.target;
-        if(!target || target.dead){
+        if(!p.owner.isPlayer){
+          // 敵の追尾弾はヒーローを追う
+          target = state.player && !state.player.dead ? state.player : null;
+          p.target=target;
+        }else if(!target || target.dead){
           target=state.enemies
             .filter(e=>!e.dead)
             .sort((a,b)=>Math.hypot(a.x-p.x,a.y-p.y)-Math.hypot(b.x-p.x,b.y-p.y))[0];
           p.target=target;
         }
         if(target){
+          p.noTargetT=0;
           const desired=Math.atan2((target.y-28)-p.y,target.x-p.x);
           const current=Math.atan2(p.vy,p.vx);
           let delta=desired-current;
@@ -2782,6 +2900,14 @@
           const speed=Math.hypot(p.vx,p.vy)||1;
           p.vx=Math.cos(current+turn)*speed;
           p.vy=Math.sin(current+turn)*speed;
+        }else if(p.sourceType==='missile'){
+          // 攻撃対象がいないハチは2秒(120F)で消える
+          p.noTargetT=(p.noTargetT||0)+1;
+          if(p.noTargetT>=120){
+            p.life=0;
+            burst(p.x,p.y,4,'#ffcf5a');
+            continue;
+          }
         }
       }
       if(p.curve){
@@ -2893,8 +3019,8 @@
             if(tryJustGuard(p.x,p.y)){
               parryReflect(p); // ジャストなら弾き返し
             }else if(p.sourceType!=='parry'){
-              // 完全ガード: HPダメージ0。受けた威力ぶんガード値を削る(0でガードブレイク)
-              damageGuardGauge(p.damage);
+              // 完全ガード: HPダメージ0。受けた威力ぶんガード値を削る(0でガードブレイク)。弾ごとに削り値の上書き可
+              damageGuardGauge(p.guardChip||p.damage);
               burst(p.x,p.y,5,p.sourceType==='enemyFlame'?'#ffb36b':'#bfeeff');
               p.life=0;
             }
@@ -2911,9 +3037,9 @@
         const bossBodyHit = (target.isBoss || target.special==='giant') && (p.owner.isPlayer || p.dualHarm) &&
           Math.abs(target.x-p.x) < target.width*.55 &&
           p.y > target.y-target.height*1.05 && p.y < target.y+16;
-        if (hitD < 24 || bossBodyHit) {
+        if (hitD < 24 + Math.max(0,(p.radius||0)-13) || bossBodyHit) { // 大型弾は見た目ぶん当たり判定も大きい
           if(p.stingCd>0) continue; // ハチの針クールダウン中はヒットしない
-          if(target.meleeOnly && p.owner && p.owner.isPlayer && p.sourceType!=='melee'){
+          if((target.meleeOnly || target.special==='giant') && p.owner && p.owner.isPlayer && p.sourceType!=='melee'){
           // 装甲兵は弾を受け止める(貫通しない)が、威力の1/5だけダメージが通る。爆発弾は爆発する
           const chipDmg=p.damage*.2;
           target.hp-=chipDmg;
@@ -2940,7 +3066,6 @@
         let dmgAmt=(target.isPlayer&&target.dashTimer>0)?Math.round(p.damage*.5):p.damage; // ダッシュ中の被弾は半減
         if(target.isPlayer) dmgAmt=Math.max(1,Math.round(dmgAmt/(state.playerDefense||1))); // だんご強化の防御力
         target.hp -= dmgAmt;
-          if(target.isBoss&&target.bossType?.trait==='splitter')target.splitDamage=(target.splitDamage||0)+dmgAmt;
           // ボス・巨大雑魚は巨体なので、数字は体の中心ではなく実際に当たった場所(弾の位置)に出す
           if((target.isBoss || target.special==='giant') && p.owner.isPlayer){
             showDamageNumber(p.x,p.y-14,dmgAmt,'#ffffff');
@@ -3081,7 +3206,7 @@
         g.scale=6;
         g.width=34*6;
         g.height=58*6;
-        g.maxHp=Math.round(state.config.enemy.hp*(2/3)*(4/5)*(1/2)*1.5*(1+(state.room-1)*.2)*6);
+        g.maxHp=Math.round(state.config.enemy.hp*(2/3)*(4/5)*(1/2)*1.5*(1+(state.room-1)*.2)*30); // 雑魚の30倍(6倍→耐久不足のため5倍増し)
         g.hp=g.maxHp;
         g.giantState='idle';
         g.giantT=0;
@@ -3126,6 +3251,7 @@
     state.waveTimeTotal = 3600;
     state.oniStomp = null;
     state.craters = []; // 岩の凹み跡はWaveごとにリセット
+    state.inuGeysers = [];
     // ステージ2のWave2(=Wave7): ランダムな場所にお地蔵さんが現れる(近接で5回叩くと秘密の巻物)
     state.jizo = null;
     if(state.room===7){
@@ -3167,9 +3293,9 @@
 
   const bossTypes = [
     {name:'イヌ',color:'#f2f0e8',skill:'bomb',text:'白い巨犬。一定間隔で一直線に高速突進する',spikes:2,aura:false,heads:1,size:5,trait:'charger'},
-    {name:'サル',color:'#8b5a3c',skill:'shotgun',text:'一定量の攻撃を受けるたび分裂し、最大8体まで増える',spikes:4,aura:false,heads:1,size:5,trait:'splitter'},
-    {name:'キジ',color:'#2f8f76',skill:'laser',text:'隙間のある波状弾幕を放つ',spikes:7,aura:true,heads:1,size:5,trait:'wave'},
-    {name:'五つ首の鬼',color:'#7c3aed',skill:'oni',text:'五つの首を持つ大鬼。爆裂弾を混ぜた五方向の弾幕と子鬼の召喚で攻める',spikes:10,aura:true,heads:5,size:7.5,trait:'fiveHeads'}
+    {name:'サル',color:'#8b5a3c',skill:'staff',text:'7体の猿の群れ。棒の連撃・叩きつけ・奇襲、そして全体突撃で攻める',spikes:4,aura:false,heads:1,size:5,trait:'splitter'},
+    {name:'キジ',color:'#2f8f76',skill:'laser',text:'扇状の波・回転突進・睡眠波動・巨大な雫・クラゲ召喚で攻める',spikes:7,aura:true,heads:1,size:3.33,trait:'wave'},
+    {name:'鬼',color:'#7c3aed',skill:'oni',text:'金棒の連続打撃・衝撃波・暗闇の追尾光弾・次元打ちで攻める鬼',spikes:10,aura:true,heads:1,size:2.25,trait:'fiveHeads'}
   ];
 
   function spawnBoss() {
@@ -3178,30 +3304,57 @@
     state.worldH = floorTop + (state.height - floorTop) * 2;
     // ボスは5Waveごと: Wave5=イヌ, 10=サル, 15=キジ, 20以降=五つ首の鬼
     const type = bossTypes[Math.max(0,Math.min(3,Math.floor(state.room/5)-1))];
-    // ボスは拡張ワールドの右端付近(初期カメラの画面外)から登場する
-    const boss = makeFighter(state.worldW*.94, floorTop + (state.worldH-floorTop)*.5, type.color, false, 999);
-    boss.isBoss = true;
-    boss.bossType = type;
-    boss.dashWindup=0; boss.dashTimer=0; boss.dashCooldown=120;
-    boss.splitDamage=0; boss.splitGeneration=0;
-    boss.waveCooldown=50; boss.wavePhase=0;
-    boss.minionCooldown=150;
-    boss.width *= type.size;
-    boss.height *= type.size;
-    boss.scale = type.size;
-    boss.heads = type.heads;
-    boss.maxHp = Math.round(state.config.enemy.hp * (type.name === '五つ首の鬼' ? 35 : type.name === 'イヌ' ? 100 : 18) * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // ステージ3以降は1.5倍。イヌは300→100(1/3)に再調整
-    boss.hp = boss.maxHp;
-    boss.movementType = type.skill === 'laser' ? 'flying' : 'walking';
-    boss.projectileCooldown = 45;
-    boss.attackCooldown = 0;
-    boss.active = true;
-    state.enemies = [boss];
+    if (type.trait === 'splitter') {
+      // サル: 分裂はせず、最初から7体の群れで登場。1体のサイズは最大個体(size)の1/4
+      const totalHp = Math.round(state.config.enemy.hp * 180 * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // 基礎18の10倍(5倍→さらに2倍)
+      const mScale = type.size / 4;
+      state.enemies = [];
+      for (let i = 0; i < 7; i++) {
+        const m = makeFighter(state.worldW*(.84+.12*Math.random()), floorTop + (state.worldH-floorTop)*((i+.5)/7), type.color, false, 999+i);
+        m.isBoss = true;
+        m.bossType = type;
+        m.saruIndex = i;
+        m.width *= mScale;
+        m.height *= mScale;
+        m.scale = mScale;
+        m.formScale = mScale;
+        m.heads = 1;
+        m.maxHp = Math.max(30, Math.round(totalHp/7));
+        m.hp = m.maxHp;
+        m.movementType = 'walking';
+        m.projectileCooldown = 45;
+        m.attackCooldown = 0;
+        m.srCd = 70 + i*34; // 攻撃開始を個体ごとに時間差
+        m.active = true;
+        state.enemies.push(m);
+      }
+      state.saruEvent = null;
+      state.saruEventCd = 650;
+      state.saruTick = -1;
+    } else {
+      // ボスは拡張ワールドの右端付近(初期カメラの画面外)から登場する
+      const boss = makeFighter(state.worldW*.94, floorTop + (state.worldH-floorTop)*.5, type.color, false, 999);
+      boss.isBoss = true;
+      boss.bossType = type;
+      boss.dashWindup=0; boss.dashTimer=0; boss.dashCooldown=120;
+      boss.waveCooldown=50; boss.wavePhase=0;
+      boss.minionCooldown=150;
+      boss.width *= type.size;
+      boss.height *= type.size;
+      boss.scale = type.size;
+      boss.heads = type.heads;
+      boss.maxHp = Math.round(state.config.enemy.hp * (type.name === '鬼' ? 35 : type.name === 'イヌ' ? 100 : 18) * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // ステージ3以降は1.5倍。イヌは300→100(1/3)に再調整
+      boss.hp = boss.maxHp;
+      boss.movementType = type.skill === 'laser' ? 'flying' : 'walking';
+      boss.projectileCooldown = 45;
+      boss.attackCooldown = 0;
+      boss.active = true;
+      state.enemies = [boss];
+    }
     state.waveTimeLeft = 7200; // ボス戦は120秒
     state.waveTimeTotal = 7200;
-    addBossArenaTerrain(boss);
-    // 通常ズームから引きながらボスが右画面外からフレームインする
-    state.bossViewScale = .72;
+    state.terrain = []; // ボス戦はオブジェクト完全撤去(川もなし)。コンクリ打ちっぱなしのアリーナで戦う
+    state.oldTerrain = null; // 直前の地形のフェード残像も出さない(開始時に一瞬オブジェクトが見える問題の対策)
     state.bossActive = true;
     state.over = false;
     ui.message.textContent = 'BOSS: ' + type.name;
@@ -3501,7 +3654,6 @@
               e.vy+=bdy/bd*(e.isBoss?5:17);
               const bdmg=Math.round(dmg*1.5);
               e.hp-=bdmg;
-              if(e.isBoss&&e.bossType?.trait==='splitter')e.splitDamage=(e.splitDamage||0)+bdmg;
               showDamageNumber(e.x,e.y-e.height*.65,bdmg,'#cfe8ff');
               addCombo();
               e.hurtTimer=12; e.flash=7;
@@ -3529,7 +3681,6 @@
             a.dogHitCd=26;
             const bite=Math.round(state.config.player.attackPower*.5);
             tgt.hp-=bite;
-            if(tgt.isBoss&&tgt.bossType?.trait==='splitter')tgt.splitDamage=(tgt.splitDamage||0)+bite;
             showDamageNumber(tgt.x,tgt.y-tgt.height*.65,bite,'#fff3d6');
             addCombo();
             tgt.hurtTimer=10; tgt.flash=6;
@@ -3565,7 +3716,6 @@
             en.lastKijiHitAt=state.time;
             const kdmg=Math.round(dmg*.4);
             en.hp-=kdmg;
-            if(en.isBoss&&en.bossType?.trait==='splitter')en.splitDamage=(en.splitDamage||0)+kdmg;
             showDamageNumber(en.x,en.y-en.height*.65,kdmg,'#8fffd8');
             addCombo();
             en.hurtTimer=10; en.flash=6;
@@ -3607,6 +3757,7 @@
             const baseCd=Math.max(3,Math.round(c2.attackInterval));
             a.attackCooldown = c2.weaponMode==='laser' ? Math.max(2,Math.round(c2.attackInterval/3))
               : c2.weaponMode==='orb' ? Math.max(3,Math.round(baseCd/1.875))
+              : c2.weaponMode==='missile' ? baseCd*2 // 蜂は突出DPSの下方調整で発射間隔2倍
               : baseCd;
           } else {
             a.attackCooldown=10;
@@ -3830,6 +3981,7 @@
 
   function setGuard(active) {
     if (!state || state.gameEnded || state.choosingUpgrade || state.waitingBossChoice) return;
+    if (active && (state.playerSleep||0)>0) return; // 睡眠中はガード不可
     // JGを決めた後は即再ガード可。スカった場合のみロック中は展開できない
     if(active && !state.guarding && state.time<(state.guardLockUntil??-999)) return;
     if(active && state.time<(state.guardBreakUntil??-999)) return; // ガードブレイク中は展開できない
@@ -3936,6 +4088,7 @@
 
   // ダッシュ入力バッファ: CD中の入力も30F(0.5秒)保持し、CDが明けた瞬間に発動する
   function requestDash(dx,dy){
+    if(state && (state.playerSleep||0)>0) return; // 睡眠中はダッシュ不可
     if(!state) return;
     state.pendingDash={dx,dy,until:state.time+30};
   }
@@ -4298,7 +4451,7 @@
         const c=state.companion;
         setCompanionWeapon('shotgun');
         c.shotgunLevel=Math.min(5,Math.max(1,c.shotgunLevel+1));
-        const basePellets=[0,9,18,36,72,120][c.shotgunLevel];
+        const basePellets=[0,9,16,28,44,64][c.shotgunLevel]; // 高Lvの弾数を削減(旧: 18/36/72/120。Lv5のDPS突出の下方調整)
         // ショットガンの弾数だけを増やす(他の武器の弾数には影響しない)
         c.projectileCountBy=c.projectileCountBy||{};
         c.projectileCountBy.shotgun=Math.max(c.projectileCountBy.shotgun||1,basePellets);
@@ -4316,7 +4469,7 @@
       '..kkkkkkkk..',
       '............',
       '............'
-    ], text:'蜂の巣を5段階で強化します。ハチは常に2匹以上で飛び、木を飛び越えて敵を追尾し、爆発せずにLv1=8回…Lv5=16回刺してから消えます。ロックオン数が1、2、4、7、12体へ増えます。Lv2からは毒針になり、レベル×1秒の継続毒を与えます。', apply(){
+    ], text:'蜂の巣を5段階で強化します。ハチは常に2匹以上で飛び、木を飛び越えて敵を追尾し、爆発せずにLv1=4回…Lv5=8回刺してから消えます。ロックオン数が1、2、4、7、12体へ増えます。Lv2からは毒針になり、レベル×1秒の継続毒を与えます。', apply(){
         const c=state.companion;
         setCompanionWeapon('missile');
         c.missileLevel=Math.min(5,c.missileLevel+1);
@@ -4433,7 +4586,6 @@
         let dealt=(target.isPlayer&&target.dashTimer>0)?Math.round(power*.5):power; // ダッシュ中の被弾は半減
         if(target.isPlayer) dealt=Math.max(1,Math.round(dealt/(state.playerDefense||1))); // だんご強化の防御力
         target.hp -= dealt;
-        if(target.isBoss&&target.bossType?.trait==='splitter')target.splitDamage=(target.splitDamage||0)+dealt;
         showDamageNumber(target.x,target.y-target.height*.65,dealt,'#fff3a8');
         addCombo();
         target.hurtTimer = 12;
@@ -4565,6 +4717,16 @@
     const p = state.player;
     if (p.dead) return;
 
+    // 睡眠(キジの睡眠波動): 一定時間、移動・攻撃・ガード・ダッシュ不能
+    if((state.playerSleep||0)>0){
+      state.playerSleep--;
+      state.guarding=false;
+      p.guardTimer=0;
+      p.vx*=.9; p.vy*=.9;
+      if(state.playerSleep%40===0) state.particles.push({x:p.x+10,y:p.y-70,vx:.4,vy:-.7,life:26,color:'#d9a0ff'});
+      return;
+    }
+
     // ガード値はガードしていない間だけ回復(全快まで約10秒)
     if (!state.guarding) state.guardGauge=Math.min(guardMax(),(state.guardGauge??guardMax())+guardMax()/600);
 
@@ -4597,7 +4759,6 @@
         p.dashPower=(p.dashPower||1)*.72; // 当てるたびに勢いが落ち、移動距離が縮む
         const power=Math.round(state.config.player.attackPower*.5)*(state.meleePowerUntil>state.time?2:1); // 通常近接の半分(ジャストガードで2倍)
         e.hp-=power;
-        if(e.isBoss&&e.bossType?.trait==='splitter')e.splitDamage=(e.splitDamage||0)+power;
         showDamageNumber(e.x,e.y-e.height*.65,power,'#fff3a8');
         addCombo();
         e.hurtTimer=12;
@@ -4637,46 +4798,6 @@
     if (dx) p.facing = Math.sign(dx);
     state.playerMoveY = dy; // 桃の回り込み用に縦移動方向を記録
     moveEntity(p,dx/len * state.config.player.speed,dy/len * state.config.player.speed*.72);
-  }
-
-  function spawnMonkeyClone(parent) {
-    const active=state.enemies.filter(e=>!e.dead&&e.isBoss&&e.bossType?.trait==='splitter');
-    if(active.length>=8) return;
-    const ang=Math.random()*Math.PI*2;
-    const dist=160+Math.random()*260;
-    const ww=state.worldW||state.width, wh=state.worldH||state.height;
-    const cx=clamp(parent.x+Math.cos(ang)*dist,60,ww-60);
-    const cy=clamp(parent.y+Math.sin(ang)*dist*.7,state.height*FLOOR_RATIO+60,wh-60);
-    const clone=makeFighter(cx,cy,parent.color,false,9000+active.length);
-    clone.vx=Math.cos(ang)*9;
-    clone.vy=Math.sin(ang)*6;
-    clone.isBoss=true; clone.bossType=parent.bossType; clone.splitGeneration=(parent.splitGeneration||0)+1;
-    clone.formScale=Math.max(.38,(parent.formScale||parent.bossType.size||5)*.72);
-    clone.maxHp=Math.max(35,Math.round(parent.maxHp*.55)); clone.hp=clone.maxHp; clone.splitDamage=0; clone.active=true;
-    state.enemies.push(clone);
-  }
-
-  function firePheasantWave(e) {
-    const p=state.player, rows=5, shots=15, base=Math.atan2((p.y-28)-e.y,p.x-e.x);
-    // キジ本体の弾幕(強化版)
-    const gap=Math.floor(Math.random()*(shots-4))+1;
-    for(let row=0;row<rows;row++) setTimeout(()=>{
-      if(e.dead||state.over) return;
-      for(let i=0;i<shots;i++){
-        if(i>=gap&&i<=gap+2) continue;
-        const a=base+(i-(shots-1)/2)*.085+Math.sin((i+row)*.75)*.055;
-        const speed=5.2+row*.2;
-        state.projectiles.push({kind:'projectile',sourceType:'pheasantWave',x:e.x,y:e.y-75,vx:Math.cos(a)*speed,vy:Math.sin(a)*speed,radius:8,life:200,damage:14,owner:{isPlayer:false},color:'#8fffd8'});
-      }
-    },row*160);
-  }
-
-  function spawnOniMinion(e) {
-    const current=state.enemies.filter(x=>!x.dead&&x.oniMinion).length;
-    if(current>=6) return;
-    const m=makeFighter(e.x+(Math.random()-.5)*120,e.y+20+(Math.random()-.5)*60,'#9b5de5',false,12000+current);
-    m.oniMinion=true; m.maxHp=Math.round(state.config.enemy.hp*1.4*(state.room>=11?1.5:1)); m.hp=m.maxHp; m.active=true; m.projectileCooldown=45; // 子鬼もステージ3以降は1.5倍
-    state.enemies.push(m);
   }
 
   function updateComboDisplay(){
@@ -4819,6 +4940,1421 @@
     moveEntity(e,Math.cos(base)*speedX,Math.sin(base)*speedY);
   }
 
+  // ===== イヌボス: 噛みつき/飛びかかり/炎吐き/尻尾薙ぎ/突進/分裂→再合体→ジャンプ叩きつけ+地中火炎 =====
+  function inuHitHero(dmg,kx,ky){
+    const p=state.player;
+    if(!p || p.dead) return;
+    if(state.guarding){
+      // ガード中はHPダメージ0。威力ぶんガード値を大きく削る+半分のノックバック
+      // (ガード中はinvincibleTimerが常時立つため、無敵チェックより先に判定する)
+      damageGuardGauge(dmg*8);
+      p.vx+=kx*.5; p.vy+=ky*.5;
+      burst(p.x,p.y-24,6,'#bfeeff');
+      return;
+    }
+    if(p.invincibleTimer>0) return;
+    const cd=Math.max(1,Math.round((p.dashTimer>0?dmg*.5:dmg)/(state.playerDefense||1)));
+    p.hp-=cd;
+    p.hurtTimer=18;
+    p.invincibleTimer=45;
+    p.vx+=kx; p.vy+=ky;
+    showDamageNumber(p.x,p.y-70,cd,'#ff9a8f');
+    state.shake=Math.max(state.shake,12);
+  }
+
+  function inuSplit(e){
+    // 火球化からの3体分裂(黄色)。3体それぞれが本体と同じようにダメージを受け、
+    // 削られたぶんは再合体時に合算で清算される(3体同時に攻撃すれば実質3倍ダメージ)
+    e.splitPhase=true;
+    e.splitTimer=480; // 約8秒で再合体
+    e.hasSplit=true;
+    e.splitStartHp=e.hp;
+    e.formScale=3.2;
+    e.width=34*3.2; e.height=58*3.2;
+    e.splitIndex=0;
+    e.turnIndex=0;  // 攻撃は1体ずつ順番に
+    e.turnCd=30;
+    e.cloneRefs=[];
+    for(let i=0;i<2;i++){
+      const c=makeFighter(e.x+(i?-170:170), e.y+(i?70:-70), e.bossType.color, false, 997+i);
+      c.isBoss=true;
+      c.bossType=e.bossType;
+      c.inuClone=true;
+      c.mainRef=e;
+      c.splitIndex=i+1;
+      c.formScale=3.2;
+      c.width=34*3.2; c.height=58*3.2;
+      c.maxHp=e.maxHp;
+      c.hp=e.splitStartHp;
+      c.dashCooldown=40+i*30;
+      c.atkCd=30;
+      c.active=true;
+      e.cloneRefs.push(c);
+      state.enemies.push(c);
+      burst(c.x,c.y-c.height*.4,26,'#ff9d3c');
+    }
+    burst(e.x,e.y-e.height*.4,26,'#ff9d3c');
+    state.shake=Math.max(state.shake,16);
+    playSfx('boss');
+  }
+
+  function inuSplitTotalDamage(e){
+    const bodies=[e,...(e.cloneRefs||[])];
+    let total=0;
+    for(const b of bodies){
+      total += b.dead ? e.splitStartHp : Math.max(0,e.splitStartHp-b.hp);
+    }
+    return total;
+  }
+
+  function inuMerge(e){
+    // 分裂中に3体へ与えたダメージの合計を清算して1体へ戻る
+    const total=inuSplitTotalDamage(e);
+    for(const c of (e.cloneRefs||[])){
+      if(!c.dead){ c.dead=true; burst(c.x,c.y-c.height*.4,22,'#ff9d3c'); }
+    }
+    e.cloneRefs=[];
+    e.splitPhase=false;
+    e.hp=Math.max(1,e.splitStartHp-total);
+    e.merged=true; // 再合体後は尻尾攻撃→ジャンプ叩きつけ+地中火炎が解禁
+    e.formScale=5;
+    e.width=34*5; e.height=58*5;
+    burst(e.x,e.y-e.height*.4,30,'#ffd23f');
+    state.shake=Math.max(state.shake,14);
+    playSfx('comboMile');
+  }
+
+  function inuKillAllBodies(e){
+    // 分裂中に1体ぶんのHP(分裂時のHP)を削り切られたらボス撃破
+    e.hp=0; e.dead=true;
+    for(const c of (e.cloneRefs||[])){ c.hp=0; c.dead=true; }
+    burst(e.x,e.y-e.height*.4,30,'#ffffff');
+  }
+
+  function updateInuGeysers(){
+    if(!state.inuGeysers || !state.inuGeysers.length) return;
+    const p=state.player;
+    for(const g of state.inuGeysers){
+      g.t++;
+      if(g.t<0 && g.t%5===0) burst(g.x,g.y-4,2,'#ff9d3c'); // 予兆: 火の粉
+      if(g.t===0){
+        // 地中から炎が噴き出して爆発
+        state.explosionEffects.push({x:g.x,y:g.y-12,radius:10,maxRadius:95,life:18,maxLife:18,color:'#ff7a2f'});
+        burst(g.x,g.y-10,16,'#ff9d3c');
+        playSfx('bomb');
+        if(p && !p.dead && Math.hypot(p.x-g.x,p.y-g.y)<95){
+          inuHitHero(16, Math.sign(p.x-g.x)*10, -6);
+        }
+        state.shake=Math.max(state.shake,6);
+      }
+    }
+    state.inuGeysers=state.inuGeysers.filter(g=>g.t<4);
+  }
+
+  function drawInuGeysers(){
+    if(!state.inuGeysers) return;
+    for(const g of state.inuGeysers){
+      if(g.t>=0) continue;
+      // 予告: 地面の赤熱リング(爆発が近いほど濃く速く明滅)
+      const close=1+g.t/48;
+      const blink=Math.floor(state.time/(g.t>-16?3:6))%2;
+      ctx.globalAlpha=(.25+.45*close)*(blink?1:.55);
+      ctx.strokeStyle='#ff5a2a';
+      ctx.lineWidth=3;
+      ctx.beginPath();ctx.ellipse(g.x,g.y,60,26,0,0,Math.PI*2);ctx.stroke();
+      ctx.fillStyle='rgba(255,90,42,.18)';
+      ctx.beginPath();ctx.ellipse(g.x,g.y,60,26,0,0,Math.PI*2);ctx.fill();
+      ctx.globalAlpha=1;
+    }
+  }
+
+  function updateInuBoss(e,p,d,wdiff){
+    e.facing=Math.sign(p.x-e.x)||e.facing; // 常にヒーローの方を向く
+    e.dashCooldown=Math.max(0,(e.dashCooldown||0)-1);
+    e.atkCd=Math.max(0,(e.atkCd||0)-1);
+    const bodyR=e.width*.4;
+
+    if(e.stunTimer>0){e.stunTimer--; e.vx*=.9; e.vy*=.9; moveEntity(e,e.vx,e.vy); return true;} // JG崩し中は無防備
+
+    // --- 分裂(本体のみ・1回): HP55%以下で火球化して2体に
+    if(!e.inuClone && !e.hasSplit && !e.fireballT && e.hp<e.maxHp*.55 &&
+       !e.dashWindup && !e.dashTimer && !e.pounce && !e.jumpSlam && (e.biteT||0)<=0 && (e.tailT||0)<=0 && (e.flameT||0)<=0){
+      e.fireballT=44;
+      e.vx=0; e.vy=0;
+    }
+    if(e.fireballT>0){
+      e.fireballT--;
+      if(e.fireballT%3===0) burst(e.x+(Math.random()-.5)*e.width,e.y-e.height*.4,4,'#ff9d3c');
+      if(e.fireballT===0) inuSplit(e);
+      return true;
+    }
+    if(e.splitPhase && !e.inuClone){
+      e.splitTimer--;
+      e.turnCd=Math.max(0,(e.turnCd||0)-1);
+      // 3体の被ダメージ合計が分裂時HPに達したら撃破(=1体を集中して倒し切っても勝てる)
+      if(inuSplitTotalDamage(e)>=e.splitStartHp || (e.cloneRefs||[]).some(c=>c.dead) || e.hp<=0){
+        inuKillAllBodies(e);
+        return true;
+      }
+      if(e.splitTimer<=0) inuMerge(e);
+    }
+    // 分裂中の攻撃順管理: 自分の番のときだけ攻撃を仕掛けられる
+    const mainB=e.inuClone ? e.mainRef : e;
+    const myTurn=(!e.splitPhase && !e.inuClone) ||
+      (mainB && !mainB.dead && mainB.turnIndex===(e.splitIndex||0) && (mainB.turnCd||0)<=0);
+    const takeTurn=()=>{
+      if(mainB && (e.splitPhase||e.inuClone)){
+        mainB.turnIndex=((mainB.turnIndex||0)+1)%3;
+        mainB.turnCd=80; // 突進の全長(約64F)より長く=攻撃が重ならず1体ずつ順番に
+      }
+    };
+
+    // --- 突進(既存のタックル)
+    if(e.dashWindup>0){e.dashWindup--; e.vx*=.82; e.vy*=.82; if(e.dashWindup===0){e.dashTimer=e.dashDuration||26;} return true;}
+    if(e.dashTimer>0){
+      e.dashTimer--;
+      moveEntity(e,e.dashVx,e.dashVy);
+      for(let ti=0;ti<3;ti++){
+        state.particles.push({
+          x:e.x+(Math.random()-.5)*e.width*.7,
+          y:e.y-e.height*.4+(Math.random()-.5)*e.height*.5,
+          vx:-e.dashVx*.06,
+          vy:-e.dashVy*.06,
+          life:14+Math.random()*10,
+          color:Math.random()<.5?'#ffd23f':'#fff3a8'
+        });
+      }
+      const chargeHitD=Math.hypot(p.x-e.x,p.y-e.y);
+      if(chargeHitD<(e.secondDash?48:70)+bodyR && state.guarding){
+        // タックルはガードを打ち破る(HPは削らない)。対抗はJGか回避
+        triggerGuardBreak();
+        const dl=Math.hypot(e.dashVx,e.dashVy)||1;
+        p.vx+=e.dashVx/dl*40;
+        p.vy+=e.dashVy/dl*24-6;
+        p.invincibleTimer=Math.max(p.invincibleTimer,40);
+        state.shake=Math.max(state.shake,20);
+        state.hitStop=Math.max(state.hitStop||0,8);
+        burst(p.x,p.y-24,18,'#bfeeff');
+      }else if(chargeHitD<(e.secondDash?48:70)+bodyR&&p.invincibleTimer<=0){
+        const cdmg=Math.max(1,Math.round((p.dashTimer>0?15:30)/(state.playerDefense||1)));
+        p.hp-=cdmg;p.hurtTimer=20;p.invincibleTimer=50;
+        const dl=Math.hypot(e.dashVx,e.dashVy)||1;
+        p.vx+=e.dashVx/dl*48;
+        p.vy+=e.dashVy/dl*30-8;
+        state.shake=Math.max(state.shake,22);
+        state.hitStop=Math.max(state.hitStop||0,9);
+        state.flashTimer=Math.max(state.flashTimer||0,5);
+        state.explosionEffects.push({x:p.x,y:p.y-30,radius:8,maxRadius:120,life:16,maxLife:16,color:'#ffd23f'});
+        burst(p.x,p.y-24,22,'#ffd23f');
+        burst(p.x,p.y-24,14,'#ffffff');
+        playSfx('slashHit3');
+        showDamageNumber(p.x,p.y-70,cdmg,'#ff9a8f');
+      }else if(chargeHitD<82+bodyR&&p.dashTimer>0&&state.time-(state.lastJustDodge??-99)>18){
+        triggerJustDodge(p);
+      }else if(chargeHitD<160+bodyR){
+        if(tryJustGuard(p.x,p.y-30)){
+          // 体幹崩し: 大きく弾かれて90Fの隙
+          const dl2=Math.hypot(e.dashVx,e.dashVy)||1;
+          e.vx=-e.dashVx/dl2*18;
+          e.vy=-e.dashVy/dl2*10;
+          e.dashTimer=0;
+          e.dashChain=0;
+          e.stunTimer=90;
+          e.hurtTimer=24;
+        }
+      }
+      if(e.dashTimer===0){
+        e.dashChain=(e.dashChain||1)-1;
+        if(e.dashChain>0){
+          const dx=p.x-e.x, dy=p.y-e.y;
+          const dl=Math.hypot(dx,dy)||1;
+          const dist=Math.min(220,dl);
+          const T=Math.max(8,Math.round(dist/20));
+          e.dashVx=dx/dl*dist/T;
+          e.dashVy=dy/dl*dist/T;
+          e.dashTimer=T;
+          e.secondDash=true;
+        }else{
+          e.dashCooldown=110;
+        }
+      }
+      return true;
+    }
+
+    // --- 飛びかかりの予兆: しゃがみ込んでから跳ぶ(跳躍先は跳んだ瞬間のヒーロー位置)
+    if((e.pounceWindup||0)>0){
+      e.pounceWindup--;
+      e.vx*=.85; e.vy*=.85;
+      if(e.pounceWindup===0){
+        e.pounce={t:0,dur:40,fromX:e.x,fromY:e.y,toX:p.x,toY:p.y};
+      }
+      return true;
+    }
+    // --- 炎吐きの予兆: 口元に火の粉が収束してから吐く
+    if((e.flameWindup||0)>0){
+      e.flameWindup--;
+      e.vx*=.85; e.vy*=.85;
+      const mx=e.x+e.facing*e.width*.45, my=e.y-e.height*.35;
+      if(e.flameWindup%2===0){
+        const a=Math.random()*Math.PI*2;
+        state.particles.push({x:mx+Math.cos(a)*20,y:my+Math.sin(a)*20,
+          vx:-Math.cos(a)*2.6,vy:-Math.sin(a)*2.6,life:8,color:'#ff9d3c'});
+      }
+      if(e.flameWindup===0) e.flameT=42;
+      return true;
+    }
+    // --- 叩きつけの予兆: 深くしゃがみ込んでから大ジャンプ
+    if((e.slamWindup||0)>0){
+      e.slamWindup--;
+      e.vx*=.85; e.vy*=.85;
+      if(e.slamWindup===0){
+        e.jumpSlam={t:0,dur:50,fromX:e.x,fromY:e.y,toX:p.x,toY:p.y};
+      }
+      return true;
+    }
+    // --- 飛びかかり(放物線ジャンプ→着地衝撃)
+    if(e.pounce){
+      const j=e.pounce; j.t++;
+      const k=Math.min(1,j.t/j.dur);
+      e.x=j.fromX+(j.toX-j.fromX)*k;
+      e.y=j.fromY+(j.toY-j.fromY)*k;
+      e.jumpLift=Math.sin(k*Math.PI)*110;
+      if(k>=1){
+        e.pounce=null; e.jumpLift=0;
+        state.shake=Math.max(state.shake,14);
+        state.explosionEffects.push({x:e.x,y:e.y,radius:8,maxRadius:120+bodyR*.5,life:15,maxLife:15,color:'#d9c9a8'});
+        if(Math.hypot(p.x-e.x,p.y-e.y)<120+bodyR) inuHitHero(24, Math.sign(p.x-e.x)*22, -8);
+        playSfx('bomb');
+      }
+      return true;
+    }
+
+    // --- 噛みつき(短い踏み込み+前方ヒット)
+    if((e.biteT||0)>0){
+      e.biteT--;
+      if(e.biteT>12){ e.vx*=.85; e.vy*=.85; }
+      else if(e.biteT===12){
+        const dx=p.x-e.x,dy=p.y-e.y,dl=Math.hypot(dx,dy)||1;
+        e.vx=dx/dl*16; e.vy=dy/dl*10;
+      }else{
+        moveEntity(e,e.vx,e.vy); e.vx*=.92; e.vy*=.92;
+        if(e.biteT===6 && Math.hypot(p.x-e.x,p.y-e.y)<130+bodyR){
+          inuHitHero(20, Math.sign(p.x-e.x)*18, -6);
+          burst(p.x,p.y-24,10,'#ffffff');
+          playSfx('slashHit');
+        }
+      }
+      return true;
+    }
+
+    // --- 尻尾の薙ぎ払い(中距離・全周)。再合体後は直後にジャンプ叩きつけへ連係
+    if((e.tailT||0)>0){
+      e.tailT--;
+      e.vx*=.85; e.vy*=.85;
+      if(e.tailT>14){
+        if(e.tailT%3===0) burst(e.x+(Math.random()-.5)*e.width,e.y-10,3,'#d9c9a8'); // 予告の土ぼこり
+      }else if(e.tailT===8){ // 尻尾が振り抜く瞬間にヒット(描画の回転と同期)
+        const R=210+bodyR;
+        state.explosionEffects.push({x:e.x,y:e.y-e.height*.2,radius:12,maxRadius:R,life:14,maxLife:14,color:'#f2e3c0'});
+        // 尻尾が一周薙いだように見える接線方向のしぶき
+        for(let i=0;i<16;i++){
+          const a=Math.PI*2*i/16;
+          state.particles.push({
+            x:e.x+Math.cos(a)*R*.8,
+            y:e.y-e.height*.2+Math.sin(a)*R*.5,
+            vx:-Math.sin(a)*7,
+            vy:Math.cos(a)*4.5,
+            life:16+Math.random()*8,
+            color:i%2?'#f2e3c0':'#eeeae0'
+          });
+        }
+        playSfx('slashWhiff');
+        if(Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(22, Math.sign(p.x-e.x)*30, -10);
+      }
+      if(e.tailT===0 && e.merged){
+        e.slamWindup=12; // 再合体後: 尻尾の直後にしゃがみ→ジャンプ叩きつけ
+      }
+      return true;
+    }
+
+    // --- 前方への炎吐き
+    if((e.flameT||0)>0){
+      e.flameT--;
+      e.vx*=.9; e.vy*=.9;
+      if(e.flameT%3===0){
+        const mx=e.x+e.facing*e.width*.45, my=e.y-e.height*.35;
+        const fa=Math.atan2((p.y-28)-my,p.x-mx)+(Math.random()-.5)*.5;
+        state.projectiles.push({kind:'projectile',sourceType:'enemyFlame',x:mx,y:my,
+          vx:Math.cos(fa)*7,vy:Math.sin(fa)*7,radius:13,life:46,
+          damage:Math.round(9*wdiff.attack),owner:{isPlayer:false},color:'#ff7a2f'});
+      }
+      return true;
+    }
+
+    // --- ジャンプ叩きつけ+地中火炎(再合体後・尻尾の連係でのみ発動)
+    if(e.jumpSlam){
+      const j=e.jumpSlam; j.t++;
+      const k=Math.min(1,j.t/j.dur);
+      e.x=j.fromX+(j.toX-j.fromX)*k;
+      e.y=j.fromY+(j.toY-j.fromY)*k;
+      e.jumpLift=Math.sin(k*Math.PI)*170;
+      if(k>=1){
+        e.jumpSlam=null; e.jumpLift=0;
+        state.shake=Math.max(state.shake,24);
+        state.hitStop=Math.max(state.hitStop||0,7);
+        state.explosionEffects.push({x:e.x,y:e.y,radius:10,maxRadius:150+bodyR*.5,life:16,maxLife:16,color:'#e8b64c'});
+        // 踏み潰しはガード不能: ガード中でも問答無用でガードブレイク(JGも不可)。ダッシュ無敵でのみ回避できる
+        const sd=Math.hypot(p.x-e.x,p.y-e.y);
+        if(sd<130+bodyR && !p.dead){
+          if(state.guarding){
+            // ガードの無敵(常時invincible≥2)より先に判定し、必ずブレイクさせる
+            triggerGuardBreak();
+            const a=sd>1 ? Math.atan2(p.y-e.y,p.x-e.x) : Math.PI;
+            p.vx+=Math.cos(a)*30;
+            p.vy+=Math.sin(a)*16-6;
+            p.invincibleTimer=Math.max(p.invincibleTimer,40);
+            burst(p.x,p.y-24,18,'#bfeeff');
+          }else if(p.invincibleTimer<=0){
+            inuHitHero(26, Math.sign(p.x-e.x)*24, -10);
+          }
+        }
+        playSfx('bomb');
+        state.inuGeysers=state.inuGeysers||[];
+        for(let i=0;i<7;i++){
+          const a=Math.PI*2*i/7+Math.random()*.5;
+          const r=110+Math.random()*200;
+          state.inuGeysers.push({x:e.x+Math.cos(a)*r,y:e.y+Math.sin(a)*r*.6,t:-46-i*4});
+        }
+      }
+      return true;
+    }
+
+    // --- 攻撃選択(分裂中・分身は噛みつきと突進のみ)
+    const limited=e.inuClone || e.splitPhase;
+    if(e.atkCd<=0 && !p.dead && myTurn){
+      if(d<150+bodyR){
+        // 近距離: 50%で尻尾薙ぎ、それ以外は噛みつき(実戦はボスが密着まで詰めるのでここで尻尾を混ぜる)
+        if(!limited && Math.random()<.5){ e.tailT=30; e.atkCd=110; return true; }
+        e.biteT=20; e.atkCd=70; takeTurn(); return true;
+      }
+      if(!limited && d<185+bodyR){ e.tailT=30; e.atkCd=110; return true; } // 中間距離は必ず尻尾(ヒット半径210+bodyRの内側)
+      if(!limited && d<430 && Math.random()<.4){ e.flameWindup=14; e.atkCd=150; return true; }
+      if(!limited && d>200 && d<520 && Math.random()<.5){
+        e.pounceWindup=16;
+        e.atkCd=140;
+        return true;
+      }
+    }
+
+    // --- 突進の開始(既存)
+    if(e.dashCooldown<=0&&d<900&&myTurn){
+      takeTurn();
+      e.dashChain=Math.random()<.35?2:1;
+      e.secondDash=false;
+      const dx=p.x-e.x, dy=p.y-e.y;
+      const overshoot=1.6;
+      const travel=Math.hypot(dx,dy)*overshoot;
+      const T=Math.max(10,Math.min(50,Math.round(travel/30)+2));
+      e.dashVx=dx/T*overshoot;
+      e.dashVy=dy/T*overshoot;
+      e.dashDuration=T;
+      e.dashWindup=38;
+      e.dashCooldown=150;
+      return true;
+    }
+    return false; // 何もしないフレームは歩いて接近(既存の移動処理へ)
+  }
+
+  // ===== サルボス: 7体の群れ。突進連撃/薙ぎ払い連撃/叩きつけ/奇襲/防御反撃/全体突撃 =====
+  function saruBusy(m){
+    return !!(m.srWindup>0 || m.srDash || m.srCombo || m.srSweep || m.srSlam || m.srAmbush || m.srCounter || m.srStance || m.srGrab);
+  }
+
+  function saruEndEvent(){
+    state.saruEvent=null;
+    state.saruEventCd=900+Math.random()*400;
+    for(const m of state.enemies){ if(m.isBoss){ m.srRally=null; m.srRallyGo=false; } }
+  }
+
+  // 群れ全体の意思決定(毎フレーム1回だけ実行): 全体突撃の開始と進行を管理する
+  function saruTroopFrame(){
+    if(state.saruTick===state.time) return;
+    state.saruTick=state.time;
+    // ガードのしっぱなしを群れ全体で監視(3秒で掴み投げの合図)
+    state.saruGuardT = state.guarding ? (state.saruGuardT||0)+1 : 0;
+    state.saruGrabCd = Math.max(0,(state.saruGrabCd||0)-1);
+    // ぶん投げ飛行: 空中から画面端まで水平に飛び、壁際に叩きつけられて着地
+    if(state.saruThrow){
+      const th=state.saruThrow;
+      th.t++;
+      const pl=state.player;
+      const k=Math.min(1,th.t/th.dur);
+      pl.vx=0; pl.vy=0;
+      moveEntity(pl,th.vx,0);
+      pl.jumpLift=th.lift0*(1-k*k);
+      pl.invincibleTimer=Math.max(pl.invincibleTimer,3);
+      if(th.t%2===0) state.particles.push({x:pl.x,y:pl.y-30-pl.jumpLift*.5,vx:-th.vx*.15,vy:0,life:10,color:'#ffe9ad'});
+      if(k>=1){
+        state.saruThrow=null;
+        pl.jumpLift=0;
+        const cd=Math.max(1,Math.round(16/(state.playerDefense||1)));
+        pl.hp-=cd;
+        pl.hurtTimer=26;
+        pl.invincibleTimer=90;
+        pl.vx=-th.vx*.2; pl.vy=2; // 壁で跳ね返って落ちる
+        showDamageNumber(pl.x,pl.y-70,cd,'#ff9a8f');
+        state.hitStop=Math.max(state.hitStop||0,8);
+        state.shake=Math.max(state.shake,22);
+        state.explosionEffects.push({x:pl.x,y:pl.y-20,radius:10,maxRadius:140,life:15,maxLife:15,color:'#e8b64c'});
+        burst(pl.x,pl.y-10,20,'#d9c9a8');
+        playSfx('bomb');
+      }
+    }
+    const troop=state.enemies.filter(m=>m.isBoss && !m.dead && m.bossType?.trait==='splitter');
+    // ガード3秒経過: 一番近い手すきのサルを指名して掴みに向かわせる(周回中で距離が遠くても必ず来る)
+    if(!state.saruEvent && state.saruGuardT>=180 && state.saruGrabCd<=0 && !state.player.dead && !state.over){
+      const pl=state.player;
+      const free=troop.filter(m=>!saruBusy(m));
+      free.sort((a,b)=>Math.hypot(a.x-pl.x,a.y-pl.y)-Math.hypot(b.x-pl.x,b.y-pl.y));
+      if(free.length && Math.hypot(free[0].x-pl.x,free[0].y-pl.y)<420){ // 「そばで」ガードしている時だけ
+        state.saruGrabCd=420;
+        free[0].srGrab={phase:'reach',t:0};
+        free[0].srRally=null;
+        free[0].facing=Math.sign(pl.x-free[0].x)||free[0].facing;
+      }
+    }
+    const ev=state.saruEvent;
+    if(!ev){
+      state.saruEventCd=Math.max(0,(state.saruEventCd??780)-1);
+      // 全体突撃: 3体以上が健在で、誰も攻撃中でないときに開始
+      if(state.saruEventCd<=0 && troop.length>=3 && !troop.some(saruBusy) && !state.player.dead && !state.over){
+        const ww=state.worldW||state.width;
+        const wh=state.worldH||state.height;
+        const floorTop=state.height*FLOOR_RATIO;
+        // 右側に縦一列で整列(待機時の隊形と同じ)。上から順番に突進する
+        const midY=(floorTop+80+wh-60)/2;
+        const order=[...troop].sort((a,b)=>a.y-b.y);
+        order.forEach((m,i)=>{
+          m.srRally={tx:ww-140, ty:clamp(midY+(i-(order.length-1)/2)*85, floorTop+80, wh-60)};
+          m.srRallyGo=false;
+        });
+        state.saruEvent={phase:'gather',t:0,order,next:0};
+      }
+      return;
+    }
+    ev.t++;
+    ev.order=ev.order.filter(m=>!m.dead);
+    if(ev.order.length===0){ saruEndEvent(); return; }
+    if(ev.phase==='gather'){
+      const ready=ev.order.every(m=>m.srRally && Math.hypot(m.x-m.srRally.tx,m.y-m.srRally.ty)<34);
+      if(ready || ev.t>260){ ev.phase='charge'; ev.t=0; ev.next=0; }
+    }else if(ev.phase==='charge'){
+      // 縦列の上から順番に突進。最後の1体は突進後に範囲攻撃で締める
+      const m=ev.order[ev.next];
+      if(!m || m.dead || (m.srRallyGo && !saruBusy(m))){
+        if(m) m.srRally=null;
+        ev.next++;
+        if(ev.next>=ev.order.length) saruEndEvent();
+        return;
+      }
+      if(!m.srRallyGo){
+        m.srRallyGo=true;
+        m.srAttack=(ev.next===ev.order.length-1)?'finalCharge':'rallyCharge';
+        m.srWindup=18;
+      }
+    }
+  }
+
+  // 目の前への棒スイング1発(ガード/無敵は inuHitHero 側で処理)
+  function saruSwipe(e,dmg,range,kb){
+    const p=state.player;
+    e.srSwingFx=8;
+    playSfx('slashWhiff');
+    const dx=p.x-e.x, dy=(p.y-e.y)*1.15, dl=Math.hypot(dx,dy)||1;
+    if(dl<range+e.width*.4 && (p.x-e.x)*e.facing>-30){
+      inuHitHero(dmg,(dx/dl)*kb,(dy/dl)*kb*.6-3);
+      playSfx('slashHit');
+    }
+  }
+
+  // 予兆(構え)が終わった瞬間に本体アクションを起動する
+  function saruStartAttack(e,p){
+    const atk=e.srAttack;
+    const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
+    e.facing=Math.sign(dx)||e.facing;
+    if(atk==='rush'){
+      // 突進連撃: 正面へ突進し、到達後に連続攻撃
+      const travel=dl*1.35;
+      const T=Math.max(8,Math.round(travel/21));
+      e.srDash={vx:dx/dl*travel/T, vy:dy/dl*travel/T, t:T, dmg:12, after:'combo'};
+    }else if(atk==='rallyCharge'||atk==='finalCharge'){
+      const travel=dl*(atk==='finalCharge'?1.0:1.45);
+      const T=Math.max(8,Math.round(travel/24));
+      e.srDash={vx:dx/dl*travel/T, vy:dy/dl*travel/T, t:T, dmg:12, after:atk==='finalCharge'?'bigslam':null};
+    }else if(atk==='combo3'){
+      // 近距離: その場から棒の3連撃
+      e.srCombo={t:40};
+    }else if(atk==='sweep'){
+      e.srSweep={t:0};
+    }else if(atk==='slam'){
+      // 距離があれば飛びかかり、近ければ踏み込んで叩きつけ
+      if(dl>140) e.srSlam={t:0,dur:30,fromX:e.x,fromY:e.y,toX:p.x,toY:p.y};
+      else e.srSlam={t:0,dur:12,fromX:e.x,fromY:e.y,toX:e.x+Math.sign(dx||1)*70,toY:p.y};
+    }else if(atk==='ambushBack'){
+      e.srAmbush={phase:'back',t:22,dirX:-dx/dl,dirY:-dy/dl};
+    }else if(atk==='stance'){
+      e.srStance={t:120,hp0:e.hp};
+    }
+  }
+
+  function updateSaruBoss(e,p,d,wdiff){
+    saruTroopFrame();
+    e.srSwingFx=Math.max(0,(e.srSwingFx||0)-1);
+    e.srCd=Math.max(0,(e.srCd??(60+(e.saruIndex||0)*40))-1);
+    const bodyR=e.width*.4;
+
+    if(e.stunTimer>0){e.stunTimer--; e.vx*=.9; e.vy*=.9; moveEntity(e,e.vx,e.vy); return true;} // JG崩し中は無防備
+
+    // --- 予兆(構え): 各攻撃共通のタメ。切れた瞬間に本体アクションへ
+    if(e.srWindup>0){
+      e.srWindup--;
+      e.vx*=.8; e.vy*=.8;
+      e.jumpLift=(e.jumpLift||0)*.7;
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      if(e.srWindup===0) saruStartAttack(e,p);
+      return true;
+    }
+
+    // --- 突進(突進連撃/奇襲の高速接近/全体突撃)
+    if(e.srDash){
+      const dsh=e.srDash;
+      dsh.t--;
+      moveEntity(e,dsh.vx,dsh.vy);
+      for(let ti=0;ti<2;ti++){
+        state.particles.push({
+          x:e.x+(Math.random()-.5)*e.width*.8,
+          y:e.y-e.height*.4+(Math.random()-.5)*e.height*.6,
+          vx:-dsh.vx*.06, vy:-dsh.vy*.06,
+          life:10+Math.random()*8,
+          color:Math.random()<.5?'#ffd23f':'#fff3a8'
+        });
+      }
+      const hd=Math.hypot(p.x-e.x,p.y-e.y);
+      if(!dsh.hitDone && hd<62+bodyR){
+        if(p.dashTimer>0 && state.time-(state.lastJustDodge??-99)>18){ triggerJustDodge(p); dsh.hitDone=true; }
+        else if(state.guarding){
+          // ガード成功: 突進したサルの方が弾き飛ばされる
+          dsh.hitDone=true;
+          damageGuardGauge((dsh.dmg||12)*4);
+          const dl=Math.hypot(dsh.vx,dsh.vy)||1;
+          e.vx=-dsh.vx/dl*26;
+          e.vy=-dsh.vy/dl*16-4;
+          e.srDash=null;
+          e.stunTimer=36;
+          e.hurtTimer=16;
+          burst(e.x,e.y-20,14,'#bfeeff');
+          state.shake=Math.max(state.shake,10);
+          playSfx('slashHit');
+          return true;
+        }
+        else { inuHitHero(dsh.dmg||12, dsh.vx*.9, dsh.vy*.6-4); dsh.hitDone=true; }
+      }else if(hd<150+bodyR && !dsh.jgDone){
+        if(tryJustGuard(p.x,p.y-30)){
+          // JG成功: 弾かれて大きな隙
+          dsh.jgDone=true;
+          e.vx=-dsh.vx*.8; e.vy=-dsh.vy*.5;
+          e.srDash=null;
+          e.stunTimer=70;
+          e.hurtTimer=20;
+          return true;
+        }
+      }
+      if(dsh.t<=0){
+        const after=dsh.after;
+        e.srDash=null;
+        if(after==='combo' && Math.hypot(p.x-e.x,p.y-e.y)<190){
+          e.srCombo={t:40};
+        }else if(after==='swipe'){
+          e.srCombo={t:12,single:true};
+        }else if(after==='bigslam'){
+          // 全体突撃の締め: 大型の範囲攻撃
+          const R=170+bodyR;
+          state.shake=Math.max(state.shake,20);
+          state.explosionEffects.push({x:e.x,y:e.y,radius:10,maxRadius:R,life:16,maxLife:16,color:'#ffb46b'});
+          if(Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(22, Math.sign(p.x-e.x)*24, -9);
+          playSfx('bomb');
+          e.srCd=160;
+        }else{
+          e.srCd=120+Math.random()*50;
+        }
+      }
+      return true;
+    }
+
+    // --- 突進到達後の連続攻撃(3連スイング) / 奇襲後の単発スイング
+    if(e.srCombo){
+      const c=e.srCombo;
+      c.t--;
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      if(c.single){
+        if(c.t===6) saruSwipe(e,12,130,14);
+      }else if(c.t===32||c.t===20||c.t===8){
+        const dx=p.x-e.x,dy=p.y-e.y,dl=Math.hypot(dx,dy)||1;
+        e.vx+=dx/dl*6; e.vy+=dy/dl*3.6;
+        saruSwipe(e,7,135,10);
+      }
+      if(c.t<=0){ e.srCombo=null; e.srCd=130+Math.random()*50; }
+      return true;
+    }
+
+    // --- 薙ぎ払い連撃: 前進しながら3回薙ぎ、最後に前方へ衝撃波
+    if(e.srSweep){
+      const s=e.srSweep;
+      s.t++;
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      if(s.t===2||s.t===20||s.t===38){
+        const dx=p.x-e.x,dy=p.y-e.y,dl=Math.hypot(dx,dy)||1;
+        e.vx+=dx/dl*8; e.vy+=dy/dl*4.8;
+      }
+      if(s.t===10||s.t===28||s.t===46) saruSwipe(e,9,140,12);
+      if(s.t>=54){
+        const a=Math.atan2((p.y-24)-(e.y-20),p.x-e.x);
+        state.projectiles.push({kind:'projectile',sourceType:'saruWave',x:e.x,y:e.y-20,
+          vx:Math.cos(a)*7.6,vy:Math.sin(a)*7.6,radius:13,life:90,damage:13,
+          owner:{isPlayer:false},color:'#ffd9a0'});
+        playSfx('enemyShot');
+        e.srSweep=null;
+        e.srCd=150+Math.random()*60;
+      }
+      return true;
+    }
+
+    // --- 叩きつけ: 飛びかかり(or踏み込み)→着地点に衝撃
+    if(e.srSlam){
+      const j=e.srSlam;
+      j.t++;
+      const k=Math.min(1,j.t/j.dur);
+      e.x=j.fromX+(j.toX-j.fromX)*k;
+      e.y=j.fromY+(j.toY-j.fromY)*k;
+      e.jumpLift=Math.sin(k*Math.PI)*(j.dur>20?85:36);
+      if(k>=1){
+        e.srSlam=null; e.jumpLift=0;
+        const R=115+bodyR;
+        state.shake=Math.max(state.shake,12);
+        state.explosionEffects.push({x:e.x,y:e.y,radius:8,maxRadius:R,life:15,maxLife:15,color:'#d9c9a8'});
+        if(Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(15, Math.sign(p.x-e.x)*16, -8);
+        playSfx('bomb');
+        e.srCd=130+Math.random()*40;
+      }
+      return true;
+    }
+
+    // --- 奇襲(距離取り型): 後方へ跳んで離れ、静止してから高速接近
+    if(e.srAmbush){
+      const am=e.srAmbush;
+      if(am.phase==='back'){
+        am.t--;
+        moveEntity(e,am.dirX*10,am.dirY*6);
+        if(am.t%2===0) state.particles.push({x:e.x,y:e.y-14,vx:(Math.random()-.5)*2,vy:-1,life:10,color:'#bfa27e'});
+        if(am.t<=0){ am.phase='pause'; am.t=16; }
+      }else{
+        am.t--;
+        e.vx*=.8; e.vy*=.8;
+        e.facing=Math.sign(p.x-e.x)||e.facing;
+        if(am.t<=0){
+          e.srAmbush=null;
+          const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
+          const travel=dl*1.1;
+          const T=Math.max(6,Math.round(travel/26));
+          e.srDash={vx:dx/dl*travel/T, vy:dy/dl*travel/T, t:T, dmg:12, after:'swipe'}; // 到達後は単発スイング
+        }
+      }
+      return true;
+    }
+
+    // --- 防御反撃: 構えて停止し、被弾したら即座に反撃(構え中は被ダメージ2割)
+    if(e.srStance){
+      const st=e.srStance;
+      st.t--;
+      e.vx*=.7; e.vy*=.7;
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      if(e.hp<st.hp0){
+        const taken=st.hp0-e.hp;
+        e.hp=Math.min(st.hp0,e.hp+Math.round(taken*.8));
+        burst(e.x,e.y-24,10,'#bfeeff');
+        playSfx('slashWhiff');
+        e.srStance=null;
+        e.srCounter={t:18};
+        return true;
+      }
+      if(st.t<=0){ e.srStance=null; e.srCd=100; }
+      return true;
+    }
+    if(e.srCounter){
+      const ct=e.srCounter;
+      ct.t--;
+      if(ct.t===12){
+        const dx=p.x-e.x,dy=p.y-e.y,dl=Math.hypot(dx,dy)||1;
+        e.vx=dx/dl*22; e.vy=dy/dl*13;
+        e.facing=Math.sign(dx)||e.facing;
+      }
+      if(ct.t===6) saruSwipe(e,15,140,16);
+      if(ct.t<=0){ e.srCounter=null; e.srCd=120+Math.random()*40; }
+      return true;
+    }
+
+    // --- 掴み投げ: そばでガードし続けるヒーローへの崩し(ガード不能)
+    if(e.srGrab){
+      const g=e.srGrab;
+      g.t++;
+      if(g.phase==='reach'){
+        // 早歩きでヒーローに寄って接触したら掴む(走り込みの突進はしない)
+        const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
+        e.facing=Math.sign(dx)||e.facing;
+        if(dl>50) moveEntity(e,dx/dl*6.5,dy/dl*4.4);
+        if(dl<=55+bodyR*.5 && !p.dead){
+          g.phase='hold'; g.t=0;
+          state.saruHolder=e;
+          triggerGuardBreak(); // 掴みはガードで防げない
+          playSfx('slashWhiff');
+          burst(p.x,p.y-24,10,'#ffffff');
+        }else if(g.t>=120 || p.dead){
+          e.srGrab=null; e.srCd=60;
+          state.saruGrabCd=Math.min(state.saruGrabCd||0,120); // 空振りは早めに再挑戦
+        }
+      }else if(g.phase==='hold'){
+        // 掴んだら一拍静止: 両腕でヒーローを頭上に担いだまま止まる
+        e.facing=Math.sign(p.x-e.x)||e.facing;
+        p.x=e.x+e.facing*6+Math.sin(g.t*.6)*3; // 頭上でじたばた揺れる
+        p.y=e.y;
+        p.jumpLift=Math.min(68, g.t*7); // 持ち上げモーション(徐々に頭上へ)
+        p.vx=0; p.vy=0;
+        e.vx*=.8; e.vy*=.8;
+        if(g.t%5===0) state.particles.push({x:p.x+(Math.random()-.5)*20,y:p.y-70,vx:(Math.random()-.5)*2,vy:-1,life:10,color:'#ffffff'});
+        if(g.t>=30){ g.phase='jump'; g.t=0; playSfx('slashWhiff'); }
+      }else if(g.phase==='jump'){
+        // 担いだままその場で真上に高くジャンプ(横には走らない)
+        const k=Math.min(1,g.t/22);
+        e.jumpLift=170*(1-(1-k)*(1-k));
+        e.vx=0; e.vy=0;
+        p.x=e.x+e.facing*6;
+        p.y=e.y;
+        p.jumpLift=e.jumpLift+68;
+        p.vx=0; p.vy=0;
+        if(g.t>=22){ g.phase='apex'; g.t=0; }
+      }else if(g.phase==='apex'){
+        // 頂点でちょっと間を開ける(空中で静止)
+        e.jumpLift=170+Math.sin(g.t*.5)*4;
+        e.vx=0; e.vy=0;
+        p.x=e.x+e.facing*6;
+        p.y=e.y;
+        p.jumpLift=e.jumpLift+68;
+        p.vx=0; p.vy=0;
+        if(g.t>=20){
+          // 画面端まで水平にぶん投げる(着地=壁際で叩きつけダメージ)
+          const dir=-(e.facing||1);
+          const ww=state.worldW||state.width;
+          const targetX=dir<0 ? 50 : ww-50;
+          const dist=Math.max(60,Math.abs(targetX-p.x));
+          const dur=Math.max(14,Math.round(dist/24));
+          state.saruThrow={t:0,dur,vx:dir*dist/dur,lift0:e.jumpLift+68};
+          state.saruHolder=null;
+          playSfx('slashWhiff');
+          burst(p.x,p.y-e.jumpLift-60,12,'#ffd23f');
+          g.phase='fall'; g.t=0;
+        }
+      }else if(g.phase==='fall'){
+        // 投げたサルは元の場所へ着地
+        e.jumpLift=Math.max(0,(e.jumpLift||0)-14);
+        e.vx*=.8; e.vy*=.8;
+        if(e.jumpLift<=0){
+          e.jumpLift=0;
+          burst(e.x,e.y-6,8,'#d9c9a8');
+          e.srGrab=null;
+          e.srCd=140;
+          state.saruGrabCd=240; // 連続掴み防止(群れ全体で共有・約4秒)
+          state.saruGuardT=0;
+        }
+      }
+      return true;
+    }
+
+    // --- 全体突撃: 整列位置へ走り、自分の番までしゃがんで待つ
+    if(e.srRally){
+      const r=e.srRally;
+      const rd=Math.hypot(r.tx-e.x,r.ty-e.y);
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      e.jumpLift=0;
+      if(rd>24){
+        const a=Math.atan2(r.ty-e.y,r.tx-e.x);
+        moveEntity(e,Math.cos(a)*5,Math.sin(a)*3.4);
+      }else{ e.vx*=.7; e.vy*=.7; }
+      return true;
+    }
+
+    // --- ヒーローが離れている時は追いかけず、アリーナ右側に縦一列に整列して待つ
+    e.srLineIdle=false;
+    if(d>480 && !state.saruEvent){
+      const alive=state.enemies.filter(m=>m.isBoss&&!m.dead);
+      const idx=Math.max(0,alive.indexOf(e)), n=alive.length;
+      const ww=state.worldW||state.width, wh=state.worldH||state.height;
+      const floorTop=state.height*FLOOR_RATIO;
+      const tx=ww-140; // 右端寄りの縦列
+      const midY=(floorTop+80+wh-60)/2;
+      const ty=clamp(midY+(idx-(n-1)/2)*85, floorTop+80, wh-60);
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      const rd=Math.hypot(tx-e.x,ty-e.y);
+      if(rd>26){
+        const a=Math.atan2(ty-e.y,tx-e.x);
+        moveEntity(e,Math.cos(a)*3.2,Math.sin(a)*2.2);
+      }else{
+        e.vx*=.7; e.vy*=.7;
+        e.srLineIdle=true; // 整列してしゃがみ待機
+      }
+      e.jumpLift=0;
+      return true;
+    }
+
+    // --- 個別攻撃の選択(同時に暴れるのは2体まで)
+    if(e.srCd<=0 && !p.dead && !state.saruEvent){
+      const busy=state.enemies.filter(m=>m.isBoss&&!m.dead&&m!==e&&saruBusy(m)).length;
+      if(busy<2){
+        const roll=Math.random();
+        let atk;
+        if(d<180) atk = roll<.5?'combo3' : roll<.72?'sweep' : roll<.88?'stance' : 'slam'; // 近づいたら3連撃が主体
+        else if(d<430) atk = roll<.38?'rush' : roll<.62?'slam' : 'ambushBack'; // 奇襲はワープ廃止で距離取り型のみ
+        else atk = roll<.55?'rush' : 'ambushBack';
+        e.srAttack=atk;
+        e.srWindup= atk==='rush'?34 : atk==='combo3'?16 : atk==='sweep'?30 : atk==='slam'?36 : atk==='stance'?10 : 12;
+        e.vx*=.5; e.vy*=.5;
+        return true;
+      }
+    }
+
+    // --- 通常時: ヒーローの周囲を跳ね回りながら包囲する
+    e.srOrbit=(e.srOrbit??(e.saruIndex||0)*(Math.PI*2/7))+.006+((e.saruIndex||0)%2)*.003;
+    const orbR=240+((e.saruIndex||0)%3)*45;
+    const tx=p.x+Math.cos(e.srOrbit)*orbR;
+    const ty=p.y+Math.sin(e.srOrbit)*orbR*.6;
+    e.facing=Math.sign(p.x-e.x)||e.facing;
+    if(Math.hypot(tx-e.x,ty-e.y)>24){
+      const a=Math.atan2(ty-e.y,tx-e.x);
+      moveEntity(e,Math.cos(a)*2.6,Math.sin(a)*1.7);
+    }
+    e.jumpLift=Math.abs(Math.sin(state.time*.13+(e.saruIndex||0)*1.3))*6;
+    return true;
+  }
+
+  // ===== キジボス: 扇状の波/回転突進/全体睡眠波動/巨大な雫の落下爆発/小型クラゲ召喚 =====
+  function spawnKijiDrop(e,p){
+    const ww=state.worldW||state.width, wh=state.worldH||state.height;
+    const floorTop=state.height*FLOOR_RATIO;
+    const drop=makeFighter(clamp(p.x,80,ww-80), clamp(p.y,floorTop+70,wh-50), '#bfe8ff', false, 7777);
+    drop.special='kijiDrop';
+    drop.movementType='flying';
+    drop.maxHp=Math.round(state.config.enemy.hp*2.2); // 遠距離攻撃で壊し切れる耐久
+    drop.hp=drop.maxHp;
+    drop.killCounted=true; // 壊してもスコア・コンボは入らない(ギミック扱い)
+    drop.active=true;
+    drop.jumpLift=150; // 着弾地点の上空に浮かぶ
+    drop.dropT=70;     // 落下までの猶予(この間に壊すか離れる)
+    state.enemies.push(drop);
+  }
+
+  function spawnKurage(e){
+    for(let i=0;i<7;i++){
+      const a=Math.PI*2*i/7+Math.random()*.5;
+      const m=makeFighter(e.x+Math.cos(a)*70, e.y+Math.sin(a)*50, '#23262e', false, 8800+i);
+      m.special='kurage';
+      m.movementType='flying';
+      m.maxHp=Math.round(state.config.enemy.hp*.9);
+      m.hp=m.maxHp;
+      m.kurageT=190; // 接近フェーズの長さ
+      m.active=true;
+      state.enemies.push(m);
+    }
+    burst(e.x,e.y-50,16,'#3a3f4d');
+    playSfx('enemyShot');
+  }
+
+  function kijiStartAttack(e,p){
+    const atk=e.kjAttack;
+    const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
+    e.facing=Math.sign(dx)||e.facing;
+    if(atk==='fan'){
+      // 前方へ扇状の波(11本)。遅めの水弾で「届く直前に回避」できる
+      const base=Math.atan2((p.y-28)-(e.y-50),p.x-e.x);
+      for(let i=-5;i<=5;i++){
+        const a=base+i*.13;
+        state.projectiles.push({kind:'projectile',sourceType:'kijiFan',x:e.x+e.facing*30,y:e.y-50,
+          vx:Math.cos(a)*5.6,vy:Math.sin(a)*5.6,radius:11,life:130,damage:12,
+          owner:{isPlayer:false},color:'#8fe0ff'});
+      }
+      playSfx('enemyShot');
+      e.kjCd=170;
+    }else if(atk==='spin'){
+      const travel=dl*1.25;
+      const T=Math.max(10,Math.round(travel/17));
+      e.kjSpin={t:0,dur:T,vx:dx/dl*travel/T,vy:dy/dl*travel/T};
+    }else if(atk==='sleepwave'){
+      e.kjSleep={t:300,hp0:e.hp};
+      state.kijiSleepCd=1500; // 睡眠波動は約25秒に1回まで
+    }else if(atk==='drop'){
+      spawnKijiDrop(e,p);
+      e.kjCd=220;
+    }else if(atk==='jelly'){
+      spawnKurage(e);
+      e.kjCd=190;
+    }
+  }
+
+  function updateKijiBoss(e,p,d,wdiff){
+    e.kjCd=Math.max(0,(e.kjCd??90)-1);
+    const bodyR=e.width*.4;
+    if(e.stunTimer>0){e.stunTimer--; e.vx*=.9; e.vy*=.9; moveEntity(e,e.vx,e.vy); return true;}
+    e.facing=Math.sign(p.x-e.x)||e.facing;
+
+    // --- 予兆
+    if(e.kjWindup>0){
+      e.kjWindup--;
+      e.vx*=.85; e.vy*=.85;
+      if(e.kjAttack==='fan' && e.kjWindup%3===0){
+        // 身体を反らし、前方に水が集まる
+        const mx=e.x+e.facing*60, my=e.y-50;
+        const a=Math.random()*Math.PI*2;
+        state.particles.push({x:mx+Math.cos(a)*30,y:my+Math.sin(a)*30,vx:-Math.cos(a)*2.4,vy:-Math.sin(a)*2.4,life:10,color:'#7fd8ff'});
+      }
+      if(e.kjAttack==='drop') e.jumpLift=Math.min(140,(e.jumpLift||0)+5); // 高く浮かぶ
+      if(e.kjAttack==='sleepwave' && e.kjWindup%4===0){
+        state.particles.push({x:e.x+(Math.random()-.5)*60,y:e.y-90,vx:0,vy:-1.4,life:14,color:'#d9a0ff'});
+      }
+      if(e.kjWindup===0) kijiStartAttack(e,p);
+      return true;
+    }
+
+    // --- 回転突進: 回りながら突っ込み、最後に地面へ叩きつける
+    if(e.kjSpin){
+      const s=e.kjSpin;
+      s.t++;
+      moveEntity(e,s.vx,s.vy);
+      if(s.t%2===0) state.particles.push({x:e.x+(Math.random()-.5)*e.width,y:e.y-e.height*.4+(Math.random()-.5)*e.height*.5,vx:-s.vx*.06,vy:-s.vy*.06,life:12,color:'#8fe0ff'});
+      const hd=Math.hypot(p.x-e.x,p.y-e.y);
+      if(!s.hitDone && hd<70+bodyR){
+        if(p.dashTimer>0 && state.time-(state.lastJustDodge??-99)>18){ triggerJustDodge(p); s.hitDone=true; }
+        else if(state.guarding){
+          // 回転突進は通常ガードを打ち破る(対抗はJGか横回避)
+          s.hitDone=true;
+          triggerGuardBreak();
+          const dl2=Math.hypot(s.vx,s.vy)||1;
+          p.vx+=s.vx/dl2*40;
+          p.vy+=s.vy/dl2*24-6;
+          p.invincibleTimer=Math.max(p.invincibleTimer,40);
+          state.shake=Math.max(state.shake,20);
+          burst(p.x,p.y-24,18,'#bfeeff');
+        }
+        else { inuHitHero(14, s.vx*.9, s.vy*.6-4); s.hitDone=true; }
+      }else if(hd<170+bodyR && !s.jgDone && tryJustGuard(p.x,p.y-30)){
+        s.jgDone=true;
+        e.vx=-s.vx*.7; e.vy=-s.vy*.5;
+        e.kjSpin=null;
+        e.stunTimer=80;
+        e.hurtTimer=20;
+        return true;
+      }
+      if(s.t>=s.dur){
+        e.kjSpin=null;
+        // 最後の叩きつけ
+        const R=140+bodyR;
+        state.shake=Math.max(state.shake,16);
+        state.explosionEffects.push({x:e.x,y:e.y,radius:10,maxRadius:R,life:15,maxLife:15,color:'#8fe0ff'});
+        if(Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(16, Math.sign(p.x-e.x)*18, -8);
+        playSfx('bomb');
+        e.kjCd=180;
+      }
+      return true;
+    }
+
+    // --- 全体睡眠波動: 上を向いて波動を放ち、フィールド全体に睡眠ゲージを蓄積
+    if(e.kjSleep){
+      const sl=e.kjSleep;
+      sl.t--;
+      e.vx*=.8; e.vy*=.8;
+      // 波動の見た目は描画側の「怪電波」リング(ビカビカする爆発リングは使わない)
+      state.kijiSleepGauge=Math.min(100,(state.kijiSleepGauge||0)+100/280);
+      if(state.kijiSleepGauge>=100 && (state.playerSleep||0)<=0 && !p.dead){
+        // 満タン: ヒーローが眠る(2.5秒行動不能)
+        state.playerSleep=150;
+        state.kijiSleepGauge=0;
+        state.guarding=false;
+        burst(p.x,p.y-40,18,'#d9a0ff');
+        playSfx('guardBreak');
+        e.kjSleep=null;
+        e.kjCd=200;
+        return true;
+      }
+      if(sl.hp0-e.hp > e.maxHp*.05){
+        // 攻撃を集中されて中断
+        e.kjSleep=null;
+        e.stunTimer=50;
+        e.hurtTimer=20;
+        burst(e.x,e.y-60,16,'#ffffff');
+        e.kjCd=220;
+        return true;
+      }
+      if(sl.t<=0){ e.kjSleep=null; e.kjCd=200; }
+      return true;
+    }
+
+    // --- 攻撃選択
+    if(e.kjCd<=0 && !p.dead){
+      const roll=Math.random();
+      let atk;
+      if(roll<.3) atk='fan';
+      else if(roll<.55) atk='spin';
+      else if(roll<.7) atk='jelly';
+      else if(roll<.85) atk='drop';
+      else atk='sleepwave';
+      if(atk==='sleepwave' && (state.kijiSleepCd||0)>0) atk='fan';
+      if(atk==='drop' && state.enemies.some(x=>x.special==='kijiDrop'&&!x.dead)) atk='spin';
+      if(atk==='jelly' && state.enemies.filter(x=>x.special==='kurage'&&!x.dead).length>=8) atk='fan';
+      e.kjAttack=atk;
+      e.kjWindup= atk==='fan'?40 : atk==='spin'?30 : atk==='sleepwave'?36 : atk==='drop'?40 : 26;
+      return true;
+    }
+
+    // --- 通常時: 中距離を保ってふわふわ回り込む
+    e.kjOrbit=(e.kjOrbit??0)+.004;
+    const tx=p.x+Math.cos(e.kjOrbit)*380;
+    const ty=p.y+Math.sin(e.kjOrbit)*190;
+    const a=Math.atan2(ty-e.y,tx-e.x);
+    if(Math.hypot(tx-e.x,ty-e.y)>30) moveEntity(e,Math.cos(a)*2.2,Math.sin(a)*1.5);
+    const hoverTarget=10+Math.sin(state.time*.08)*6;
+    e.jumpLift=(e.jumpLift||0)+(hoverTarget-(e.jumpLift||0))*.08;
+    return true;
+  }
+
+  // ===== 鬼ボス(ラスボス): 金棒連続打撃/衝撃波/暗闇の追尾光弾/次元打ち・属性強化/五連打からの大爆発 =====
+  function oniSwing(e,dmg,range,kb){
+    // 振り自体に持続当たり判定を持たせる(9フレームの間、金棒の届く範囲に触れたらヒット)
+    e.onSwingFx=8;
+    e.onSwingHit={t:9,dmg,range,kb,done:false};
+    playSfx('slashWhiff');
+  }
+
+  function oniStartAttack(e,p){
+    const atk=e.onAttack;
+    const dx=p.x-e.x, dy=p.y-e.y;
+    e.facing=Math.sign(dx)||e.facing;
+    if(atk==='combo'){
+      e.onCombo={swings:4,next:8,t:0};
+    }else if(atk==='shock'){
+      // 遠距離まで届く衝撃波(縦振り=1本の速い波 / 横薙ぎ=3本並びの幅広い波)
+      const a=Math.atan2((p.y-24)-(e.y-30),p.x-e.x);
+      if(e.onShockVert){
+        state.projectiles.push({kind:'projectile',sourceType:'oniWave',x:e.x,y:e.y-30,
+          vx:Math.cos(a)*10.5,vy:Math.sin(a)*10.5,radius:15,life:150,damage:18,
+          owner:{isPlayer:false},color:'#ffd75e'});
+      }else{
+        for(const off of [-34,0,34]){
+          state.projectiles.push({kind:'projectile',sourceType:'oniWave',
+            x:e.x-Math.sin(a)*off, y:e.y-30+Math.cos(a)*off,
+            vx:Math.cos(a)*8,vy:Math.sin(a)*8,radius:13,life:170,damage:14,
+            owner:{isPlayer:false},color:'#ffd75e'});
+        }
+      }
+      playSfx('enemyShot');
+      e.onCd=150;
+    }else if(atk==='dark'){
+      e.onDark={t:0,shots:28}; // 弾数2倍
+      state.oniDark=Math.max(state.oniDark||0,240);
+    }else if(atk==='dimension'){
+      e.onDim={phase:'rise',t:0};
+    }else if(atk==='five'){
+      e.onFive={phase:'swings',left:5,t:0,next:6};
+    }else if(atk==='laser'){
+      // 角から強力なレーザー(発射時の狙いで固定)
+      const la=Math.atan2((p.y-24)-(e.y-190),p.x-e.x);
+      e.onLaser={t:26,angle:la};
+      playSfx('laser');
+      e.facing=Math.sign(Math.cos(la))||e.facing;
+    }
+  }
+
+  function updateOniBoss(e,p,d,wdiff){
+    e.onCd=Math.max(0,(e.onCd??80)-(d<240?3:1)); // 近距離では攻撃間隔3倍速=ガンガン攻める
+    e.onSwingFx=Math.max(0,(e.onSwingFx||0)-1);
+    const bodyR=e.width*.4;
+    // 振った金棒の持続当たり判定: 触れたらダメージ+大きくふっとばす
+    if(e.onSwingHit){
+      const sh=e.onSwingHit;
+      sh.t--;
+      if(!sh.done){
+        const dx=p.x-e.x, dy=(p.y-e.y)*1.15, dl=Math.hypot(dx,dy)||1;
+        if(dl<sh.range+e.width*.4 && (p.x-e.x)*e.facing>-60){
+          sh.done=true;
+          inuHitHero(sh.dmg,(dx/dl)*sh.kb,(dy/dl)*sh.kb*.6-9);
+          playSfx('slashHit');
+        }
+      }
+      if(sh.t<=0) e.onSwingHit=null;
+    }
+    if(e.stunTimer>0){e.stunTimer--; e.vx*=.9; e.vy*=.9; moveEntity(e,e.vx,e.vy); return true;}
+
+    // ガードしっぱなしの監視(3秒で掴み投げ)
+    state.oniGuardT = state.guarding ? (state.oniGuardT||0)+1 : 0;
+    state.oniGrabCd = Math.max(0,(state.oniGrabCd||0)-1);
+
+    // --- 掴み投げ: そばでガードし続けるヒーローへの崩し(サルと同じ流れ・ガード不能)
+    if(e.onGrab){
+      const g=e.onGrab;
+      g.t++;
+      if(g.phase==='reach'){
+        const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
+        e.facing=Math.sign(dx)||e.facing;
+        if(dl>60) moveEntity(e,dx/dl*6.5,dy/dl*4.4);
+        if(dl<=70+bodyR*.5 && !p.dead){
+          g.phase='hold'; g.t=0;
+          state.saruHolder=e;
+          triggerGuardBreak(); // 掴みはガードで防げない
+          playSfx('slashWhiff');
+          burst(p.x,p.y-24,10,'#ffffff');
+        }else if(g.t>=120 || p.dead){
+          e.onGrab=null; e.onCd=60;
+          state.oniGrabCd=Math.min(state.oniGrabCd||0,120);
+        }
+      }else if(g.phase==='hold'){
+        e.facing=Math.sign(p.x-e.x)||e.facing;
+        p.x=e.x+e.facing*8+Math.sin(g.t*.6)*3;
+        p.y=e.y;
+        p.jumpLift=Math.min(96,g.t*8);
+        p.vx=0; p.vy=0;
+        e.vx*=.8; e.vy*=.8;
+        if(g.t>=30){ g.phase='jump'; g.t=0; playSfx('slashWhiff'); }
+      }else if(g.phase==='jump'){
+        const k=Math.min(1,g.t/22);
+        e.jumpLift=190*(1-(1-k)*(1-k));
+        e.vx=0; e.vy=0;
+        p.x=e.x+e.facing*8; p.y=e.y;
+        p.jumpLift=e.jumpLift+96;
+        p.vx=0; p.vy=0;
+        if(g.t>=22){ g.phase='apex'; g.t=0; }
+      }else if(g.phase==='apex'){
+        e.jumpLift=190+Math.sin(g.t*.5)*4;
+        e.vx=0; e.vy=0;
+        p.x=e.x+e.facing*8; p.y=e.y;
+        p.jumpLift=e.jumpLift+96;
+        p.vx=0; p.vy=0;
+        if(g.t>=20){
+          const dir=-(e.facing||1);
+          const ww=state.worldW||state.width;
+          const targetX=dir<0?50:ww-50;
+          const dist=Math.max(60,Math.abs(targetX-p.x));
+          const dur=Math.max(14,Math.round(dist/24));
+          state.saruThrow={t:0,dur,vx:dir*dist/dur,lift0:e.jumpLift+96};
+          state.saruHolder=null;
+          playSfx('slashWhiff');
+          burst(p.x,p.y-e.jumpLift-70,12,'#ffd23f');
+          g.phase='fall'; g.t=0;
+        }
+      }else if(g.phase==='fall'){
+        e.jumpLift=Math.max(0,(e.jumpLift||0)-14);
+        e.vx*=.8; e.vy*=.8;
+        if(e.jumpLift<=0){
+          e.jumpLift=0;
+          burst(e.x,e.y-6,10,'#d9c9a8');
+          e.onGrab=null;
+          e.onCd=140;
+          state.oniGrabCd=300;
+          state.oniGuardT=0;
+        }
+      }
+      return true;
+    }
+    // ガードを3秒以上構えたまま近くにいると掴みに来る
+    if(state.oniGuardT>=180 && (state.oniGrabCd||0)<=0 && d<420 && !p.dead){
+      state.oniGrabCd=420;
+      e.onGrab={phase:'reach',t:0};
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      return true;
+    }
+
+    // --- 予兆
+    if(e.onWindup>0){
+      e.onWindup--;
+      e.vx*=.85; e.vy*=.85;
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      if(e.onAttack==='shock' && e.onWindup%2===0){
+        // 金棒に光が集まる
+        const mx=e.x+e.facing*26, my=e.y-46;
+        const a=Math.random()*Math.PI*2;
+        state.particles.push({x:mx+Math.cos(a)*22,y:my+Math.sin(a)*22,vx:-Math.cos(a)*2.2,vy:-Math.sin(a)*2.2,life:9,color:'#ffd75e'});
+      }
+      if(e.onAttack==='dark') state.oniDark=Math.max(state.oniDark||0,40); // 鬼の目が光る
+      if(e.onAttack==='five' && e.onWindup%4===0){
+        state.particles.push({x:e.x+(Math.random()-.5)*50,y:e.y-20,vx:0,vy:-1.8,life:12,color:'#c9a6ff'});
+      }
+      if(e.onAttack==='laser' && e.onWindup%2===0){
+        // 角に光が収束する
+        const hx=e.x, hy=e.y-190;
+        const a=Math.random()*Math.PI*2;
+        state.particles.push({x:hx+Math.cos(a)*34,y:hy+Math.sin(a)*34,vx:-Math.cos(a)*3.4,vy:-Math.sin(a)*3.4,life:9,color:'#ff5fd7'});
+      }
+      if(e.onWindup===0) oniStartAttack(e,p);
+      return true;
+    }
+
+    // --- 金棒連続打撃: ディレイを不規則に挟みながら振り回す
+    if(e.onCombo){
+      const c=e.onCombo;
+      c.t++;
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      if(c.t>=c.next){
+        c.t=0;
+        c.next=18+Math.random()*22;
+        const ddx=p.x-e.x, ddy=p.y-e.y, ddl=Math.hypot(ddx,ddy)||1;
+        e.vx+=ddx/ddl*7; e.vy+=ddy/ddl*4;
+        oniSwing(e,14,240,60); // 2倍金棒ぶんリーチも広い・当たると大きくふっとぶ(距離2倍)
+        c.swings--;
+        if(c.swings<=0){ e.onCombo=null; e.onCd=150+Math.random()*40; }
+      }
+      return true;
+    }
+
+    // --- 五連打からの大爆発
+    if(e.onFive){
+      const f5=e.onFive;
+      f5.t++;
+      if(f5.phase==='swings'){
+        e.facing=Math.sign(p.x-e.x)||e.facing;
+        if(f5.t>=f5.next){
+          f5.t=0; f5.next=11;
+          const ddx=p.x-e.x, ddy=p.y-e.y, ddl=Math.hypot(ddx,ddy)||1;
+          e.vx+=ddx/ddl*8; e.vy+=ddy/ddl*4.6;
+          oniSwing(e,12,230,52); // 2倍金棒ぶんリーチも広い・当たると大きくふっとぶ(距離2倍)
+          f5.left--;
+          if(f5.left<=0){ f5.phase='flash'; f5.t=0; burst(e.x,e.y-10,10,'#ffd75e'); }
+        }
+      }else{
+        // 地面が光る(大爆発の予告)
+        e.vx*=.8; e.vy*=.8;
+        if(f5.t%3===0){
+          const a=Math.random()*Math.PI*2, r=Math.random()*240;
+          state.particles.push({x:e.x+Math.cos(a)*r,y:e.y+Math.sin(a)*r*.6,vx:0,vy:-1.2,life:10,color:'#ffd75e'});
+        }
+        if(f5.t>=34){
+          e.onFive=null;
+          const R=250+bodyR;
+          state.shake=Math.max(state.shake,24);
+          state.hitStop=Math.max(state.hitStop||0,8);
+          state.explosionEffects.push({x:e.x,y:e.y,radius:16,maxRadius:R,life:20,maxLife:20,color:'#ffb03c'});
+          if(Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(26, Math.sign(p.x-e.x)*26, -10);
+          playSfx('bomb');
+          e.onCd=220;
+        }
+      }
+      return true;
+    }
+
+    // --- 暗闇の追尾光弾: 停止したまま大量に放つ
+    if(e.onDark){
+      const dk=e.onDark;
+      dk.t++;
+      e.vx*=.85; e.vy*=.85;
+      state.oniDark=Math.max(state.oniDark||0,30);
+      if(dk.t%4===0 && dk.shots>0){
+        dk.shots--;
+        const a=Math.random()*Math.PI*2;
+        state.projectiles.push({kind:'projectile',sourceType:'oniHoming',
+          x:e.x+Math.cos(a)*40,y:e.y-40+Math.sin(a)*30,
+          vx:Math.cos(a)*6.3,vy:Math.sin(a)*6.3,radius:21,life:260,damage:20,guardChip:80, // 大きさ3倍・弾速1.5倍・攻撃力2倍・ガード削り4倍
+          owner:{isPlayer:false},color:'#ffe98f',homing:true,turnRate:.038,homeT:150});
+        playSfx('enemyShot');
+      }
+      if(dk.shots<=0 && dk.t>110){ e.onDark=null; e.onCd=200; }
+      return true;
+    }
+
+    // --- 次元打ち: 上空へ飛び、空間を叩き割って着地→属性爆発の連鎖
+    if(e.onDim){
+      const dm=e.onDim;
+      dm.t++;
+      if(dm.phase==='rise'){
+        e.jumpLift=Math.min(210,(e.jumpLift||0)+8);
+        e.vx*=.8; e.vy*=.8;
+        if(dm.t>=34){ dm.phase='fall'; dm.t=0; dm.fx=e.x; dm.fy=e.y; dm.tx=p.x; dm.ty=p.y; }
+      }else{
+        const k=Math.min(1,dm.t/12);
+        e.x=dm.fx+(dm.tx-dm.fx)*k;
+        e.y=dm.fy+(dm.ty-dm.fy)*k;
+        e.jumpLift=210*(1-k*k);
+        if(k>=1){
+          e.onDim=null;
+          e.jumpLift=0;
+          const R=200+bodyR;
+          state.shake=Math.max(state.shake,22);
+          state.hitStop=Math.max(state.hitStop||0,7);
+          state.explosionEffects.push({x:e.x,y:e.y,radius:14,maxRadius:R,life:18,maxLife:18,color:'#c9a6ff'});
+          if(Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(22, Math.sign(p.x-e.x)*22, -10);
+          playSfx('bomb');
+          // 属性強化: 発光予告つきの属性爆発が地面から連続で発生
+          state.oniErupt=state.oniErupt||[];
+          const cols=['#ff7a3c','#7fd8ff','#c9ff6b'];
+          for(let i=0;i<8;i++){
+            const a=Math.PI*2*i/8+Math.random()*.5;
+            const r=130+Math.random()*260;
+            state.oniErupt.push({
+              x:clamp(e.x+Math.cos(a)*r,60,(state.worldW||state.width)-60),
+              y:clamp(e.y+Math.sin(a)*r*.6,state.height*FLOOR_RATIO+60,(state.worldH||state.height)-40),
+              t:0, delay:40+i*9, color:cols[i%3]
+            });
+          }
+          e.onCd=240;
+        }
+      }
+      return true;
+    }
+
+    // --- 角からの強力レーザー(照射中)
+    if(e.onLaser){
+      const L=e.onLaser;
+      L.t--;
+      e.vx*=.85; e.vy*=.85;
+      if(L.t%5===0 && !p.dead){
+        // ビーム直線との距離でヒット判定
+        const hx=e.x, hy=e.y-190;
+        const bx=Math.cos(L.angle), by=Math.sin(L.angle);
+        const rx=p.x-hx, ry=(p.y-24)-hy;
+        const along=rx*bx+ry*by;
+        const side=Math.abs(-rx*by+ry*bx);
+        if(along>0 && side<30) inuHitHero(16, bx*18, by*10);
+      }
+      if(L.t<=0){ e.onLaser=null; e.onCd=170; }
+      return true;
+    }
+
+    // --- 攻撃選択
+    if(e.onCd<=0 && !p.dead){
+      const roll=Math.random();
+      let atk;
+      if(d<220) atk = roll<.45?'combo' : roll<.75?'five' : 'shock';
+      else if(d<520) atk = roll<.25?'shock' : roll<.45?'combo' : roll<.62?'dimension' : roll<.8?'dark' : 'laser'; // 中距離でもレーザーを撃つ
+      else if(d<650) atk = roll<.25?'shock' : roll<.45?'dimension' : roll<.6?'dark' : 'laser';
+      else atk='laser'; // 遠くに離れすぎたら確定で角からレーザー
+      e.onAttack=atk;
+      e.onShockVert=Math.random()<.5;
+      e.onWindup= atk==='combo'?50 : atk==='shock'?36 : atk==='dark'?44 : atk==='dimension'?30 : atk==='laser'?44 : 70;
+      e.vx*=.5; e.vy*=.5;
+      return true;
+    }
+
+    // --- 通常時: 間合いを詰める(ダッシュ速度2倍)
+    if(d>120 && !p.dead){
+      enemyChaseStep(e, state.config.enemy.speed*wdiff.move*1.8, state.config.enemy.speed*.6*wdiff.move*1.8);
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+    }
+    return true;
+  }
+
   // 巨大雑魚が構え・保持している岩の位置(足元から頭上へ持ち上げる)
   function heldGiantRockPos(e){
     const r=e.width*.5;
@@ -4944,6 +6480,7 @@
     if (e.dead) {
       if(e.special==='bomber' && !e.bombExploded) bomberExplode(e);
       if(e.special==='rat' && !e.ratSplit && (e.ratGeneration||0)<1){ e.ratSplit=true; spawnRatlings(e); }
+      if(e.special==='kijiDrop' && !e.dropBurst){ e.dropBurst=true; burst(e.x,e.y-(e.jumpLift||0)-20,18,'#bfe8ff'); playSfx('slashHit'); } // 撃ち壊し: 無害に砕ける
       return;
     }
     if (!e.active) {
@@ -4959,7 +6496,6 @@
         e.poisonTickIn=30;
         const pd=e.poisonDamage||1;
         e.hp-=pd;
-        if(e.isBoss&&e.bossType?.trait==='splitter')e.splitDamage=(e.splitDamage||0)+pd;
         showDamageNumber(e.x,e.y-e.height*.75,pd,'#8fd14f');
         if(e.hp<=0){
           e.hp=0;
@@ -4974,6 +6510,56 @@
     const p = state.player;
     const d = dist(e,p);
     const wdiff = waveDifficulty();
+    if(e.special==='kijiDrop'){
+      // 巨大な雫: 上空で待機(この間に撃ち壊せる)→落下→着弾地点で広範囲爆発
+      e.vx=0; e.vy=0;
+      if((e.dropT||0)>0){
+        e.dropT--;
+        if(e.dropT%3===0) state.particles.push({x:e.x+(Math.random()-.5)*40,y:e.y-(e.jumpLift||0)-30+(Math.random()-.5)*30,vx:0,vy:.5,life:8,color:'#e8f7ff'});
+        if(e.dropT===0) e.dropFalling=true;
+      }else if(e.dropFalling){
+        e.jumpLift=(e.jumpLift||0)-16;
+        if(e.jumpLift<=0){
+          e.jumpLift=0;
+          e.dead=true;
+          e.dropBurst=true;
+          const R=220;
+          state.shake=Math.max(state.shake,20);
+          state.hitStop=Math.max(state.hitStop||0,6);
+          state.explosionEffects.push({x:e.x,y:e.y,radius:14,maxRadius:R,life:18,maxLife:18,color:'#9fd8ff'});
+          burst(e.x,e.y-10,26,'#bfe8ff');
+          playSfx('bomb');
+          if(!p.dead && Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(24, Math.sign(p.x-e.x)*20, -8);
+        }
+      }
+      return;
+    }
+    if(e.special==='kurage'){
+      // 小型クラゲ: 接近→停止して点滅→自爆(倒せば不発)
+      e.jumpLift=6+Math.sin(state.time*.15+e.index)*5;
+      if((e.kurageT||0)>0){
+        e.kurageT--;
+        if(!p.dead && d>40){
+          const ka=Math.atan2(p.y-e.y,p.x-e.x);
+          moveEntity(e,Math.cos(ka)*3.6,Math.sin(ka)*2.4); // 速度1.5倍
+          e.facing=Math.sign(p.x-e.x)||e.facing;
+        }
+        if(e.kurageT===0) e.kurageArm=70;
+      }else if((e.kurageArm||0)>0){
+        e.kurageArm--;
+        e.vx*=.8; e.vy*=.8;
+        if(e.kurageArm===0){
+          e.dead=true;
+          e.killCounted=true; // 自爆はスコアにしない
+          const R=115;
+          state.explosionEffects.push({x:e.x,y:e.y-16,radius:8,maxRadius:R,life:16,maxLife:16,color:'#8a7fff'});
+          burst(e.x,e.y-16,18,'#5a5f78');
+          playSfx('bomb');
+          if(!p.dead && Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(14, Math.sign(p.x-e.x)*14, -6);
+        }
+      }
+      return;
+    }
     if(e.special==='giant'){
       // 巨大雑魚: その場から一切動かず、岩を持ち上げて投げる(攻撃範囲は画面全体=距離制限なし)
       e.facing=Math.sign(p.x-e.x)||e.facing;
@@ -5052,124 +6638,22 @@
     }
     if (e.think <= 0) {
       e.think = 18 + Math.random()*26;
-      if (d < 70*(e.isBoss?1:wdiff.reach) && Math.random() < .72 && !(e.isBoss && e.bossType?.trait==='charger')) attack(e); // イヌは突進(黄色)以外で攻撃しない
+      if (d < 70*(e.isBoss?1:wdiff.reach) && Math.random() < .72 && !(e.isBoss && e.bossType)) attack(e); // ボスは専用アクション以外で攻撃しない
     }
     e.projectileCooldown = Math.max(0,(e.projectileCooldown||0)-1);
     if(e.isBoss && e.bossType){
       const trait=e.bossType.trait;
       if(trait==='charger'){
-        e.facing=Math.sign(p.x-e.x)||e.facing; // イヌは常にヒーローの方を向く
-        e.dashCooldown=Math.max(0,(e.dashCooldown||0)-1);
-        if(e.stunTimer>0){e.stunTimer--; e.vx*=.9; e.vy*=.9; moveEntity(e,e.vx,e.vy); return;} // JG崩し中は無防備
-        if(e.dashWindup>0){e.dashWindup--; e.vx*=.82; e.vy*=.82; if(e.dashWindup===0){e.dashTimer=e.dashDuration||26;} return;}
-        if(e.dashTimer>0){
-          e.dashTimer--;
-          moveEntity(e,e.dashVx,e.dashVy);
-          // 流星のように黄色い帯(残光)を引く
-          for(let ti=0;ti<3;ti++){
-            state.particles.push({
-              x:e.x+(Math.random()-.5)*e.width*.7,
-              y:e.y-e.height*.4+(Math.random()-.5)*e.height*.5,
-              vx:-e.dashVx*.06,
-              vy:-e.dashVy*.06,
-              life:14+Math.random()*10,
-              color:Math.random()<.5?'#ffd23f':'#fff3a8'
-            });
-          }
-          // 接触ダメージは体が黄色い突進中のみ。命中時は大きく吹っ飛ばす。
-          // 判定は中心固定ではなく体格ぶん広げる(顔・尻尾に触れてもタックルが当たる)
-          const bodyR=e.width*.4;
-          const chargeHitD=Math.hypot(p.x-e.x,p.y-e.y);
-          if(chargeHitD<(e.secondDash?48:70)+bodyR && state.guarding){
-            // タックルはガードを打ち破る: 直撃した瞬間にガードブレイク+大きく吹き飛ばす(HPは削らない)。
-            // 対抗手段はジャストガード(接近時に成立すれば体幹崩しでイヌが止まる)か回避
-            triggerGuardBreak();
-            const dl=Math.hypot(e.dashVx,e.dashVy)||1;
-            p.vx+=e.dashVx/dl*40;
-            p.vy+=e.dashVy/dl*24-6;
-            p.invincibleTimer=Math.max(p.invincibleTimer,40);
-            state.shake=Math.max(state.shake,20);
-            state.hitStop=Math.max(state.hitStop||0,8);
-            burst(p.x,p.y-24,18,'#bfeeff');
-          }else if(chargeHitD<(e.secondDash?48:70)+bodyR&&p.invincibleTimer<=0){
-            // タックル直撃: 大ダメージ+大きく吹き飛ばし+衝撃演出
-            const cdmg=Math.max(1,Math.round((p.dashTimer>0?15:30)/(state.playerDefense||1))); // ダッシュ中の被弾は半減・だんご強化の防御力
-            p.hp-=cdmg;p.hurtTimer=20;p.invincibleTimer=50;
-            const dl=Math.hypot(e.dashVx,e.dashVy)||1;
-            p.vx+=e.dashVx/dl*48;
-            p.vy+=e.dashVy/dl*30-8;
-            state.shake=Math.max(state.shake,22);
-            state.hitStop=Math.max(state.hitStop||0,9);
-            state.flashTimer=Math.max(state.flashTimer||0,5);
-            state.explosionEffects.push({x:p.x,y:p.y-30,radius:8,maxRadius:120,life:16,maxLife:16,color:'#ffd23f'});
-            burst(p.x,p.y-24,22,'#ffd23f');
-            burst(p.x,p.y-24,14,'#ffffff');
-            playSfx('slashHit3');
-            showDamageNumber(p.x,p.y-70,cdmg,'#ff9a8f');
-          }else if(chargeHitD<82+bodyR&&p.dashTimer>0&&state.time-(state.lastJustDodge??-99)>18){
-            triggerJustDodge(p);
-          }else if(chargeHitD<160+bodyR){
-            if(tryJustGuard(p.x,p.y-30)){
-              // 体幹崩し: イヌが大きく弾かれて90Fの隙を晒す
-              const dl2=Math.hypot(e.dashVx,e.dashVy)||1;
-              e.vx=-e.dashVx/dl2*18;
-              e.vy=-e.dashVy/dl2*10;
-              e.dashTimer=0;
-              e.dashChain=0;
-              e.stunTimer=90;
-              e.hurtTimer=24;
-            }
-          }
-          if(e.dashTimer===0){
-            e.dashChain=(e.dashChain||1)-1;
-            if(e.dashChain>0){
-              // 2段目: 予告なしで即座に、現在位置へ短く遅めの踏み込み(距離220上限・追い越さない)
-              // → 歩き続けていれば踏み込み中の移動量(約55px以上)で判定48の外へ抜けられる
-              const dx=p.x-e.x, dy=p.y-e.y;
-              const dl=Math.hypot(dx,dy)||1;
-              const dist=Math.min(220,dl);
-              const T=Math.max(8,Math.round(dist/20));
-              e.dashVx=dx/dl*dist/T;
-              e.dashVy=dy/dl*dist/T;
-              e.dashTimer=T;
-              e.secondDash=true;
-            }else{
-              e.dashCooldown=110;
-            }
-          }
-          return;
-        }
-        if(e.dashCooldown<=0&&d<900){
-          // 予備動作の開始時のヒーロー位置を目標に固定し、そこへ届く長さだけ突進する
-          // (その場に留まると直撃・発光中にダッシュで軸をずらせば外れる)
-          // 35%で2段ダッシュ: 予備動作の点滅が速いオレンジになる
-          e.dashChain=Math.random()<.35?2:1;
-          e.secondDash=false;
-          const dx=p.x-e.x, dy=p.y-e.y;
-          // ヒーロー位置を1.6倍まで走り抜ける(旧1.15倍)。その場に留まると確実に轢かれる
-          const overshoot=1.6;
-          const travel=Math.hypot(dx,dy)*overshoot;
-          const T=Math.max(10,Math.min(50,Math.round(travel/30)+2));
-          e.dashVx=dx/T*overshoot;
-          e.dashVy=dy/T*overshoot;
-          e.dashDuration=T;
-          e.dashWindup=38;
-          e.dashCooldown=150;
-          return;
-        }
+        if(updateInuBoss(e,p,d,wdiff)) return;
       }
       if(trait==='splitter'){
-        e.splitDamage=e.splitDamage||0;
-        // 分裂は第2世代まで(最小サイズの分身はもう分裂しない)
-        if(e.splitDamage>=e.maxHp*.22 && (e.splitGeneration||0)<2){e.splitDamage=0;spawnMonkeyClone(e);e.formScale=Math.max(.38,(e.formScale||e.bossType.size||5)*.82);e.maxHp=Math.max(30,Math.round(e.maxHp*.86));e.hp=Math.min(e.hp,e.maxHp);}
+        if(updateSaruBoss(e,p,d,wdiff)) return;
       }
       if(trait==='wave'){
-        e.waveCooldown=Math.max(0,(e.waveCooldown||0)-1);
-        if(e.waveCooldown<=0){firePheasantWave(e);e.waveCooldown=140;}
+        if(updateKijiBoss(e,p,d,wdiff)) return;
       }
       if(trait==='fiveHeads'){
-        e.minionCooldown=Math.max(0,(e.minionCooldown||0)-1);
-        if(e.minionCooldown<=0){spawnOniMinion(e);e.minionCooldown=180;}
+        if(updateOniBoss(e,p,d,wdiff)) return;
       }
     }
 
@@ -5211,47 +6695,19 @@
       }
       e.projectileCooldown=62;
     }
-    if (e.isBoss && e.bossType.skill === 'oni' && d < 720 && e.projectileCooldown <= 0) {
-      const diff=waveDifficulty();
-      const base=predictedAim(e.x,e.y-80,p,10.2,1.5).angle;
-      for(let i=-2;i<=2;i++){
-        const ang=base+i*.28;
-        const explosive=i===0 || Math.abs(i)===2;
-        state.projectiles.push({
-          kind:'projectile', sourceType:'oniAttack', x:e.x, y:e.y-95,
-          vx:Math.cos(ang)*(explosive?5.2:7.0)*diff.bullet,
-          vy:Math.sin(ang)*(explosive?5.2:7.0)*diff.bullet,
-          radius:explosive?13:8, life:explosive?120:110,
-          damage:explosive?24:12, owner:{isPlayer:false},
-          color:e.color, explosive, blastRadius:explosive?86:0
-        });
-      }
-      e.projectileCooldown=58;
-    } else if (e.isBoss && e.bossType.skill === 'bomb' && d < 900 && e.projectileCooldown <= 0) {
-      // 9発の広角ばらまき。寿命を伸ばして画面端まで届く
+    if (e.isBoss && e.bossType.skill === 'bomb' && d < 900 && e.projectileCooldown <= 0) {
+      // イヌの通常弾: 爆裂弾を廃止し、視認しやすい赤い玉の9方向ばらまきに
       const base=Math.atan2((p.y-25)-e.y,p.x-e.x);
       for(let i=-4;i<=4;i++){
         const ang=base+i*.22;
         const spd=7.5*(1-Math.abs(i)*.05);
         state.projectiles.push({
-          kind:'projectile', sourceType:'bossBomb', x:e.x, y:e.y-70,
-          vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, radius:12, life:210, damage:15,
-          owner:{isPlayer:false}, color:e.color, explosive:true, blastRadius:70
+          kind:'projectile', sourceType:'inuShot', x:e.x, y:e.y-70,
+          vx:Math.cos(ang)*spd, vy:Math.sin(ang)*spd, radius:10, life:210, damage:12,
+          owner:{isPlayer:false}, color:'#ff3b30'
         });
       }
       e.projectileCooldown = 75;
-    } else if (e.isBoss && e.bossType.skill === 'shotgun' && d < 620 && e.projectileCooldown <= 0) {
-      const a=predictedAim(e.x,e.y-70,p,8.4,1.3).angle;
-      const wing=Math.max(1,3-(e.splitGeneration||0)); // 小さい分身ほど弾数減: 本体7発→第1世代5発→第2世代3発
-      for(let i=-wing;i<=wing;i++){
-        const ang=a+i*.16;
-        state.projectiles.push({
-          kind:'projectile', sourceType:'bossShotgun', x:e.x, y:e.y-70,
-          vx:Math.cos(ang)*7, vy:Math.sin(ang)*7, radius:8, life:110, damage:10,
-          owner:{isPlayer:false}, color:e.color
-        });
-      }
-      e.projectileCooldown=72;
     } else if (e.movementType === 'flying' && d < (e.isBoss?640:280*wdiff.reach) && d > 105 && e.projectileCooldown <= 0) {
       e.facing = Math.sign(p.x-e.x) || e.facing;
       if(e.isBoss){
@@ -5371,6 +6827,8 @@
     for(let i=0;i<all.length;i++){
       for(let j=i+1;j<all.length;j++){
         const a=all[i],b=all[j];
+        if(a.srGrab||b.srGrab||a.onGrab||b.onGrab) continue; // 掴み演出中は位置を演出側で固定するため押し出さない
+        if(a.special==='kijiDrop'||b.special==='kijiDrop') continue; // 上空の雫は押し出し対象外
         const dx=b.x-a.x,dy=b.y-a.y;
         const d=Math.hypot(dx,dy);
         if(d>0 && d<34){
@@ -5389,6 +6847,61 @@
     // ヒットストップ中もシェイクは減衰させる(連続キルで凍結したまま揺れ続けるのを防ぐ)
     if (state.hitStop>0){ state.hitStop--; state.shake*=.75; return; }
     state.time++;
+    // ガードキー押しっぱなしなら、ガードブレイク明けやロック明けに自動で再展開する
+    if(!state.guarding && (keys.has(' ') || touchGuardHeld)) setGuard(true);
+    // キジの睡眠波動: チャネルしていない間は睡眠ゲージが自然減衰
+    state.kijiSleepCd=Math.max(0,(state.kijiSleepCd||0)-1);
+    if((state.kijiSleepGauge||0)>0 && !state.enemies.some(m=>!m.dead&&m.kjSleep)) state.kijiSleepGauge=Math.max(0,state.kijiSleepGauge-.25);
+    // 掴み投げ(サル・鬼共通): 掴んでいる個体が倒されたらヒーローを解放
+    if(state.saruHolder && (state.saruHolder.dead || !(state.saruHolder.srGrab||state.saruHolder.onGrab))){
+      state.player.jumpLift=0;
+      state.saruHolder=null;
+    }
+    // ぶん投げ飛行(サル・鬼共通): 空中から画面端まで水平に飛び、壁際に叩きつけられて着地
+    if(state.saruThrow){
+      const th=state.saruThrow;
+      th.t++;
+      const pl=state.player;
+      const k=Math.min(1,th.t/th.dur);
+      pl.vx=0; pl.vy=0;
+      moveEntity(pl,th.vx,0);
+      pl.jumpLift=th.lift0*(1-k*k);
+      pl.invincibleTimer=Math.max(pl.invincibleTimer,3);
+      if(th.t%2===0) state.particles.push({x:pl.x,y:pl.y-30-pl.jumpLift*.5,vx:-th.vx*.15,vy:0,life:10,color:'#ffe9ad'});
+      if(k>=1){
+        state.saruThrow=null;
+        pl.jumpLift=0;
+        const cd=Math.max(1,Math.round(16/(state.playerDefense||1)));
+        pl.hp-=cd;
+        pl.hurtTimer=26;
+        pl.invincibleTimer=90;
+        pl.vx=-th.vx*.2; pl.vy=2;
+        showDamageNumber(pl.x,pl.y-70,cd,'#ff9a8f');
+        state.hitStop=Math.max(state.hitStop||0,8);
+        state.shake=Math.max(state.shake,22);
+        state.explosionEffects.push({x:pl.x,y:pl.y-20,radius:10,maxRadius:140,life:15,maxLife:15,color:'#e8b64c'});
+        burst(pl.x,pl.y-10,20,'#d9c9a8');
+        playSfx('bomb');
+      }
+    }
+    // 鬼の暗転と属性爆発(発光予告→爆発)
+    if((state.oniDark||0)>0) state.oniDark--;
+    if(state.oniErupt && state.oniErupt.length){
+      for(const g of state.oniErupt){
+        g.t++;
+        if(g.t<g.delay){
+          if(g.t%3===0) state.particles.push({x:g.x+(Math.random()-.5)*40,y:g.y+(Math.random()-.5)*14,vx:0,vy:-1.6,life:9,color:g.color});
+        }else if(g.t===g.delay){
+          state.explosionEffects.push({x:g.x,y:g.y,radius:10,maxRadius:100,life:15,maxLife:15,color:g.color});
+          burst(g.x,g.y-8,10,g.color);
+          playSfx('bomb');
+          const pl=state.player;
+          if(pl && !pl.dead && Math.hypot(pl.x-g.x,pl.y-g.y)<100) inuHitHero(12, Math.sign(pl.x-g.x)*12, -6);
+          state.shake=Math.max(state.shake,8);
+        }
+      }
+      state.oniErupt=state.oniErupt.filter(g=>g.t<=g.delay);
+    }
     state.frameCount++;
 
     if (!state.over) {
@@ -5404,6 +6917,7 @@
       updateCoins();
       updateMeats();
       updateFishAndKappa();
+      updateInuGeysers();
 
       // Wave制限時間: 通常60秒・ボス戦120秒。時間切れで巨大な鬼の脚が降ってきてヒーローを踏み潰す
       if(!state.over && !state.gameEnded && !state.choosingUpgrade && !state.waitingBossChoice &&
@@ -5487,7 +7001,7 @@
             playSfx('slashHit3');
             ui.message.textContent='BOSS DEFEATED';
             logWaveBalance('boss');
-            if(boss.bossType && boss.bossType.name==='五つ首の鬼'){
+            if(boss.bossType && boss.bossType.name==='鬼'){
               setTimeout(showEnding,1900);
             }else{
               setTimeout(()=>showBossAbsorbChoice(boss),1800);
@@ -5537,7 +7051,7 @@
     state.particles=state.particles.filter(p=>p.life>0).slice(-900);
     for(const d of state.damageNumbers){
       d.life--;
-      d.y-=.7;
+      d.y-=d.big?1.5:1.1; // 早めに上へ抜けてキャラ・弾への被りを減らす
     }
     state.damageNumbers=state.damageNumbers.filter(d=>d.life>0);
     state.shake*=.75;
@@ -5561,6 +7075,42 @@
       vy=cam.focusY-vh/2;
     }
     const vRight=vx+vw, vBottom=vy+vh;
+
+    if(state.bossActive){
+      // ボス戦: コンクリート打ちっぱなしの無機質アリーナ
+      const horizon=h*FLOOR_RATIO;
+      ctx.fillStyle='#43474c';
+      ctx.fillRect(vx,vy,vw,vh);
+      ctx.fillStyle='#8f9296';
+      ctx.fillRect(vx,horizon,vw,Math.max(0,vBottom-horizon));
+      // 型枠パネルの目地
+      ctx.strokeStyle='rgba(30,32,35,.18)';
+      ctx.lineWidth=3;
+      for(let x=Math.floor(vx/170)*170;x<vRight;x+=170){
+        ctx.beginPath();ctx.moveTo(x,Math.max(horizon,vy));ctx.lineTo(x,vBottom);ctx.stroke();
+      }
+      for(let y=Math.floor(Math.max(horizon,vy)/120)*120;y<vBottom;y+=120){
+        if(y<horizon) continue;
+        ctx.beginPath();ctx.moveTo(vx,y);ctx.lineTo(vRight,y);ctx.stroke();
+      }
+      // Pコン穴(セパ穴)とシミ: 座標ハッシュで固定
+      for(let x=Math.floor(vx/170)*170;x<vRight;x+=170){
+        for(let y=Math.floor(Math.max(horizon,vy)/120)*120;y<vBottom;y+=120){
+          if(y<horizon) continue;
+          ctx.fillStyle='rgba(30,32,35,.22)';
+          for(const [ox,oy] of [[38,30],[132,30],[38,92],[132,92]]){
+            ctx.beginPath();ctx.arc(x+ox,y+oy,4,0,Math.PI*2);ctx.fill();
+          }
+          const st=jHash(x*7+y*13);
+          if(st<.22){
+            // 雨だれ風の縦ジミ
+            ctx.fillStyle='rgba(60,64,68,.12)';
+            ctx.fillRect(x+20+st*500,y+8,14+st*40,104);
+          }
+        }
+      }
+      return;
+    }
 
     const th=waveTheme();
     ctx.fillStyle=th.sky;
@@ -6585,6 +8135,29 @@
     }
   }
 
+  // 鬼の角レーザー: 角の先からまっすぐ伸びる太い光線
+  function drawOniLaser() {
+    for(const e of state.enemies){
+      if(e.dead || !e.onLaser) continue;
+      const L=e.onLaser;
+      const hx=e.x, hy=e.y-190;
+      const x2=hx+Math.cos(L.angle)*1500, y2=hy+Math.sin(L.angle)*1500;
+      const flick=.75+.25*Math.sin(state.time*.9);
+      ctx.save();
+      ctx.lineCap='round';
+      ctx.strokeStyle='rgba(255,95,215,'+(.28*flick).toFixed(2)+')';
+      ctx.lineWidth=26;
+      ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.strokeStyle='rgba(255,180,240,'+(.85*flick).toFixed(2)+')';
+      ctx.lineWidth=10;
+      ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.strokeStyle='#ffffff';
+      ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(hx,hy); ctx.lineTo(x2,y2); ctx.stroke();
+      ctx.restore();
+    }
+  }
+
   function drawShadow(f) {
     ctx.save();
     ctx.translate(f.x,f.y);
@@ -6600,12 +8173,35 @@
     if(!f.isBoss || !f.bossType) return false;
     const type=f.bossType.name;
     const scale=Math.max(.35,f.formScale||f.bossType.size||5);
-    ctx.save(); ctx.translate(f.x,f.y); ctx.scale(scale,scale);
+    ctx.save(); ctx.translate(f.x,f.y-(f.jumpLift||0)); ctx.scale(scale,scale); // 飛びかかり・叩きつけ中は浮く
+
+    if(type==='イヌ' && f.fireballT>0){
+      // 火球化(分裂の変身): 脈動する炎の球
+      const r=16+Math.sin(state.time*.5)*3;
+      ctx.fillStyle='#ff7a2f';
+      ctx.beginPath();ctx.arc(0,-14,r,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#ffd23f';
+      ctx.beginPath();ctx.arc(0,-14,r*.62,0,Math.PI*2);ctx.fill();
+      ctx.fillStyle='#fff3a8';
+      ctx.beginPath();ctx.arc(-r*.2,-16,r*.3,0,Math.PI*2);ctx.fill();
+      for(let i=0;i<5;i++){
+        const a=state.time*.3+i*Math.PI*2/5;
+        ctx.fillStyle=i%2?'#ff7a2f':'#ffd23f';
+        ctx.fillRect(Math.cos(a)*r*1.1-2,-14+Math.sin(a)*r*1.1-2,4,4);
+      }
+      ctx.restore();
+      return true;
+    }
 
     if(type==='イヌ'){
       // 突進中は全身が黄色、構え中は金/オレンジに明滅する(体が白いので白点滅は使わない)
       const blink=f.dashWindup>0 && Math.floor(state.time/((f.dashChain||1)>1?3:5))%2;
-      const tint=f.dashTimer>0 ? '#ffd23f' : (blink ? ((f.dashChain||1)>1?'#ff7a2f':'#ffc93e') : null);
+      // 分裂中の3体は黄色(突進の金色発光はさらに明るいので判別可能)
+      const splitTint=(f.splitPhase||f.inuClone) ? '#f6d454' : null;
+      const tint=f.dashTimer>0 ? '#ffd23f' : (blink ? ((f.dashChain||1)>1?'#ff7a2f':'#ffc93e') : splitTint);
+      // 予兆モーション: 飛びかかり/叩きつけの前はしゃがみ込む(叩きつけはより深く)
+      if((f.pounceWindup||0)>0){ ctx.translate(0,4); ctx.scale(1.07,.82); }
+      if((f.slamWindup||0)>0){ ctx.translate(0,7); ctx.scale(1.12,.7); }
       ctx.fillStyle=tint||'#eeeae0';
       ctx.fillRect(-28,-20,6,10);
       ctx.fillStyle=tint||'#f2f0e8';
@@ -6622,26 +8218,154 @@
       ctx.fillStyle='#222';
       ctx.fillRect(18,-22,3,3);
       ctx.fillRect(27,-15,3,3);
+      // 噛みつきの予兆: 口を大きく開けて牙が光る
+      if((f.biteT||0)>12){
+        ctx.fillStyle='#5c1a1a';
+        ctx.fillRect(22,-11,11,8); // 開いた口
+        ctx.fillStyle='#ffffff';
+        ctx.beginPath();ctx.moveTo(23,-11);ctx.lineTo(27,-11);ctx.lineTo(25,-6);ctx.closePath();ctx.fill(); // 上牙
+        ctx.beginPath();ctx.moveTo(29,-3);ctx.lineTo(33,-3);ctx.lineTo(31,-8);ctx.closePath();ctx.fill();  // 下牙
+      }
+      // 炎吐きの予兆: 口元がオレンジに明滅してチャージ
+      if((f.flameWindup||0)>0){
+        const g=.5+.5*Math.sin(state.time*.7);
+        ctx.fillStyle='rgba(255,122,47,'+(.4+.4*g).toFixed(2)+')';
+        ctx.beginPath();ctx.arc(30,-11,5+3*g,0,Math.PI*2);ctx.fill();
+        ctx.fillStyle='rgba(255,210,63,'+(.5+.4*g).toFixed(2)+')';
+        ctx.beginPath();ctx.arc(30,-11,2.5+1.5*g,0,Math.PI*2);ctx.fill();
+      }
+      // 尻尾薙ぎ払いの演出
+      if((f.tailT||0)>14){
+        // 予備動作: 尻尾を高く上げて振る
+        const wag=Math.sin(state.time*.8)*6;
+        ctx.fillStyle='#eeeae0';
+        ctx.fillRect(-34,-28+wag*.5,10,7);
+        ctx.fillStyle='#d8d4c9';
+        ctx.fillRect(-41,-34+wag,9,7);
+      }else if((f.tailT||0)>0){
+        // 振り抜き: 尻尾が体の周りを一回転(残像の弧付き)
+        const k=(14-f.tailT)/12;
+        const ang=Math.PI + k*Math.PI*2;
+        ctx.strokeStyle='rgba(238,234,224,.4)';
+        ctx.lineWidth=10;
+        ctx.beginPath();
+        ctx.arc(0,-6,46,ang-1.6,ang);
+        ctx.stroke();
+        ctx.strokeStyle='rgba(217,201,168,.85)';
+        ctx.lineWidth=5;
+        ctx.beginPath();
+        ctx.arc(0,-6,46,ang-.6,ang);
+        ctx.stroke();
+        for(let seg=0;seg<4;seg++){
+          const rr=18+seg*11;
+          const sz=9-seg*1.4;
+          ctx.fillStyle=seg===3?'#d8d4c9':'#eeeae0';
+          ctx.fillRect(Math.cos(ang)*rr-sz/2, -6+Math.sin(ang)*rr*.72-sz/2, sz, sz);
+        }
+      }
     }else if(type==='サル'){
-      ctx.fillStyle='#7a4b32';
+      ctx.scale(f.facing<0?-1:1,1); // ヒーロー側(+x)を向く。棒・構えの向きを反映
+      const wind=f.srWindup>0;
+      const blink=wind && Math.floor(state.time/4)%2;
+      const atk=f.srAttack;
+      const tint=f.srDash ? '#ffd23f' : (blink ? '#ffc93e' : null); // 突進中は黄色(接触ダメージ)、構え中は明滅
+      // 予兆ポーズ: 突進系はしゃがみ、叩きつけは伸び上がり、整列待機もしゃがみ
+      if(wind&&(atk==='rush'||atk==='rallyCharge'||atk==='finalCharge')){ ctx.translate(0,4); ctx.scale(1.08,.8); }
+      else if(wind&&atk==='slam'){ ctx.translate(0,-2); ctx.scale(.96,1.06); }
+      else if((f.srRally||f.srLineIdle)&&!f.srDash){ ctx.translate(0,3); ctx.scale(1.05,.88); }
+      if(f.srAmbush) ctx.globalAlpha=.75; // 距離取り中は残像っぽく薄く
+      ctx.fillStyle=tint||'#7a4b32';
       ctx.fillRect(-27,0,5,12);
       ctx.fillRect(-27,10,9,5);
       ctx.fillRect(-13,-12,26,26);
       ctx.fillRect(-10,-34,20,20);
       ctx.fillRect(-15,-30,5,8);
       ctx.fillRect(10,-30,5,8);
-      ctx.fillRect(-22,-8,9,6);
-      ctx.fillRect(13,-8,9,6);
-      ctx.fillRect(-22,-2,6,14);
-      ctx.fillRect(16,-2,6,14);
+      const grabbing=f.srGrab&&(f.srGrab.phase==='hold'||f.srGrab.phase==='jump'||f.srGrab.phase==='apex'); // 担ぎ上げ〜空中投げまで両腕上げポーズ
+      if(grabbing){
+        // 両腕を頭上に伸ばしてヒーローを担ぎ上げる
+        ctx.fillRect(-20,-40,6,28);
+        ctx.fillRect(14,-40,6,28);
+      }else{
+        ctx.fillRect(-22,-8,9,6);
+        ctx.fillRect(13,-8,9,6);
+        ctx.fillRect(-22,-2,6,14);
+        ctx.fillRect(16,-2,6,14);
+      }
       ctx.fillRect(-10,14,7,12);
       ctx.fillRect(3,14,7,12);
-      ctx.fillStyle='#d3a173';
+      ctx.fillStyle=tint||'#d3a173';
       ctx.fillRect(-6,-28,12,10);
       ctx.fillStyle='#171717';
       ctx.fillRect(-4,-26,3,3);
       ctx.fillRect(2,-26,3,3);
+      // 武器の棒: 状態ごとに構えを変える(予兆の読み分けポイント)
+      let sAng=.5, sx=15, sy=-4; // 通常: 立て持ち
+      if(wind){
+        if(atk==='rush'||atk==='rallyCharge'||atk==='finalCharge'){ sAng=Math.PI*.5; sx=-16; sy=-8; } // 後方へ水平に引く
+        else if(atk==='sweep'){ sAng=Math.PI*.5; sx=12; sy=-10; }  // 前で横向きに構える
+        else if(atk==='slam'){ sAng=.12; sx=4; sy=-36; }           // 頭上高く掲げる
+        else if(atk==='stance'){ sAng=-.75; sx=10; sy=-10; }       // 斜めに構える
+      }
+      else if(f.srStance){ sAng=-.75; sx=10; sy=-10; }
+      else if(f.srSlam){ sAng=.12; sx=4; sy=-36; }
+      else if(f.srDash){ sAng=Math.PI*.5; sx=-14; sy=-6; }
+      else if(f.srSwingFx>0){ const k=(8-f.srSwingFx)/8; sAng=-1.2+k*2.4; sx=10; sy=-10; }
+      if(!grabbing){ // 担ぎ上げ中は両手がふさがるので棒は出さない
+        ctx.save();
+        ctx.translate(sx,sy);
+        ctx.rotate(sAng);
+        ctx.fillStyle='#8a6a45';
+        ctx.fillRect(-2.5,-27,5,54);
+        ctx.fillStyle='#5c4630';
+        ctx.fillRect(-2.5,-27,5,6);
+        ctx.fillRect(-2.5,21,5,6);
+        ctx.restore();
+      }
+      // スイングの軌跡
+      if(f.srSwingFx>0){
+        const k=(8-f.srSwingFx)/8;
+        const ang=-1.3+k*2.6;
+        ctx.strokeStyle='rgba(255,214,150,'+(.8-k*.6).toFixed(2)+')';
+        ctx.lineWidth=6;
+        ctx.beginPath();
+        ctx.arc(6,-10,38,ang-1.1,ang);
+        ctx.stroke();
+      }
+      // 防御反撃の構え: 青白いリングでカウンター待ちを示す
+      if(f.srStance){
+        ctx.strokeStyle='rgba(180,230,255,'+(.5+.3*Math.sin(state.time*.4)).toFixed(2)+')';
+        ctx.lineWidth=2.5;
+        ctx.beginPath();
+        ctx.arc(0,-12,34,0,Math.PI*2);
+        ctx.stroke();
+      }
+      ctx.globalAlpha=1;
     }else if(type==='キジ'){
+      // 睡眠波動チャネル中: 怪電波のような波打つ波紋がゆらゆら広がる
+      if(f.kjSleep){
+        ctx.save();
+        for(let ri=0;ri<3;ri++){
+          const ph=((state.time*.012)+ri/3)%1;
+          const rr=8+ph*46;
+          ctx.strokeStyle='rgba(150,110,200,'+((1-ph)*.5).toFixed(2)+')';
+          ctx.lineWidth=1.6;
+          ctx.beginPath();
+          for(let k2=0;k2<=26;k2++){
+            const a2=Math.PI*2*k2/26;
+            const wob=Math.sin(a2*5+state.time*.2)*1.8;
+            const wx=Math.cos(a2)*(rr+wob), wy=-8+Math.sin(a2)*(rr+wob)*.8;
+            k2?ctx.lineTo(wx,wy):ctx.moveTo(wx,wy);
+          }
+          ctx.closePath();
+          ctx.stroke();
+        }
+        ctx.restore();
+      }
+      // 予兆ポーズ: 回転(回転突進)・反らし(波)・見上げ(睡眠波動)
+      if(f.kjSpin || (f.kjWindup>0&&f.kjAttack==='spin')) ctx.rotate(state.time*.55);
+      else if(f.kjWindup>0&&f.kjAttack==='fan') ctx.rotate(-.22);
+      else if(f.kjSleep || (f.kjWindup>0&&f.kjAttack==='sleepwave')) ctx.rotate(-.4);
       const tc=['#1e7d63','#2d9a78','#d2b94d','#255d9a','#9f3d88'];
       for(let i=0;i<5;i++){ctx.fillStyle=tc[i];ctx.fillRect((i-2)*7-3,6,5,16+(2-Math.abs(i-2))*4);}
       ctx.fillStyle='#2d8f70';
@@ -6661,51 +8385,178 @@
       ctx.fillRect(-7,8,3,10);
       ctx.fillRect(4,8,3,10);
     }else{
-      for(let i=0;i<5;i++){
-        const hx=(i-2)*18;
-        const hy=-34-(2-Math.abs(i-2))*8;
-        ctx.fillStyle='#6d28d9';
-        ctx.fillRect(hx-3,hy+8,6,-14-(hy+8));
-        ctx.fillStyle='#7c3aed';
-        ctx.fillRect(hx-8,hy-8,16,16);
-        ctx.fillStyle='#e8e5ef';
-        ctx.fillRect(hx-7,hy-13,4,5);
-        ctx.fillRect(hx+3,hy-13,4,5);
-        ctx.fillStyle='#ffdd77';
-        ctx.fillRect(hx-5,hy-3,3,3);
-        ctx.fillRect(hx+2,hy-3,3,3);
+      // 鬼(単頭・ヒーローの2倍サイズ): 紫の鬼が金棒を構える
+      ctx.scale(f.facing<0?-1:1,1);
+      const wind=f.onWindup>0;
+      const blink=wind && Math.floor(state.time/(f.onAttack==='combo'||f.onAttack==='five'?7:4))%2; // 金棒系はゆっくり明滅
+      const tint=blink?'#a678f0':null;
+      if(wind&&f.onAttack==='five'){ ctx.translate(0,6); ctx.scale(1.1,.76); }        // 深くしゃがんで長溜め
+      else if(f.onFive&&f.onFive.phase==='flash'){ ctx.translate(0,4); ctx.scale(1.06,.86); }
+      // 角
+      ctx.fillStyle='#f5e9c8';
+      ctx.fillRect(-3,-52,6,10);
+      ctx.fillRect(8,-48,4,7);
+      // 頭
+      ctx.fillStyle=tint||'#7c3aed';
+      ctx.fillRect(-12,-44,24,20);
+      // 目(暗闇中は強く光る)
+      ctx.fillStyle=(f.onDark||(state.oniDark||0)>0)?'#fff3a8':'#ffdd77';
+      ctx.fillRect(-7,-38,5,5);
+      ctx.fillRect(3,-38,5,5);
+      // 牙
+      ctx.fillStyle='#f5e9c8';
+      ctx.fillRect(-8,-27,4,4);
+      ctx.fillRect(5,-27,4,4);
+      // 体
+      ctx.fillStyle=tint||'#6d28d9';
+      ctx.fillRect(-15,-24,30,26);
+      // 腕(掴み中は両腕を頭上へ)
+      const oniGrabbing=f.onGrab&&(f.onGrab.phase==='hold'||f.onGrab.phase==='jump'||f.onGrab.phase==='apex');
+      if(oniGrabbing){
+        ctx.fillRect(-17,-46,6,24);
+        ctx.fillRect(11,-46,6,24);
+      }else{
+        ctx.fillRect(-19,-20,6,16);
+        ctx.fillRect(13,-20,6,16);
       }
-      ctx.fillStyle='#6d28d9';
-      ctx.fillRect(-24,-14,48,34);
-      ctx.fillStyle='#5520a8';
-      ctx.fillRect(-19,20,12,16);
-      ctx.fillRect(7,20,12,16);
+      // 虎柄の腰布
+      ctx.fillStyle='#e8b13c';
+      ctx.fillRect(-15,2,30,9);
+      ctx.fillStyle='#1a1a1a';
+      for(let i=0;i<3;i++) ctx.fillRect(-11+i*10,2,4,9);
+      // 脚
+      ctx.fillStyle=tint||'#5520a8';
+      ctx.fillRect(-12,11,9,12);
+      ctx.fillRect(4,11,9,12);
+      // 金棒: 状態で構えを変える(予兆の読み分けポイント)
+      let kAng=.55, kx=18, ky=-8; // 通常: 肩に担ぐ
+      if(wind){
+        if(f.onAttack==='combo'||f.onAttack==='five'){ kAng=Math.PI*.55; kx=-18; ky=-10; }                  // 後ろへ引いて構える
+        else if(f.onAttack==='shock'){ if(f.onShockVert){ kAng=.06; kx=6; ky=-42; } else { kAng=Math.PI*.5; kx=14; ky=-14; } } // 縦/横に振りかぶる
+        else if(f.onAttack==='dimension'){ kAng=.1; kx=6; ky=-42; }                                          // 頭上へ振り上げる
+      }
+      else if(f.onDim){ kAng=.1; kx=6; ky=-42; }
+      else if(f.onSwingFx>0){ const k=(8-f.onSwingFx)/8; kAng=-1.2+k*2.5; kx=12; ky=-12; }
+      if(!oniGrabbing){ // 担ぎ上げ中は両手がふさがるので金棒は出さない
+      ctx.save();
+      ctx.translate(kx,ky);
+      ctx.rotate(kAng);
+      ctx.scale(2,2); // 金棒は2倍サイズ
+      ctx.fillStyle='#3c3c46';
+      ctx.fillRect(-3.5,-30,7,52);
+      ctx.fillStyle='#23232b';
+      ctx.fillRect(-4.5,-30,9,20);
+      ctx.fillStyle='#ffd75e';
+      ctx.fillRect(-4,-27,3,3);
+      ctx.fillRect(2,-22,3,3);
+      ctx.fillRect(-4,-16,3,3);
+      ctx.restore();
+      // スイングの軌跡(大きな金棒に合わせて広く)
+      if(f.onSwingFx>0){
+        const k=(8-f.onSwingFx)/8;
+        const ang=-1.3+k*2.6;
+        ctx.strokeStyle='rgba(255,215,94,'+(.8-k*.6).toFixed(2)+')';
+        ctx.lineWidth=9;
+        ctx.beginPath();
+        ctx.arc(8,-12,80,ang-1.1,ang);
+        ctx.stroke();
+      }
+      }
     }
     ctx.restore(); return true;
   }
 
   function drawFighter(f) {
     if(f.isBoss && state.bossActive){
+      if(f.bossType?.trait==='wave' && !f.dead){
+        // キジは浮遊しているように見せる足元の影
+        const ksc=1.7*(f.formScale||f.bossType.size||5);
+        const shrink=Math.max(.55,1-(f.jumpLift||0)/400);
+        ctx.save();
+        ctx.fillStyle='rgba(0,0,0,'+(.28*shrink).toFixed(2)+')';
+        ctx.beginPath();
+        ctx.ellipse(f.x,f.y+6,14*ksc*shrink,4.5*ksc*shrink,0,0,Math.PI*2);
+        ctx.fill();
+        ctx.restore();
+      }
       ctx.save();
       ctx.translate(f.x,f.y);
       ctx.scale(1.7,1.7);
       ctx.translate(-f.x,-f.y);
       const drawn=drawAnimalBoss(f);
       ctx.restore();
-      if(drawn) return;
+      if(drawn){
+        // 個別体力バー: サルは頭上、イヌ・キジは体の下に表示
+        const bTrait=f.bossType?.trait;
+        if((bTrait==='splitter'||bTrait==='charger'||bTrait==='wave') && !f.dead){
+          const bw=Math.max(76,Math.min(220,f.width*1.1));
+          const bh=bTrait==='splitter'?7:9;
+          const bx=f.x-bw/2;
+          // イヌ・キジは絵の足元(アート下端×描画スケール)のさらに下に出す
+          const effScale=1.7*(f.formScale||f.bossType.size||5);
+          const by=bTrait==='splitter'
+            ? f.y-(f.jumpLift||0)-f.height-46
+            : f.y+(bTrait==='charger'?22:34)*effScale;
+          ctx.fillStyle='rgba(12,14,16,.72)';
+          ctx.fillRect(bx-1,by-1,bw+2,bh+2);
+          const hpR=Math.max(0,f.hp/f.maxHp);
+          ctx.fillStyle= hpR>.5 ? '#7ddf64' : hpR>.25 ? '#ffc93e' : '#ff5a3c';
+          ctx.fillRect(bx,by,bw*hpR,bh);
+        }
+        return;
+      }
     }
     if(f.special==='giant' && !f.dead){
       drawGiantZako(f);
+      return;
+    }
+    if(f.special==='kijiDrop' && !f.dead){
+      // 巨大な雫: 着弾予告リング+上空に光るしずく+破壊用HPバー
+      ctx.save();
+      const pulse=.5+.5*Math.sin(state.time*.3);
+      ctx.strokeStyle='rgba(159,216,255,'+(.35+.35*pulse).toFixed(2)+')';
+      ctx.lineWidth=3;
+      ctx.beginPath(); ctx.ellipse(f.x,f.y,60+pulse*8,22+pulse*3,0,0,Math.PI*2); ctx.stroke();
+      const dy=f.y-(f.jumpLift||0);
+      ctx.fillStyle='#9fd8ff';
+      ctx.beginPath(); ctx.moveTo(f.x-13,dy-28); ctx.lineTo(f.x,dy-52); ctx.lineTo(f.x+13,dy-28); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.arc(f.x,dy-22,f.dropFalling?20:15+pulse*3,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#e8f7ff';
+      ctx.beginPath(); ctx.arc(f.x-5,dy-27,5,0,Math.PI*2); ctx.fill();
+      const hpR=Math.max(0,f.hp/f.maxHp);
+      ctx.fillStyle='rgba(12,14,16,.7)'; ctx.fillRect(f.x-24,dy-66,48,5);
+      ctx.fillStyle='#9fd8ff'; ctx.fillRect(f.x-24,dy-66,48*hpR,5);
+      ctx.restore();
+      return;
+    }
+    if(f.special==='kurage' && !f.dead){
+      // 黒い小型クラゲ: 自爆前は赤く点滅
+      ctx.save();
+      const armed=(f.kurageArm||0)>0;
+      const blink=armed && Math.floor(state.time/4)%2;
+      const yy=f.y-(f.jumpLift||0);
+      ctx.fillStyle='rgba(0,0,0,.25)';
+      ctx.beginPath(); ctx.ellipse(f.x,f.y+3,12,4,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=blink?'#ff6a5a':'#23262e';
+      ctx.beginPath(); ctx.arc(f.x,yy-22,13,Math.PI,0); ctx.fill();
+      ctx.fillRect(f.x-13,yy-22,26,7);
+      for(let ti=0;ti<4;ti++){
+        ctx.fillRect(f.x-9+ti*6, yy-15+Math.sin(state.time*.2+ti)*2, 3, 12);
+      }
+      ctx.fillStyle=blink?'#ffd9d4':'#8a92a8';
+      ctx.fillRect(f.x-6,yy-24,3,3);
+      ctx.fillRect(f.x+3,yy-24,3,3);
+      ctx.restore();
       return;
     }
 
 
     ctx.save();
     if(f.jumpLift>0){
-      // ジャンプ中は影を地面に残して本体を浮かせる
-      ctx.fillStyle='rgba(0,0,0,.25)';
+      // ジャンプ・投げられ中は地面にはっきりした影を落として本体を浮かせる
+      ctx.fillStyle='rgba(0,0,0,.3)';
       ctx.beginPath();
-      ctx.ellipse(Math.round(f.x),Math.round(f.y)+4,16,5,0,0,Math.PI*2);
+      ctx.ellipse(Math.round(f.x),Math.round(f.y)+4,16+Math.min(10,f.jumpLift*.08),5+Math.min(3,f.jumpLift*.03),0,0,Math.PI*2);
       ctx.fill();
     }
     ctx.translate(Math.round(f.x),Math.round(f.y-(f.jumpLift||0)));
@@ -7048,16 +8899,20 @@
   function drawDamageNumbers() {
     ctx.save();
     ctx.textAlign='center';
+    // ボス戦の固定カメラ(縮小表示)では文字が潰れるため、縮小分を打ち消して画面上のサイズを一定に保つ
+    const zk=state.cameraView ? 1/state.cameraView.scale : 1;
     for(const d of state.damageNumbers){
-      ctx.font=d.big?'bold 32px "DotGothic16", monospace':'bold 16px "DotGothic16", monospace';
-      const alpha=Math.max(0,d.life/d.maxLife);
+      // キャラや弾に被って視界を塞がないよう、文字は頭上へ逃がして半透明で描く
+      const lift=(d.big?110:42)*Math.max(1,zk*.75);
+      ctx.font='bold '+Math.round((d.big?24:15)*zk)+'px "DotGothic16", monospace';
+      const alpha=Math.max(0,d.life/d.maxLife)*(d.big?.9:.82);
       ctx.globalAlpha=alpha;
-      ctx.lineWidth=d.big?5:3;
-      ctx.strokeStyle='rgba(0,0,0,.75)';
+      ctx.lineWidth=(d.big?4:3)*zk;
+      ctx.strokeStyle='rgba(0,0,0,.7)';
       const text=d.label||String(d.value);
-      ctx.strokeText(text,d.x,d.y);
+      ctx.strokeText(text,d.x,d.y-lift);
       ctx.fillStyle=d.color;
-      ctx.fillText(text,d.x,d.y);
+      ctx.fillText(text,d.x,d.y-lift);
     }
     ctx.restore();
   }
@@ -7100,8 +8955,15 @@
     const sx=x0+(x1-x0)*prog;
     // モバイルは上部の背景帯が狭いため、帯の下端に沿う低い弧に調整(フィールドにはみ出さない)
     const band=state.height*FLOOR_RATIO;
-    const baseY=IS_TOUCH ? Math.min(240+SAFE_TOP_WORLD, band-8) : 118;
-    const peak=IS_TOUCH ? Math.min(44, Math.max(24, band*.3)) : 64;
+    let baseY=IS_TOUCH ? Math.min(240+SAFE_TOP_WORLD, band-8) : 118;
+    let peak=IS_TOUCH ? Math.min(44, Math.max(24, band*.3)) : 64;
+    if(state.cameraView){
+      // ボス戦(固定カメラ): 画面に見えている空の帯が狭いので、弧を帯の中に収める(はみ出し防止)
+      const cam=state.cameraView;
+      const bandBottom=(band-cam.focusY)*cam.scale+state.height/2;
+      baseY=Math.max(40, bandBottom-26);
+      peak=Math.min(44, Math.max(14, baseY-36));
+    }
     const sy=baseY-Math.sin(prog*Math.PI)*peak;
     ctx.save();
     // 軌道ガイド(薄い点線の弧)
@@ -7231,7 +9093,8 @@
     const p=state.player;
     if(!p || p.dead) return;
     ctx.save();
-    ctx.translate(Math.round(p.x),Math.round(p.y));
+    // 投げ・持ち上げ中は本体の浮上位置に重ねる(地面に薄い残像が残らないように)
+    ctx.translate(Math.round(p.x),Math.round(p.y-(p.jumpLift||0)));
     ctx.scale(p.facing,1);
     ctx.globalAlpha=.38;
     ctx.fillStyle='#f4f4f4';
@@ -7296,20 +9159,12 @@
     ctx.translate(sx,sy);
 
     if(state.bossActive){
-      const boss=state.enemies.find(e=>e.isBoss && !e.dead);
-      const focusX=boss ? (state.player.x+boss.x)/2 : state.width/2;
-      const focusY=boss ? (state.player.y+boss.y)/2 : state.height/2;
-
-      let target=0.68;
-      if(boss){
-        const needW=Math.abs(state.player.x-boss.x)+560;
-        const needH=Math.abs(state.player.y-boss.y)+440;
-        target=clamp(Math.min(state.width/needW,state.height/needH),.4,.8);
-      }
-      if(!state.bossViewScale) state.bossViewScale=target;
-      state.bossViewScale+=(target-state.bossViewScale)*.06;
-      const scale=state.bossViewScale;
-
+      // ボス戦: カメラ完全固定(ズーム・位置とも動かさない)。アリーナ全体が常に収まる倍率
+      const ww=state.worldW||state.width;
+      const wh=state.worldH||state.height;
+      const scale=Math.min(state.width/ww, state.height/wh);
+      const focusX=ww/2;
+      const focusY=wh/2;
       state.cameraView={scale,focusX,focusY};
       ctx.translate(state.width/2,state.height/2);
       ctx.scale(scale,scale);
@@ -7322,6 +9177,7 @@
     drawArenaWalls();
     drawTerrain();
     drawCraters();
+    drawInuGeysers();
     drawJizo();
     drawFishAndKappa();
     const fighters=[state.player,...state.enemies.filter(e=>!e.dead && e.active!==false)];
@@ -7334,6 +9190,7 @@
     drawCompanionRange();
     drawMissileLocks();
     drawCompanionLasers();
+    drawOniLaser();
     drawExplosionEffects();
     drawCompanion();
     // 二刀流: 2人目の桃を反対側に描く
@@ -7351,7 +9208,6 @@
     drawCoins();
     drawMeats();
     drawCharacterHpBars();
-    drawDamageNumbers();
     drawOniStomp();
 
     for(const p of state.particles){
@@ -7375,6 +9231,51 @@
     }
 
     pixelate();
+
+    // ダメージ数字・ポップ文字はピクセル化の後に描く(ドット化で潰れず、COMBO等のUI文字と同じ鮮明さで読める)
+    ctx.save();
+    ctx.translate(sx,sy);
+    if(state.cameraView){
+      ctx.translate(state.width/2,state.height/2);
+      ctx.scale(state.cameraView.scale,state.cameraView.scale);
+      ctx.translate(-state.cameraView.focusX,-state.cameraView.focusY);
+    }
+    // 睡眠の表現: 眠っている間はZzz、眠気が溜まってきたら小さなzが頭上に漂う(バーは出さない)
+    {
+      const plp=state.player;
+      if(plp && !plp.dead && ((state.playerSleep||0)>0 || (state.kijiSleepGauge||0)>40)){
+        const zk2=state.cameraView?1/state.cameraView.scale:1;
+        ctx.save();
+        ctx.textAlign='left';
+        ctx.strokeStyle='rgba(0,0,0,.6)';
+        if((state.playerSleep||0)>0){
+          for(let zi=0;zi<3;zi++){
+            const ph=((state.time*.02)+zi*.33)%1;
+            ctx.globalAlpha=(1-ph)*.9;
+            ctx.font='bold '+Math.round((11+zi*5)*zk2)+'px "DotGothic16", monospace';
+            ctx.lineWidth=2*zk2;
+            const zx=plp.x+12+zi*13+ph*8;
+            const zy=plp.y-92-zi*15-ph*22;
+            ctx.strokeText('Z',zx,zy);
+            ctx.fillStyle='#d9c4f5';
+            ctx.fillText('Z',zx,zy);
+          }
+        }else{
+          // 眠気が溜まりつつある警告: 小さなzがふわふわ
+          const g=(state.kijiSleepGauge-40)/60;
+          ctx.globalAlpha=.45+.4*g;
+          ctx.font='bold '+Math.round((10+g*7)*zk2)+'px "DotGothic16", monospace';
+          ctx.lineWidth=2*zk2;
+          const zx=plp.x+12, zy=plp.y-90+Math.sin(state.time*.1)*4;
+          ctx.strokeText('z',zx,zy);
+          ctx.fillStyle='#c9b4ec';
+          ctx.fillText('z',zx,zy);
+        }
+        ctx.restore();
+      }
+    }
+    drawDamageNumbers();
+    ctx.restore();
   }
 
   let highScore=0;
@@ -7437,11 +9338,14 @@
     }
     ui.lowHpVignette.classList.toggle('open',
       !state.player.dead && state.player.hp>0 && state.player.hp<=state.player.maxHp*.3 && !state.gameEnded && !state.over);
-    const boss = state.bossActive ? state.enemies.find(e=>e.isBoss && !e.dead) : null;
-    if(boss){
+    const bossGroup = state.bossActive ? state.enemies.filter(e=>e.isBoss) : [];
+    if(bossGroup.some(e=>!e.dead)){
+      // サルの群れ(複数体ボス)は全体の合計HPを1本のバーで表す
       ui.bossHpWrap.classList.add('open');
-      ui.bossHpName.textContent = 'BOSS ' + (boss.bossType?.name || '');
-      ui.bossHpFill.style.width = Math.max(0, boss.hp/boss.maxHp*100) + '%';
+      ui.bossHpName.textContent = 'BOSS ' + (bossGroup[0].bossType?.name || '');
+      const bossHpSum=bossGroup.reduce((s,e)=>s+Math.max(0,e.hp),0);
+      const bossHpMax=bossGroup.reduce((s,e)=>s+e.maxHp,0)||1;
+      ui.bossHpFill.style.width = Math.max(0, bossHpSum/bossHpMax*100) + '%';
     }else{
       ui.bossHpWrap.classList.remove('open');
     }
@@ -7580,12 +9484,14 @@
     touchCanvas.addEventListener('touchcancel',endMoveTouch,{passive:false});
     guardBtn.addEventListener('touchstart',e=>{
       initAudio();
+      touchGuardHeld=true;
       setGuard(true);
       guardBtn.classList.add('holding');
       e.preventDefault();
       e.stopPropagation();
     },{passive:false});
     const guardOff=e=>{
+      touchGuardHeld=false;
       setGuard(false);
       guardBtn.classList.remove('holding');
       if(e){ e.preventDefault(); e.stopPropagation(); }
@@ -7698,6 +9604,8 @@
   let tutorialShown=false;
   function startGame(){
     if(!titleOverlay || !titleOverlay.classList.contains('open')) return;
+    const bs=document.getElementById('bossSetupOverlay');
+    if(bs && bs.classList.contains('open')) return; // ボス戦の準備中はクリック/Enterで通常スタートしない
     titleOverlay.classList.remove('open');
     stopTitleBgm();
     initAudio();
@@ -7717,6 +9625,75 @@
     if(state) state.over=false;
     return true;
   }
+  // ボス戦モード: ボスを選ぶ→準備画面(武器とレベルを選ぶ)→たたかう
+  const bsState={boss:1, weapon:'normal', lv:1};
+  function refreshBossSetup(){
+    document.querySelectorAll('.bsWeaponBtn').forEach(b=>b.classList.toggle('sel',b.dataset.w===bsState.weapon));
+    document.querySelectorAll('.bsLvBtn').forEach(b=>b.classList.toggle('sel',+b.dataset.lv===bsState.lv));
+  }
+  function openBossSetup(n){
+    bsState.boss=n;
+    document.getElementById('bossSetupTitle').textContent='ボス戦の準備 — '+bossTypes[n-1].name;
+    const wDiv=document.getElementById('bsWeapons');
+    if(!wDiv.dataset.built){
+      wDiv.dataset.built='1';
+      const DEFS=[['normal','弓','弓強化'],['shotgun','石つぶて','石つぶて強化'],['laser','レーザー','レーザー強化'],['bomb','爆弾','爆弾強化'],['missile','蜂','蜂の巣強化']];
+      wDiv.innerHTML=DEFS.map(([k,label,upName])=>{
+        const up=upgradePool.find(u=>u.name===upName);
+        return '<button class="bsWeaponBtn" data-w="'+k+'">'+(up?pixelIconHTML(up):'')+'<span>'+label+'</span></button>';
+      }).join('');
+      const lDiv=document.getElementById('bsLevels');
+      lDiv.innerHTML=[1,2,3,4,5].map(v=>'<button class="bsLvBtn" data-lv="'+v+'">Lv'+v+'</button>').join('');
+      wDiv.addEventListener('click',ev=>{
+        const b=ev.target.closest('.bsWeaponBtn');
+        if(b){ bsState.weapon=b.dataset.w; refreshBossSetup(); }
+      });
+      lDiv.addEventListener('click',ev=>{
+        const b=ev.target.closest('.bsLvBtn');
+        if(b){ bsState.lv=+b.dataset.lv; refreshBossSetup(); }
+      });
+      document.getElementById('bsBack').addEventListener('click',()=>{
+        document.getElementById('bossSetupOverlay').classList.remove('open');
+      });
+      document.getElementById('bsStart').addEventListener('click',()=>{
+        document.getElementById('bossSetupOverlay').classList.remove('open');
+        startBossMode(bsState.boss, bsState.weapon, bsState.lv);
+      });
+    }
+    refreshBossSetup();
+    document.getElementById('bossSetupOverlay').classList.add('open');
+  }
+  function startBossMode(n, wKey, wLv){
+    if(!titleOverlay || !titleOverlay.classList.contains('open')) return;
+    titleOverlay.classList.remove('open');
+    stopTitleBgm();
+    initAudio();
+    startBgm();
+    reset();
+    tutorialShown=true; // 確認用モードではチュートリアルを出さない
+    state.room=n*5;
+    state.spawnedThisWave=state.normalEnemiesPerWave; // reset()が予約した雑魚の一括湧きを無効化
+    state.bossCheckMode=true;
+    ui.centerMsg.textContent='';
+    // 選んだ武器とレベルで開始(強化のapplyを回数分適用するので実プレイと同じ性能になる)
+    const NAME_BY_KEY={normal:'弓強化',shotgun:'石つぶて強化',laser:'レーザー強化',bomb:'爆弾強化',missile:'蜂の巣強化'};
+    const up=upgradePool.find(u=>u.name===NAME_BY_KEY[wKey]);
+    const times=wKey==='normal' ? wLv-1 : wLv; // 弓は初期所持=Lv1スタート
+    for(let i=0;i<times;i++){
+      if(up&&up.apply){ up.apply(); state.upgrades.push(up.name); }
+    }
+    setCompanionWeapon(wKey==='normal'?'orb':wKey);
+    generateTerrain();
+    spawnBoss();
+  }
+  document.querySelectorAll('.bossModeBtn').forEach(b=>{
+    b.addEventListener('pointerdown',ev=>{ ev.stopPropagation(); });
+    b.addEventListener('click',ev=>{
+      ev.stopPropagation();
+      ev.preventDefault();
+      openBossSetup(+b.dataset.boss);
+    });
+  });
   document.getElementById('tutorialClose').addEventListener('click',closeTutorial);
   document.getElementById('tutorialOverlay').addEventListener('pointerdown',closeTutorial);
   function returnToTitle(){
