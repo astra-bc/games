@@ -298,11 +298,11 @@
   #weaponHud .wPassive { opacity: .85; }    /* 武器以外の取得済み強化 */
   #weaponHud { flex-wrap: wrap; max-width: 380px; row-gap: 4px; }
   body.touch #weaponHud {
-    /* 操作エリアの外・すぐ上に左寄せで置く */
+    /* 画面上部(HUDバーのすぐ下)に左寄せで置く */
     position: fixed;
     left: 6px;
-    top: auto;
-    bottom: calc(100px + env(safe-area-inset-bottom, 0px));
+    top: calc(58px + env(safe-area-inset-top, 0px));
+    bottom: auto;
     padding: 4px 7px;
     z-index: 9;
   }
@@ -1247,7 +1247,7 @@
         <h1 class="titleLogo">Momo Taro</h1>
         <div class="titleRule"></div>
         <p class="titleKana">モモタロウ</p>
-        <p class="titleVer">ver. 2026.08.03c (build 128)</p>
+        <p class="titleVer">ver. 2026.08.03f (build 131)</p>
         <div class="titleQr">
           <img id="titleQrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAklEQVR4AewaftIAAASESURBVO3BQU4rOhREwYOVXbV69Ve9DsYsgDF/dKUIOTgJefgPXPX2/vH5xbHN4NhqcGw1OLa68I1kXi0pmmQelRRNMi0pZiTTkqJJ5h5J0STzaknRBsdWg2OrCz9IimdJZiUpbpFMk8wrJMVvJMWzJDMzOLYaHFtduJNkVpJiJSmaZK4lRUuKGck0ybSkaEmxIplbkmJFMitJsTI4thocW134Y5J5lGSeJZmZpLgmmR0Gx1aDY6sLfywpbpFMS4qWFCuSmUmKGclcS4odBsdWg2OrC3dKileTzLWkaJJpSdEkM5MUM5L5F5LiFQbHVoNjqws/kMyrSaYlxTXJtKRokmlJ0SQzI5mWFE0yLSmuSaYlxYxkXm1wbDU4trrwTVL8Fcm8imRmJNOS4lFJ8S8Njq0Gx1YXvpFMS4ommZmkaJJZSYp7SObVJNOS4lpSzEimJcWMZFpSNMnMJEUbHFsNjq3e3j8+v7gimZmkaJKZSYoVyTwqKR4hmb+UFCuSaUnRBsdWg2OrwbHVhR8kRZPMimRWkqJJ5lpSNMk0ybSkaJJpSbGSFLdIpiXFjGRWJDOTFDODY6vBsdXb+8fnF78gmZmkaJJpSdEkcy0pViQzkxQrkvmNpHiWZFpStMGx1eDY6sITJNOSYkYyM5JpSXEPyTxLMi0pbpHMTFI0ybSkaJKZSYqWFDODY6vBsdXb+8fnF1ckM5MUM5KZSYoZybSkuEUyM0kxI5mZpJiRzLWkmJFMS4oVyawkRRscWw2Ord7ePz6/eBHJrCRFk8w9kuJZkvmNpHiEZFaSog2OrQbHVhe+kcxKUjTJzCTFjGRuSYoZybSkWJFMS4pXkcxMUrSkaJJpSTEzOLYaHFu9vX98fvEikllJilsk05KiSWYmKZpkWlKsSOYeSTEjmZmkaJJpSTEzOLYaHFu9vX98fvEgybSk+Nck05JiRjIrSXGLZFpSzEimJUWTzEpSzAyOrQbHVhe+kUxLiiaZlhQrknlUUjTJzEjmX5NMS4qVpGiSaUmxMji2GhxbXfgmKVYk05JiJimaZFpS3CKZmaRYkUxLiiaZJplbkmJGMv/S4NhqcGw1OLa68APJzCRFk8wjJNOS4pakaJJpSTGTFL8hmUdI5hUGx1aDY6u394/PL/6QZB6VFE0yLSlmJNOSokmmJcU1ybSkWJHMs5KiDY6tBsdWF76RzKslxT2S4q9I5h6SaUmxkhRNMi0pZgbHVoNjqws/SIpnSeY3JNOSYkYyLSlaUqwkxTXJzCTFs5JiZXBsNTi2unAnyawkxUpS3CKZlhRNMi0pZiTTkqJJpiXFPSTziKRokllJijY4thocW134Y5K5JSmaZGYksyKZRyVFk0xLihnJNMm0pJiRzMzg2GpwbHXhfyopmmRmkuJVJNOSYkYyLSlmJNOSYmVwbDU4trpwp6R4haRokrkmmZWkaJJZSYpHSaYlxYxkZpKiSaYlxczg2GpwbHXhB5J5NcncIymaZJpkVpJiRjItKe4hmZmkeIXBsdXg2Ort/ePzi2ObwbHV4NjqPxNVH7cJ+T3kAAAAAElFTkSuQmCC" alt="QRコード">
           <p>スマホで あそぶ</p>
@@ -2516,7 +2516,7 @@
         vy:Math.sin(baseAngle)*speed,
         radius:12*c.projectileScale,
         life:57, // 飛距離1.5倍(旧38F)
-        damage:c.damage*3*(1+.5*Math.max(0,c.bombLevel-1)), // 基礎威力を2倍に強化(旧1.5)
+        damage:c.damage*3*(1+.5*Math.max(0,c.bombLevel-1))*(c.bombLevel>=4?1.5:1), // Lv4/5はDPS1.5倍
         owner:{isPlayer:true},
         color:'#ff8a2b',
         explosive:true,
@@ -2564,7 +2564,7 @@
       }
       for (const h of pierced) {
         // 連続照射のティックダメージ: 約6F毎に刻む(×1.2→×1.0へ少し減衰。貫通数はそのまま)
-        const laserDamage=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1));
+        const laserDamage=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1); // Lv4/5はDPS1.5倍
         h.enemy.hp -= laserDamage;
         showDamageNumber(h.enemy.x,h.enemy.y-h.enemy.height*.65,laserDamage,'#9ff7ff');
         burst(h.enemy.x,h.enemy.y-h.enemy.height*.4,6,'#9ff7ff');
@@ -2583,7 +2583,7 @@
       if(blocked){
         burst(c.x+Math.cos(baseAngle)*beamEnd,c.y+Math.sin(baseAngle)*beamEnd,6,'#9fb3c8');
         if(blocker && !blocker.dead){
-          const blockDmg=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*.2; // 連続ティック化(約6F毎)に合わせた1回分
+          const blockDmg=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1)*.2; // 連続ティック化(約6F毎)に合わせた1回分。Lv4/5は1.5倍
           blocker.hp-=blockDmg;
           showDamageNumber(blocker.x,blocker.y-blocker.height*.65,blockDmg,'#9fb3c8');
           addCombo();
@@ -2712,7 +2712,7 @@
           vy:Math.sin(launchAngle)*launchSpeed,
           radius:7*c.projectileScale,
           life:600, // 規定回数刺し切るまで長く飛び回れる(最長10秒)
-          damage:c.damage*.8*[0,1,1.45,1.9,2.35,2.8][c.missileLevel], // 全武器バランス調整でさらに下方(1.07→0.8)
+          damage:c.damage*.8*[0,1,1.45,1.9,3.5,4.2][c.missileLevel], // Lv4/5はDPS1.5倍(2.35/2.8→3.5/4.2)
           // Lv2からは毒針: 刺さった敵にレベル×1秒(Lv2=2秒,Lv3=3秒…)の継続毒
           poisonOnHit:c.missileLevel>=2 ? Math.max(1,Math.round(c.damage*.1)) : 0,
           poisonDuration:c.missileLevel>=2 ? c.missileLevel*60 : undefined,
@@ -3613,6 +3613,12 @@
       pts.push({x:nextCx,y:joinY});
       pts.push({x:nextCx,y:next.y+next.height});
       cur=next;
+    }
+    // 川が途中で止まって見えないよう、経路の最後のセグメントは画面下端まで延長する
+    // (海のあるステージ3は海に接続済みのため除外)
+    if(cur && !(state.room>=11 && state.room<=15) && cur.y+cur.height < state.height-10){
+      cur.height = state.height+24 - cur.y;
+      pts[pts.length-1] = {x:cur.x+cur.width/2, y:cur.y+cur.height};
     }
     let total=0;
     for(let i2=1;i2<pts.length;i2++) total+=Math.hypot(pts[i2].x-pts[i2-1].x,pts[i2].y-pts[i2-1].y);
@@ -8159,8 +8165,8 @@
     state.kijiSleepCd=Math.max(0,(state.kijiSleepCd||0)-1);
     if((state.kijiSleepGauge||0)>0 && !state.enemies.some(m=>!m.dead&&m.kjSleep)) state.kijiSleepGauge=Math.max(0,state.kijiSleepGauge-.25);
     // 掴み投げ(サル・鬼共通): 掴んでいる個体が倒されたらヒーローを解放
-    // 投げ抜け: 掴まれて持ち上げられている間に方向キーをガチャガチャ(6回)押すと振りほどける
-    if(state.saruHolder && !state.saruThrow && (state.grabMashCount||0)>=6){
+    // 投げ抜け: 掴まれて持ち上げられている間に方向キーをガチャガチャ(4回)押すと振りほどける
+    if(state.saruHolder && !state.saruThrow && (state.grabMashCount||0)>=4){
       const holder=state.saruHolder;
       holder.srGrab=null; holder.onGrab=null;
       holder.srCd=120; holder.onCd=120;
@@ -10458,51 +10464,58 @@
         ctx.beginPath(); ctx.ellipse(a.tx,a.ty,30,10,0,0,Math.PI*2); ctx.fill();
       }
     }
-    // 待機中の8本足(浮世絵風に先がくるりと巻く・吸盤つき)
+    // 待機中の8本足: 浮世絵のように水面へ左右に大きく広がり、先がくるりと巻く(下面に吸盤)
     ctx.lineCap='round';
     for(let i=0;i<8;i++){
-      const base=hx-42+i*12;
-      const sway=Math.sin(state.time*.1+i*1.3)*8;
-      const tipX=base+sway*1.7, tipY=f.y+12;
+      const dir2=i<4?-1:1;
+      const rank=i%4;
+      const baseX=hx+dir2*(10+rank*6);
+      const baseY=hy+18+(rank%2?6:-2);
+      const len=46+rank*22+Math.sin(state.time*.08+i)*6;
+      const midY=f.y+6+(rank%2?4:-3)+Math.sin(state.time*.1+i*1.3)*4;
+      const tipX=baseX+dir2*len;
+      const tipY=midY+(rank%2?2:-2);
       ctx.strokeStyle='#a84a2e';
-      ctx.lineWidth=9;
+      ctx.lineWidth=10-rank*1.5;
       ctx.beginPath();
-      ctx.moveTo(base,hy+16);
-      ctx.quadraticCurveTo(base+sway,hy+46,tipX,tipY);
+      ctx.moveTo(baseX,baseY);
+      ctx.quadraticCurveTo(baseX+dir2*len*.45,midY+8,tipX,tipY);
       ctx.stroke();
-      // 先端のくるり
-      ctx.lineWidth=6;
+      // 先端のくるり(渦巻き)
+      ctx.lineWidth=Math.max(2.5,5-rank);
       ctx.beginPath();
-      ctx.arc(tipX+ (i%2?6:-6), tipY-2, 6, 0, Math.PI*1.4);
+      ctx.arc(tipX+dir2*4,tipY-5,5.5,dir2<0?Math.PI*.4:Math.PI*.9,dir2<0?Math.PI*1.7:Math.PI*2.3);
       ctx.stroke();
-      // 吸盤
+      // 吸盤(足の下面に点々)
       ctx.fillStyle='#f2d5b8';
-      ctx.beginPath(); ctx.arc(base+sway*.5,hy+34,2.8,0,Math.PI*2); ctx.fill();
-      ctx.beginPath(); ctx.arc(base+sway*1.2,f.y-2,2.8,0,Math.PI*2); ctx.fill();
+      for(let q=1;q<=3;q++){
+        const qk=q/4;
+        const qx=(1-qk)*(1-qk)*baseX+2*(1-qk)*qk*(baseX+dir2*len*.45)+qk*qk*tipX;
+        const qy=(1-qk)*(1-qk)*baseY+2*(1-qk)*qk*(midY+8)+qk*qk*tipY;
+        ctx.beginPath(); ctx.arc(qx,qy+3,2.6,0,Math.PI*2); ctx.fill();
+      }
     }
-    // 頭(赤茶のたこ頭)
-    ctx.fillStyle=f.flash?'#ffffff':'#c05a3a';
-    ctx.beginPath(); ctx.ellipse(hx,hy,52,46,0,0,Math.PI*2); ctx.fill();
-    ctx.fillStyle=f.flash?'#ffffff':'#a84a2e';
-    ctx.beginPath(); ctx.ellipse(hx,hy+12,52,34,0,0,Math.PI*2); ctx.fill();
-    // 手ぬぐい鉢巻(浮世絵の蛸らしく)
-    ctx.fillStyle='#2c4d7d';
-    ctx.fillRect(hx-52,hy-18,104,9);
-    ctx.fillStyle='#8fc3ff';
-    ctx.fillRect(hx-52,hy-15,104,2);
-    // 大きな目(白目+ギョロリとした黒目・赤い縁)
-    ctx.strokeStyle='#8f2f1f';
-    ctx.lineWidth=2;
-    ctx.fillStyle='#ffffff';
-    ctx.beginPath(); ctx.arc(hx-18,hy+6,11,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.beginPath(); ctx.arc(hx+18,hy+6,11,0,Math.PI*2); ctx.fill(); ctx.stroke();
-    ctx.fillStyle='#1a1a1a';
-    ctx.fillRect(hx-21+f.facing*4,hy+2,6,9);
-    ctx.fillRect(hx+15+f.facing*4,hy+2,6,9);
-    // への字口
+    // 胴: 水面に横たわる大きな赤茶のマントル(後方へ膨らむ)
+    ctx.fillStyle=f.flash?'#ffffff':'#b5563a';
+    ctx.beginPath(); ctx.ellipse(hx-f.facing*8,hy,58,40,f.facing*.15,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(hx+f.facing*36,hy-14,34,26,f.facing*.5,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle=f.flash?'#ffffff':'#8f3d28';
+    ctx.beginPath(); ctx.ellipse(hx-f.facing*8,hy+14,56,26,0,0,Math.PI*2); ctx.fill(); // 下面の陰
+    // ギョロっとした大きな白目+黒目(浮世絵の蛸)
+    for(const ex2 of [-18,16]){
+      ctx.strokeStyle='#7c2f1c';
+      ctx.lineWidth=3;
+      ctx.fillStyle='#f6f1e4';
+      ctx.beginPath(); ctx.arc(hx+ex2,hy+2,14,0,Math.PI*2); ctx.fill(); ctx.stroke();
+      ctx.fillStyle='#1a1a1a';
+      ctx.beginPath(); ctx.arc(hx+ex2+f.facing*4,hy+4,6.5,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#ffffff';
+      ctx.fillRect(hx+ex2+f.facing*2,hy-1,3,3);
+    }
+    // すぼめた口
     ctx.strokeStyle='#5a2415';
     ctx.lineWidth=3;
-    ctx.beginPath(); ctx.moveTo(hx-9,hy+26); ctx.quadraticCurveTo(hx,hy+20,hx+9,hy+26); ctx.stroke();
+    ctx.beginPath(); ctx.arc(hx-f.facing*2,hy+24,4,0,Math.PI*2); ctx.stroke();
     // HPバー(ボス並みに硬いため常時表示)
     const bw=110, bx=hx-bw/2, by=hy-66;
     ctx.fillStyle='rgba(12,14,16,.72)';
@@ -12202,7 +12215,7 @@
     if(e.code==='Space') setGuard(true);
     if(e.key==='Shift' || k==='c') requestDash(null,null);
     if(fresh && dashTapKeys[k] && state && state.saruHolder && !state.saruThrow){
-      // 掴まれ中のガチャガチャ入力を数える(6回で投げ抜け)
+      // 掴まれ中のガチャガチャ入力を数える(4回で投げ抜け)
       state.grabMashCount=(state.grabMashCount||0)+1;
       if(state.player) burst(state.player.x,state.player.y-40-(state.player.jumpLift||0),3,'#ffe9ad');
     }
