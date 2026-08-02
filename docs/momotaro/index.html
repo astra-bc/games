@@ -84,6 +84,24 @@
     text-shadow: 0 3px 0 #000;
     pointer-events: none;
   }
+  #pauseQuitBtn {
+    position: absolute;
+    left: 50%;
+    top: 34%;
+    transform: translateX(-50%);
+    display: none;
+    padding: 12px 26px;
+    font-size: 18px;
+    font-weight: 900;
+    font-family: inherit;
+    color: #ffe9a8;
+    background: rgba(13,21,34,.92);
+    border: 2px solid #ffe9a8;
+    border-radius: 10px;
+    cursor: pointer;
+    z-index: 40;
+  }
+  #pauseQuitBtn.show { display: block; }
   #centerMsg {
     position: absolute;
     left: 50%;
@@ -357,7 +375,7 @@
   body.touch #guardBtn.holding { background: rgba(90,170,220,.65); }
   body.touch #dashBtn.holding { background: rgba(120,200,130,.6); }
   body.touch.onehand #controlArea { display: none; } /* かたてモード: ボタン類は出さず全画面操作 */
-  body.touch.onehand #weaponHud { top: auto; bottom: 14px; left: 12px; } /* かたてモード: 武器レベル表示は画面下へ */
+  /* 武器レベル表示は上部の帯内(下に置くと海の演出が隠れるため) */
   body.touch #help { display: none; }
   /* モバイル(縦持ち前提): 上部HUDを全幅コンパクト化し、ボタン列はその下に置いて重なりを防ぐ */
   /* モバイル差分: ノッチ回避と少しの縮小のみ(バー構成はPCと共通) */
@@ -825,7 +843,7 @@
   .stLabel { margin: 0 0 14px; font-size: 14px; letter-spacing: 5px; color: #9fdcff; }
   .stText { margin: 0; font-size: 14px; line-height: 2; color: #dfe9f5; white-space: pre-line; }
   .stHint { margin: 18px 0 0; font-size: 11px; color: #5f7591; }
-  #caveRewardOverlay, #ryuguOverlay {
+  #caveRewardOverlay, #ryuguOverlay, #kintaroOverlay {
     display: none;
     position: absolute;
     inset: 0;
@@ -834,7 +852,7 @@
     align-items: center;
     justify-content: center;
   }
-  #caveRewardOverlay.open, #ryuguOverlay.open { display: flex; }
+  #caveRewardOverlay.open, #ryuguOverlay.open, #kintaroOverlay.open { display: flex; }
   .caveRewardBtn {
     display: block;
     width: 100%;
@@ -1120,6 +1138,14 @@
         <p class="stHint">クリック / 何かキーで すすむ</p>
       </div>
     </div>
+    <div id="kintaroOverlay">
+      <div class="trophyPanel" style="width:min(470px,90vw);text-align:center">
+        <h2>キンタローに勝った!</h2>
+        <p style="font-size:13px;margin:8px 0 14px">ほうびを ひとつ選んでください</p>
+        <button class="caveRewardBtn" id="kintaroAxe">まさかり をもらう<br><span>近接が中距離攻撃になる(振りは遅い・威力同じ)</span></button>
+        <button class="caveRewardBtn" id="kintaroBear">クマ に乗る<br><span>移動速度+20%・川を歩いて渡れる(渡り中は遅い)。HPが10%未満になると逃げる</span></button>
+      </div>
+    </div>
     <div id="ryuguOverlay">
       <div class="trophyPanel" style="width:min(440px,90vw);text-align:center">
         <h2>丁半博打</h2>
@@ -1219,7 +1245,7 @@
         <h1 class="titleLogo">Momo Taro</h1>
         <div class="titleRule"></div>
         <p class="titleKana">モモタロウ</p>
-        <p class="titleVer">ver. 2026.08.02a (build 123)</p>
+        <p class="titleVer">ver. 2026.08.02b (build 124)</p>
         <div class="titleQr">
           <img id="titleQrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAklEQVR4AewaftIAAASESURBVO3BQU4rOhREwYOVXbV69Ve9DsYsgDF/dKUIOTgJefgPXPX2/vH5xbHN4NhqcGw1OLa68I1kXi0pmmQelRRNMi0pZiTTkqJJ5h5J0STzaknRBsdWg2OrCz9IimdJZiUpbpFMk8wrJMVvJMWzJDMzOLYaHFtduJNkVpJiJSmaZK4lRUuKGck0ybSkaEmxIplbkmJFMitJsTI4thocW134Y5J5lGSeJZmZpLgmmR0Gx1aDY6sLfywpbpFMS4qWFCuSmUmKGclcS4odBsdWg2OrC3dKileTzLWkaJJpSdEkM5MUM5L5F5LiFQbHVoNjqws/kMyrSaYlxTXJtKRokmlJ0SQzI5mWFE0yLSmuSaYlxYxkXm1wbDU4trrwTVL8Fcm8imRmJNOS4lFJ8S8Njq0Gx1YXvpFMS4ommZmkaJJZSYp7SObVJNOS4lpSzEimJcWMZFpSNMnMJEUbHFsNjq3e3j8+v7gimZmkaJKZSYoVyTwqKR4hmb+UFCuSaUnRBsdWg2OrwbHVhR8kRZPMimRWkqJJ5lpSNMk0ybSkaJJpSbGSFLdIpiXFjGRWJDOTFDODY6vBsdXb+8fnF78gmZmkaJJpSdEkcy0pViQzkxQrkvmNpHiWZFpStMGx1eDY6sITJNOSYkYyM5JpSXEPyTxLMi0pbpHMTFI0ybSkaJKZSYqWFDODY6vBsdXb+8fnF1ckM5MUM5KZSYoZybSkuEUyM0kxI5mZpJiRzLWkmJFMS4oVyawkRRscWw2Ord7ePz6/eBHJrCRFk8w9kuJZkvmNpHiEZFaSog2OrQbHVhe+kcxKUjTJzCTFjGRuSYoZybSkWJFMS4pXkcxMUrSkaJJpSTEzOLYaHFu9vX98fvEikllJilsk05KiSWYmKZpkWlKsSOYeSTEjmZmkaJJpSTEzOLYaHFu9vX98fvEgybSk+Nck05JiRjIrSXGLZFpSzEimJUWTzEpSzAyOrQbHVhe+kUxLiiaZlhQrknlUUjTJzEjmX5NMS4qVpGiSaUmxMji2GhxbXfgmKVYk05JiJimaZFpS3CKZmaRYkUxLiiaZJplbkmJGMv/S4NhqcGw1OLa68APJzCRFk8wjJNOS4pakaJJpSTGTFL8hmUdI5hUGx1aDY6u394/PL/6QZB6VFE0yLSlmJNOSokmmJcU1ybSkWJHMs5KiDY6tBsdWF76RzKslxT2S4q9I5h6SaUmxkhRNMi0pZgbHVoNjqws/SIpnSeY3JNOSYkYyLSlaUqwkxTXJzCTFs5JiZXBsNTi2unAnyawkxUpS3CKZlhRNMi0pZiTTkqJJpiXFPSTziKRokllJijY4thocW134Y5K5JSmaZGYksyKZRyVFk0xLihnJNMm0pJiRzMzg2GpwbHXhfyopmmRmkuJVJNOSYkYyLSlmJNOSYmVwbDU4trpwp6R4haRokrkmmZWkaJJZSYpHSaYlxYxkZpKiSaYlxczg2GpwbHXhB5J5NcncIymaZJpkVpJiRjItKe4hmZmkeIXBsdXg2Ort/ePzi2ObwbHV4NjqPxNVH7cJ+T3kAAAAAElFTkSuQmCC" alt="QRコード">
           <p>スマホで あそぶ</p>
@@ -1242,6 +1268,7 @@
       </div>
     </div>
     <div id="message"></div>
+    <button id="pauseQuitBtn">タイトルに戻る</button>
     <div id="centerMsg"></div>
     <div id="weaponHud"></div>
     <div id="controlArea">
@@ -1395,7 +1422,7 @@
           <rect x="812" y="238" width="148" height="40"/>
           <rect x="846" y="214" width="100" height="34"/>
           <rect x="752" y="292" width="60" height="26"/>
-          <g transform="translate(700,430)">
+          <g id="endCastInu" transform="translate(700,430)">
             <rect x="-11" y="-14" width="18" height="10"/><rect x="4" y="-21" width="10" height="9"/><rect x="5" y="-25" width="3" height="4"/><rect x="10" y="-25" width="3" height="4"/><rect x="-15" y="-17" width="4" height="7"/><rect x="-9" y="-4" width="3" height="4"/><rect x="1" y="-4" width="3" height="4"/>
           </g>
           <g transform="translate(745,430)">
@@ -1403,10 +1430,10 @@
           </g>
           <circle cx="768" cy="380" r="8"/>
           <circle cx="768" cy="380" r="12" fill="none" stroke="#04070d" stroke-width="2"/>
-          <g transform="translate(800,430)">
+          <g id="endCastSaru" transform="translate(800,430)">
             <rect x="-7" y="-16" width="14" height="12"/><rect x="-6" y="-26" width="12" height="10"/><rect x="-11" y="-14" width="4" height="8"/><rect x="7" y="-14" width="4" height="8"/><rect x="-5" y="-4" width="4" height="4"/><rect x="2" y="-4" width="4" height="4"/>
           </g>
-          <g transform="translate(840,430)">
+          <g id="endCastKiji" transform="translate(840,430)">
             <rect x="-8" y="-15" width="13" height="10"/><rect x="2" y="-22" width="8" height="8"/><rect x="9" y="-19" width="5" height="3"/><rect x="3" y="-25" width="3" height="3"/><rect x="-13" y="-13" width="5" height="6"/><rect x="-3" y="-5" width="2" height="5"/><rect x="2" y="-5" width="2" height="5"/>
           </g>
         </g>
@@ -1419,9 +1446,9 @@
           <h3>CAST</h3>
           <p>たろう</p>
           <p>モモ</p>
-          <p>イヌ</p>
-          <p>サル</p>
-          <p>キジ</p>
+          <p id="castInu">イヌ</p>
+          <p id="castSaru">サル</p>
+          <p id="castKiji">キジ</p>
           <p>鬼</p>
           <h3>STAFF</h3>
           <p class="staffRole">ディレクター</p>
@@ -2246,6 +2273,7 @@
       if (entity.kind === 'projectile') return false;
       if (entity.movementType === 'flying') return false;
       if (entity.dashTimer > 0) return false;
+      if (entity.isPlayer && state.bearRide) return false; // クマに乗っていれば歩いて渡れる
       return true;
     }
     if (terrain.type === 'sea') {
@@ -2314,6 +2342,11 @@
     if(entity.isPlayer && state.ryuguDone && seaAt(entity.x,entity.y)){
       dx*=1.8; dy*=1.8;
       if(state.time%4===0) state.particles.push({x:entity.x+(Math.random()-.5)*20,y:entity.y+4,vx:-dx*.1,vy:-.4,life:10,color:'#dff2ff'});
+    }
+    // クマに乗っている: 移動速度+20%。ただし川を渡っている間はゆっくり
+    if(entity.isPlayer && state.bearRide){
+      dx*=1.2; dy*=1.2;
+      if(riverAt(entity.x,entity.y)){ dx*=.5; dy*=.5; }
     }
     // 老化(丁半博打の負け): ヒーローの移動速度1/2
     if(entity.isPlayer && (state.agingWaves||0)>0){
@@ -2753,12 +2786,18 @@
 
     // ヒーローが上へ動くときは下側へ、下へ動くときは上側へ回り込む(進行方向の視界を塞がない)
     const my=state.playerMoveY||0;
+    const mx=state.playerMoveX||0;
     if(my<0) c.followSide=1;       // 上移動 → ヒーローの下側
     else if(my>0) c.followSide=-1; // 下移動 → ヒーローの上側
     c.followYOffset=(c.followYOffset??-1)+(((c.followSide??-1))-(c.followYOffset??-1))*.1; // なめらかに反転
-    const upOff=62+c.formScale*10, downOff=38+c.formScale*8;
+    // 縦移動が主体のときは横オフセットを畳み、真上/真下に回り込む(縦持ちプレイでも視界を塞がない)
+    const vertTarget=(my!==0 && Math.abs(my)>Math.abs(mx)*1.2)?1:0;
+    c.vertBlend=(c.vertBlend??0)+(vertTarget-(c.vertBlend??0))*.08;
+    const vb=c.vertBlend;
+    const upOff=62+c.formScale*10+vb*52, downOff=38+c.formScale*8+vb*16;
     const k=c.followYOffset;
-    const targetX = p.x - p.facing*(50 + c.formScale*18) + Math.cos(c.phase)*10;
+    const sideOff=(50 + c.formScale*18)*(1-vb) + (c.dualWield?30:0)*vb; // 縦移動中は真上/真下(二刀流時は左右に30だけ分離)
+    const targetX = p.x - p.facing*sideOff + Math.cos(c.phase)*10;
     const targetY = p.y + (k<0 ? upOff*k : downOff*k) + Math.sin(c.phase*1.4)*12;
     c.vx += (targetX-c.x)*.08;
     c.vy += (targetY-c.y)*.08;
@@ -2772,7 +2811,7 @@
       c.mate=c.mate||{x:c.x+30,y:c.y,vx:0,vy:0,phase:Math.PI};
       const m=c.mate;
       m.phase+=.06;
-      const mtx = p.x + p.facing*(50 + c.formScale*18) + Math.cos(m.phase)*10;
+      const mtx = p.x + p.facing*sideOff + Math.cos(m.phase)*10;
       const mty = p.y + (k<0 ? upOff*k : downOff*k) + Math.sin(m.phase*1.4)*12;
       m.vx += (mtx-m.x)*.08;
       m.vy += (mty-m.y)*.08;
@@ -3477,6 +3516,42 @@
     },650);
   }
 
+  // 川セグメントを上からつないで1本の経路(ウェイポイント列)を作る。桃が流れるルート用
+  function buildRiverPath(){
+    const segs=state.terrain.filter(t=>t.type==='river').sort((a,b)=>a.y-b.y);
+    if(!segs.length) return null;
+    let cur=segs[0];
+    const used=new Set([cur]);
+    const pts=[{x:cur.x+cur.width/2,y:cur.y+4},{x:cur.x+cur.width/2,y:cur.y+cur.height}];
+    for(let guard=0;guard<segs.length;guard++){
+      const curBot=cur.y+cur.height;
+      const curCx=cur.x+cur.width/2;
+      let next=null,best=1e9;
+      for(const s2 of segs){
+        if(used.has(s2)) continue;
+        const gap=s2.y-curBot;
+        if(gap<-40||gap>90) continue; // 橋の下(すき間)は許容
+        const dxc=Math.abs(s2.x+s2.width/2-curCx);
+        if(dxc>120) continue; // 離れた別の川へは飛び移らない
+        const cost=Math.max(0,gap)+dxc;
+        if(cost<best){ best=cost; next=s2; }
+      }
+      if(!next) break;
+      used.add(next);
+      // 横移動は「橋の下(隠れる)」か「次セグメントの水の中」で行い、陸の上を流れないようにする
+      const nextCx=next.x+next.width/2;
+      const gap2=next.y-curBot;
+      const joinY=gap2>0 ? curBot+gap2/2 : Math.min(next.y+10, next.y+next.height-4);
+      pts.push({x:curCx,y:joinY});
+      pts.push({x:nextCx,y:joinY});
+      pts.push({x:nextCx,y:next.y+next.height});
+      cur=next;
+    }
+    let total=0;
+    for(let i2=1;i2<pts.length;i2++) total+=Math.hypot(pts[i2].x-pts[i2-1].x,pts[i2].y-pts[i2-1].y);
+    return total>120 ? {pts,total} : null;
+  }
+
   function spawnRoomEnemies() {
     state.worldW = state.width;
     state.worldH = state.height;
@@ -3515,35 +3590,14 @@
     // スタート演出: Wave1では川を大きな桃がどんぶらこと流れていく
     if(state.room===1 && !state.introPeachShown){
       state.introPeachShown=true;
-      // 川セグメントを上からつないで1本の経路を作り、桃はその経路を最後まで辿る(途中で消えない)
-      const segs=state.terrain.filter(t=>t.type==='river').sort((a,b)=>a.y-b.y);
-      if(segs.length){
-        let cur=segs[0];
-        const used=new Set([cur]);
-        const pts=[{x:cur.x+cur.width/2,y:cur.y+4},{x:cur.x+cur.width/2,y:cur.y+cur.height}];
-        for(let guard=0;guard<segs.length;guard++){
-          const curBot=cur.y+cur.height;
-          const curCx=cur.x+cur.width/2;
-          let next=null,best=1e9;
-          for(const s2 of segs){
-            if(used.has(s2)) continue;
-            const gap=s2.y-curBot;
-            if(gap<-30||gap>90) continue; // 橋の下(すき間)は許容
-            const dxc=Math.abs(s2.x+s2.width/2-curCx);
-            if(dxc>170) continue;
-            const cost=Math.max(0,gap)+dxc;
-            if(cost<best){ best=cost; next=s2; }
-          }
-          if(!next) break;
-          used.add(next);
-          pts.push({x:next.x+next.width/2,y:next.y+2});
-          pts.push({x:next.x+next.width/2,y:next.y+next.height});
-          cur=next;
-        }
-        let total=0;
-        for(let i2=1;i2<pts.length;i2++) total+=Math.hypot(pts[i2].x-pts[i2-1].x,pts[i2].y-pts[i2-1].y);
-        if(total>120) state.introPeach={pts,total,dist:0,t:0,x:pts[0].x,y:pts[0].y};
-      }
+      const path=buildRiverPath();
+      if(path) state.introPeach={pts:path.pts,total:path.total,dist:0,t:0,x:path.pts[0].x,y:path.pts[0].y};
+    }
+    // 各ステージのWave3(room3/8/13/18): 回復のモモが川を流れてくる(取るとHP全回復+上限20%UP)
+    state.riverPeach=null;
+    if(state.room%5===3){
+      const path=buildRiverPath();
+      if(path) state.riverPeach={pts:path.pts,total:path.total,dist:0,t:0,x:path.pts[0].x,y:path.pts[0].y};
     }
     state.enemies = [];
     state.bossActive = false;
@@ -3557,6 +3611,19 @@
     state.oniStomp = null;
     state.craters = []; // 岩の凹み跡はWaveごとにリセット
     state.inuGeysers = [];
+    // ステージ1のWave3(room3): キンタローとクマが相撲を取っている(隠しイベント・1プレイ1回)
+    state.kintaroScene=null;
+    if(state.room===3 && !state.kintaroDone){
+      const kFloorTop=state.height*FLOOR_RATIO;
+      for(let tryI=0; tryI<40; tryI++){
+        const kx=state.width*(.25+Math.random()*.5);
+        const ky=kFloorTop+80+Math.random()*Math.max(60,state.height-kFloorTop-160);
+        if(riverAt(kx,ky)||riverAt(kx-40,ky)||riverAt(kx+40,ky)) continue;
+        if(state.terrain.some(t=>t.type==='tree'&&circleRectOverlap(kx,ky,40,t))) continue;
+        state.kintaroScene={x:kx, y:ky, hits:0, need:8, used:false, flash:0};
+        break;
+      }
+    }
     // ステージ2のWave1〜2(=Wave6〜7): ランダムな場所にお地蔵さんが現れる(近接で5回叩くと秘密の巻物)
     state.jizo = null;
     state.jizoGreeter = null;
@@ -3616,7 +3683,7 @@
     const type = bossTypes[Math.max(0,Math.min(3,Math.floor(state.room/5)-1))];
     if (type.trait === 'splitter') {
       // サル: 分裂はせず、最初から7体の群れで登場。1体のサイズは最大個体(size)の1/4
-      const totalHp = Math.round(state.config.enemy.hp * 180 * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // 基礎18の10倍(5倍→さらに2倍)
+      const totalHp = Math.round(state.config.enemy.hp * 360 * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // 180からさらに2倍(HP調整)
       const mScale = type.size / 4;
       state.enemies = [];
       for (let i = 0; i < 7; i++) {
@@ -3653,7 +3720,7 @@
       boss.height *= type.size;
       boss.scale = type.size;
       boss.heads = type.heads;
-      boss.maxHp = Math.round(state.config.enemy.hp * (type.name === '鬼' ? 35 : type.name === 'イヌ' ? 100 : 18) * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // ステージ3以降は1.5倍。イヌは300→100(1/3)に再調整
+      boss.maxHp = Math.round(state.config.enemy.hp * (type.name === '鬼' ? 140 : type.name === 'キジ' ? 54 : type.name === 'イヌ' ? 100 : 18) * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // HP調整: キジ3倍(18→54)・鬼4倍(35→140)
       boss.hp = boss.maxHp;
       boss.movementType = type.skill === 'laser' ? 'flying' : 'walking';
       boss.projectileCooldown = 45;
@@ -3665,6 +3732,8 @@
     state.waveTimeTotal = 7200;
     state.terrain = []; // ボス戦はオブジェクト完全撤去(川もなし)。コンクリ打ちっぱなしのアリーナで戦う
     state.oldTerrain = null; // 直前の地形のフェード残像も出さない(開始時に一瞬オブジェクトが見える問題の対策)
+    state.introPeach = null; // 川がないので桃も流れない(ボスモード開始時の残留対策)
+    state.riverPeach = null;
     state.bossHurt = false; // 無傷撃破トロフィー用: この戦闘でHPを減らしたか
     state.bossHpWatch = state.player ? state.player.hp : null;
     state.bossActive = true;
@@ -3722,6 +3791,7 @@
     state.meats=[];
     state.projectiles=[];
     state.blastZones=[]; state.oniErupt=[]; state.inuGeysers=[]; // 残留する爆風類は持ち込まない
+    state.introPeach=null; state.riverPeach=null; // 川ごと退避するので桃も持ち込まない
     state.player.x=state.width*.5;
     state.player.y=state.height*FLOOR_RATIO+130;
     spawnBats(9);
@@ -3777,6 +3847,7 @@
     state.enemies=[];
     state.coins=[]; state.meats=[]; state.projectiles=[];
     state.blastZones=[]; state.oniErupt=[]; state.inuGeysers=[]; // 残留する爆風類は持ち込まない
+    state.introPeach=null; state.riverPeach=null; // 川ごと退避するので桃も持ち込まない
     state.player.hp=state.player.maxHp; // 癒しの空間で全回復
     state.player.invincibleTimer=0;
     state.player.x=state.width*.5;
@@ -3992,6 +4063,18 @@
     ui.message.textContent='';
     ui.bossAbsorbOverlay.classList.remove('open');
     ui.upgradeOverlay.classList.remove('open');
+    // 縦画面ではシーン全体が収まるように(横は従来どおり画面いっぱい)
+    const svg=document.getElementById('endingScene');
+    if(svg) svg.setAttribute('preserveAspectRatio', window.innerHeight>window.innerWidth ? 'xMidYMid meet' : 'xMidYMid slice');
+    // 仲間にしたお供だけがエンディングに登場する
+    const has=n=>(state.allies||[]).some(a2=>a2.name===n);
+    const setV=(id,on)=>{ const el=document.getElementById(id); if(el) el.style.display=on?'':'none'; };
+    setV('endCastInu',has('イヌ'));
+    setV('endCastSaru',has('サル'));
+    setV('endCastKiji',has('キジ'));
+    setV('castInu',has('イヌ'));
+    setV('castSaru',has('サル'));
+    setV('castKiji',has('キジ'));
     ui.endingOverlay.classList.add('open');
   }
 
@@ -5006,7 +5089,7 @@
   function attack(attacker) {
     if (state.over || attacker.dead) return;
     if (attacker.attackCooldown > 0) return;
-    attacker.attackCooldown = attacker.isPlayer ? 26 : 28;
+    attacker.attackCooldown = attacker.isPlayer ? (state.masakari?42:26) : 28; // まさかりは振りが遅い(威力は同じ)
     attacker.attackTimer = 12;
 
     const targets = attacker.isPlayer ? state.enemies : [state.player];
@@ -5017,7 +5100,7 @@
       if (state.time-(state.lastMeleeHitTime??-999) > 60) state.meleeCombo=0;
       stage3 = state.meleeCombo===2;
     }
-    const range = attacker.isPlayer ? state.meleeRange*(stage3?1.3:1) : 136*(zako?zako.reach:1);
+    const range = attacker.isPlayer ? state.meleeRange*(stage3?1.3:1)*(state.masakari?1.8:1) : 136*(zako?zako.reach:1); // まさかり: 近接が中距離化
     const justBuff = attacker.isPlayer && state.meleePowerUntil>state.time ? 2 : 1; // ジャストガード成功で近接2倍
     const agingF = attacker.isPlayer && (state.agingWaves||0)>0 ? .5 : 1; // 老化中は近接1/2
     const power = attacker.isPlayer ? state.config.player.attackPower*(stage3?2:1)*justBuff*agingF : Math.round(13*(zako?zako.attack:1));
@@ -5087,6 +5170,30 @@
           if(attacker.isPlayer){ spawnGibs(target,aimX,aimY); target.meleeKill=true; }
           registerEnemyKill(target);
           burst(target.x,target.y-target.height*.4,24,'#ffffff');
+        }
+      }
+    }
+
+    // キンタロー: 相撲の勝負(近接8発で勝ち。2発ごとに張り手で反撃してくる)
+    if (attacker.isPlayer && state.kintaroScene && !state.kintaroScene.used) {
+      const ks=state.kintaroScene;
+      const kdx=ks.x-attacker.x, kdy=(ks.y-attacker.y)*1.15, kdl=Math.hypot(kdx,kdy)||1;
+      if (kdl<range && (kdx/kdl)*aimX+(kdy/kdl)*aimY>=.38) {
+        ks.hits++;
+        ks.flash=8;
+        burst(ks.x,ks.y-24,8,'#f2b58a');
+        playSfx('slashHit');
+        if(ks.hits<ks.need && ks.hits%2===0){
+          // 張り手の反撃: 突き飛ばされる
+          inuHitHero(5, Math.sign(attacker.x-ks.x)*24, -7);
+          playSfx('slashWhiff');
+        }
+        if(ks.hits>=ks.need){
+          ks.used=true;
+          state.over=true;
+          ui.centerMsg.textContent='キンタローに勝った！';
+          setTimeout(()=>{ if(ui.centerMsg.textContent==='キンタローに勝った！') ui.centerMsg.textContent=''; },1400);
+          document.getElementById('kintaroOverlay').classList.add('open');
         }
       }
     }
@@ -5884,8 +5991,12 @@
   function saruTroopFrame(){
     if(state.saruTick===state.time) return;
     state.saruTick=state.time;
-    // ガードのしっぱなしを群れ全体で監視(3秒で掴み投げの合図)
-    state.saruGuardT = state.guarding ? (state.saruGuardT||0)+1 : 0;
+    // そばに居続ける時間を群れ全体で監視(3秒で掴み投げの合図。ガードは不要)
+    {
+      const pl=state.player;
+      const near=state.enemies.some(m=>m.isBoss && !m.dead && m.bossType?.trait==='splitter' && Math.hypot(m.x-pl.x,m.y-pl.y)<240);
+      state.saruGuardT = (near && !pl.dead) ? (state.saruGuardT||0)+1 : 0;
+    }
     state.saruGrabCd = Math.max(0,(state.saruGrabCd||0)-1);
     // ぶん投げ飛行: 空中から画面端まで水平に飛び、壁際に叩きつけられて着地
     if(state.saruThrow){
@@ -5915,7 +6026,7 @@
       }
     }
     const troop=state.enemies.filter(m=>m.isBoss && !m.dead && m.bossType?.trait==='splitter');
-    // ガード3秒経過: 一番近い手すきのサルを指名して掴みに向かわせる(周回中で距離が遠くても必ず来る)
+    // そばに3秒居続けた: 一番近い手すきのサルを指名して掴みに向かわせる
     if(!state.saruEvent && state.saruGuardT>=180 && state.saruGrabCd<=0 && !state.player.dead && !state.over){
       const pl=state.player;
       const free=troop.filter(m=>!saruBusy(m));
@@ -6608,8 +6719,8 @@
     }
     if(e.stunTimer>0){e.stunTimer--; e.vx*=.9; e.vy*=.9; moveEntity(e,e.vx,e.vy); return true;}
 
-    // ガードしっぱなしの監視(3秒で掴み投げ)
-    state.oniGuardT = state.guarding ? (state.oniGuardT||0)+1 : 0;
+    // そばに居続ける時間の監視(3秒で掴み投げ。ガードは不要)
+    state.oniGuardT = (d<240 && !p.dead) ? (state.oniGuardT||0)+1 : 0;
     state.oniGrabCd = Math.max(0,(state.oniGrabCd||0)-1);
 
     // --- 掴み投げ: そばでガードし続けるヒーローへの崩し(サルと同じ流れ・ガード不能)
@@ -6678,7 +6789,7 @@
       }
       return true;
     }
-    // ガードを3秒以上構えたまま近くにいると掴みに来る
+    // そばに3秒以上居続けると掴みに来る
     if(state.oniGuardT>=180 && (state.oniGrabCd||0)<=0 && d<420 && !p.dead){
       state.oniGrabCd=420;
       e.onGrab={phase:'reach',t:0};
@@ -7434,6 +7545,14 @@
     state.time++;
     // ガードキー押しっぱなしなら、ガードブレイク明けやロック明けに自動で再展開する
     if(!state.guarding && (keys.has(' ') || touchGuardHeld)) setGuard(true);
+    // クマはHPが10%未満になると逃げていく
+    if(state.bearRide && state.player && state.player.hp < state.player.maxHp*.1){
+      state.bearRide=false;
+      state.bearFlee={x:state.player.x, y:state.player.y, t:0, dir:(state.player.x<state.width/2?1:-1)};
+      ui.centerMsg.textContent='クマは逃げてしまった…';
+      setTimeout(()=>{ if(ui.centerMsg.textContent==='クマは逃げてしまった…') ui.centerMsg.textContent=''; },1600);
+      playSfx('guardBreak');
+    }
     // 無傷撃破トロフィー: ボス戦中にHPが減ったら記録
     if(state.bossActive && state.player){
       if(state.bossHpWatch!==null && state.player.hp<state.bossHpWatch) state.bossHurt=true;
@@ -7545,6 +7664,40 @@
         if(ip.t%9===0) state.particles.push({x:ip.x+(Math.random()-.5)*22,y:ip.y+8,vx:0,vy:.5,life:12,color:'#dff2ff'});
       }
     }
+    // Wave3の回復モモ: 川を流れてくる。触れるとHP全回復+上限20%UP
+    if(state.riverPeach && !state.over && !state.choosingUpgrade){
+      const ip=state.riverPeach;
+      ip.t++;
+      ip.dist+=.75; // 演出の桃より少しゆっくり(取るチャンスを作る)
+      if(ip.dist>=ip.total){
+        burst(ip.x,ip.y-8,14,'#ffb7c5');
+        state.riverPeach=null;
+      }else{
+        let d2=ip.dist;
+        for(let i2=1;i2<ip.pts.length;i2++){
+          const a2=ip.pts[i2-1], b2=ip.pts[i2];
+          const L=Math.hypot(b2.x-a2.x,b2.y-a2.y)||1;
+          if(d2<=L){
+            const k2=d2/L;
+            ip.x=a2.x+(b2.x-a2.x)*k2+Math.sin(ip.t*.06)*3;
+            ip.y=a2.y+(b2.y-a2.y)*k2;
+            break;
+          }
+          d2-=L;
+        }
+        if(ip.t%9===0) state.particles.push({x:ip.x+(Math.random()-.5)*22,y:ip.y+8,vx:0,vy:.5,life:12,color:'#dff2ff'});
+        if(ip.t%5===0) state.particles.push({x:ip.x,y:ip.y-22,vx:0,vy:-.6,life:10,color:'#ffd9e4'}); // 回復モモはきらめく
+        const plp2=state.player;
+        if(plp2 && !plp2.dead && Math.hypot(plp2.x-ip.x,plp2.y-ip.y)<44){
+          plp2.maxHp=Math.round(plp2.maxHp*1.2);
+          plp2.hp=plp2.maxHp;
+          burst(ip.x,ip.y-10,22,'#ffb7c5');
+          showScorePop(plp2.x,plp2.y-110,'モモを食べた! HP全回復+上限20%UP',true);
+          playSfx('comboMile');
+          state.riverPeach=null;
+        }
+      }
+    }
     // キジの睡眠波動: チャネルしていない間は睡眠ゲージが自然減衰
     state.kijiSleepCd=Math.max(0,(state.kijiSleepCd||0)-1);
     if((state.kijiSleepGauge||0)>0 && !state.enemies.some(m=>!m.dead&&m.kjSleep)) state.kijiSleepGauge=Math.max(0,state.kijiSleepGauge-.25);
@@ -7578,6 +7731,14 @@
         state.explosionEffects.push({x:pl.x,y:pl.y-20,radius:10,maxRadius:140,life:15,maxLife:15,color:'#e8b64c'});
         burst(pl.x,pl.y-10,20,'#d9c9a8');
         playSfx('bomb');
+      }
+    }
+    // お墓の吸収: 最後に死んだ墓(未吸収)に触れると当時の強化を吸収
+    if(!state.bossActive && !state.inCave && !state.inRyugu && !state.over){
+      const lastGrave=graves[graves.length-1];
+      if(lastGrave && !lastGrave.absorbed && lastGrave.room===state.room &&
+         Math.hypot(lastGrave.x-state.player.x,lastGrave.y-state.player.y)<46){
+        absorbGrave(lastGrave);
       }
     }
     // 鬼の暗転と属性爆発(発光予告→爆発)
@@ -7668,6 +7829,8 @@
           awardTrophy('laststand');
         }else{
           state.over=true; state.win=false; state.gameOverAt=performance.now(); saveHighScore(); recordScore();
+          recordGrave(); // 死んだ場所にお墓を残す(最新の墓だけ次のランで強化を吸収できる)
+          setTimeout(()=>{ if(state && state.over && !state.gameEnded && ui.gameOverOverlay.classList.contains('open')) returnToTitle(); },2600); // 自動でタイトルへ
           state.pendingLevelUps=0;
           state.choosingUpgrade=false;
           ui.upgradeOverlay.classList.remove('open');
@@ -7721,6 +7884,7 @@
             logWaveBalance('boss');
             if(boss.bossType && boss.bossType.name==='鬼'){
               recordScore(); // クリア時もスコアきろくに残す
+              if((state.allies||[]).length===0) awardTrophy('solo'); // お供なしクリア
               setTimeout(showEnding,1900);
             }else{
               setTimeout(()=>showBossAbsorbChoice(boss),1800);
@@ -8985,6 +9149,12 @@
     if(!c || state.inCave) return;
     ctx.save();
     ctx.translate(c.x,c.y);
+    ctx.scale(1.35,1.35); // 目立つように一回り大きく
+    // 光る誘導サークル(地面)
+    const gPulse=.5+.5*Math.sin(state.time*.08);
+    ctx.strokeStyle='rgba(190,160,255,'+(.25+.35*gPulse).toFixed(2)+')';
+    ctx.lineWidth=3;
+    ctx.beginPath(); ctx.ellipse(0,14,74+gPulse*8,22+gPulse*3,0,0,Math.PI*2); ctx.stroke();
     ctx.fillStyle='#5d564c';
     ctx.beginPath();
     ctx.moveTo(-70,10); ctx.lineTo(-40,-46); ctx.lineTo(0,-60); ctx.lineTo(42,-44); ctx.lineTo(70,10);
@@ -8997,17 +9167,103 @@
       ctx.beginPath();
       ctx.moveTo(-24,10); ctx.lineTo(-18,-26); ctx.lineTo(0,-34); ctx.lineTo(18,-26); ctx.lineTo(24,10);
       ctx.closePath(); ctx.fill();
+      // 洞窟の口から漏れる妖しい光+立ちのぼる光の粒
       const g=.4+.3*Math.sin(state.time*.1);
       ctx.fillStyle='rgba(190,160,255,'+g.toFixed(2)+')';
       ctx.fillRect(-3,-20,6,6);
+      ctx.fillStyle='rgba(190,160,255,'+(.2+.2*g).toFixed(2)+')';
+      ctx.beginPath();
+      ctx.moveTo(-20,10); ctx.lineTo(0,-30); ctx.lineTo(20,10);
+      ctx.closePath(); ctx.fill();
+      if(state.time%5===0) state.particles.push({x:c.x+(Math.random()-.5)*40,y:c.y-20,vx:0,vy:-1.2,life:16,color:'#bea0ff'});
     }else{
       ctx.fillStyle='#7a7266';
       ctx.beginPath(); ctx.arc(0,-8,24,0,Math.PI*2); ctx.fill();
       ctx.fillStyle='#8d8578';
       ctx.beginPath(); ctx.arc(-7,-14,8,0,Math.PI*2); ctx.fill();
+      // 注連縄+紙垂(しで)で「何かある」感を出す
       ctx.fillStyle='#d8c690';
-      ctx.fillRect(-24,-12,48,5); // 注連縄
+      ctx.fillRect(-24,-12,48,5);
+      ctx.fillStyle='#ffffff';
+      for(let si=0;si<3;si++) ctx.fillRect(-16+si*14,-7,5,8);
     }
+    ctx.restore();
+  }
+
+  // クマ(乗騎/相撲用): 茶色い体+耳+鼻先
+  function drawBearAt(x,y,standing){
+    ctx.save();
+    ctx.translate(Math.round(x),Math.round(y));
+    ctx.fillStyle='rgba(0,0,0,.25)';
+    ctx.beginPath(); ctx.ellipse(0,3,17,5,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#6b4a2f';
+    if(standing){
+      ctx.fillRect(-10,-44,20,36);      // 立ち上がった体
+      ctx.fillRect(-14,-34,5,16);       // 腕
+      ctx.fillRect(9,-34,5,16);
+      ctx.fillRect(-9,-8,7,8);          // 脚
+      ctx.fillRect(2,-8,7,8);
+      ctx.fillRect(-8,-54,16,12);       // 頭
+      ctx.fillRect(-9,-58,5,5);         // 耳
+      ctx.fillRect(4,-58,5,5);
+      ctx.fillStyle='#a8845f';
+      ctx.fillRect(-3,-48,7,5);         // 鼻先
+      ctx.fillStyle='#1a1a1a';
+      ctx.fillRect(-5,-51,2,2);
+      ctx.fillRect(3,-51,2,2);
+    }else{
+      const trot=Math.sin(state.time*.25)*2;
+      ctx.beginPath(); ctx.ellipse(0,-9,16,10,0,0,Math.PI*2); ctx.fill(); // 四足の体
+      ctx.fillRect(-13,-4+trot,5,7);    // 脚(交互に動く)
+      ctx.fillRect(8,-4-trot,5,7);
+      ctx.fillRect(12,-20,9,10);        // 頭
+      ctx.fillRect(13,-24,4,4);         // 耳
+      ctx.fillStyle='#a8845f';
+      ctx.fillRect(19,-17,4,4);
+      ctx.fillStyle='#1a1a1a';
+      ctx.fillRect(17,-19,2,2);
+    }
+    ctx.restore();
+  }
+
+  // room3: キンタローとクマの相撲(隠しイベント)
+  function drawKintaroScene(){
+    const ks=state.kintaroScene;
+    if(!ks) return;
+    ctx.save();
+    // 土俵
+    ctx.fillStyle='rgba(196,168,110,.5)';
+    ctx.beginPath(); ctx.ellipse(ks.x,ks.y+4,58,20,0,0,Math.PI*2); ctx.fill();
+    ctx.strokeStyle='#8a6b42';
+    ctx.lineWidth=3;
+    ctx.beginPath(); ctx.ellipse(ks.x,ks.y+4,58,20,0,0,Math.PI*2); ctx.stroke();
+    ctx.restore();
+    // クマ(左・立ち上がって押し合い)
+    const push=Math.sin(state.time*.1)*4;
+    drawBearAt(ks.x-26+push,ks.y,true);
+    // キンタロー(右): 赤い腹掛けの力持ち
+    ctx.save();
+    ctx.translate(Math.round(ks.x+22-push),Math.round(ks.y));
+    if(ks.flash>0){ ks.flash--; if(ks.flash%2===0) ctx.globalAlpha=.55; }
+    ctx.fillStyle='rgba(0,0,0,.2)';
+    ctx.beginPath(); ctx.ellipse(0,2,11,4,0,0,Math.PI*2); ctx.fill();
+    ctx.rotate(-.08+Math.sin(state.time*.1)*.06); // 押し合いで踏ん張る
+    ctx.fillStyle='#f2b58a';
+    ctx.fillRect(-8,-30,16,22);   // 体(肌)
+    ctx.fillRect(-12,-26,4,12);   // 腕(前へ)
+    ctx.fillRect(8,-26,4,12);
+    ctx.fillStyle='#d63f45';
+    ctx.fillRect(-7,-24,14,14);   // 赤い腹掛け
+    ctx.fillStyle='#f6d454';
+    ctx.fillRect(-3,-20,6,6);     // 「金」の金色プレート
+    ctx.fillStyle='#f2b58a';
+    ctx.fillRect(-6,-42,12,12);   // 顔
+    ctx.fillStyle='#1a1a1a';
+    ctx.fillRect(-6,-42,12,4);    // 髪
+    ctx.fillRect(-2,-46,4,4);     // ちょんまげ
+    ctx.fillStyle='#3a4656';
+    ctx.fillRect(-6,-8,5,8);      // 脚
+    ctx.fillRect(1,-8,5,8);
     ctx.restore();
   }
 
@@ -9097,14 +9353,14 @@
     ctx.restore();
   }
 
-  // スタート演出: どんぶらこと川を流れる大きな桃
+  // 川を流れる桃(スタート演出+Wave3の回復モモ)
   function drawIntroPeach(){
-    const ip=state.introPeach;
-    if(!ip) return;
+    for(const ip of [state.introPeach, state.riverPeach]){
+    if(!ip) continue;
     // 橋にさしかかっている間は橋の下をくぐる(桃は隠れる)
     const underBridge=state.terrain.some(t=>t.type==='bridge' &&
       ip.x>t.x-6 && ip.x<t.x+t.width+6 && ip.y>t.y-4 && ip.y<t.y+t.height+12);
-    if(underBridge) return;
+    if(underBridge) continue;
     ctx.save();
     ctx.translate(ip.x,ip.y);
     ctx.rotate(Math.sin(ip.t*.06)*.14);
@@ -9118,6 +9374,7 @@
     ctx.fillRect(-2,-22,4,7);
     ctx.beginPath(); ctx.ellipse(7,-19,7,4,-.5,0,Math.PI*2); ctx.fill();
     ctx.restore();
+    }
   }
 
   function drawShadow(f) {
@@ -9563,6 +9820,9 @@
     if(f.isPlayer && state.ryuguDone && !state.inRyugu && seaAt(f.x,f.y)){
       // カメを助けた後、海の上ではカメに乗って移動する
       drawTurtleAt(f.x,f.y+2,true);
+    }else if(f.isPlayer && state.bearRide){
+      // キンタローのほうび: クマに乗って移動
+      drawBearAt(f.x,f.y+2,false);
     }
     if(f.jumpLift>0){
       // ジャンプ・投げられ中は地面にはっきりした影を落として本体を浮かせる
@@ -10224,6 +10484,38 @@
     ctx.restore();
   }
 
+  // 死んだ場所のお墓: この部屋の墓を全部描く。最後に死んだ墓(未吸収)だけ淡く光る
+  function drawGraves(){
+    if(!state || state.bossActive || state.inCave || state.inRyugu) return;
+    const last=graves[graves.length-1];
+    for(const g of graves){
+      if(g.room!==state.room) continue;
+      ctx.save();
+      ctx.translate(g.x,g.y);
+      // 影
+      ctx.fillStyle='rgba(0,0,0,.28)';
+      ctx.beginPath(); ctx.ellipse(0,4,20,7,0,0,Math.PI*2); ctx.fill();
+      // 吸収できる墓は淡い光をまとう
+      if(g===last && !g.absorbed){
+        const pulse=.5+Math.sin(state.time*.08)*.5;
+        ctx.fillStyle='rgba(207,224,255,'+(.10+.12*pulse)+')';
+        ctx.beginPath(); ctx.ellipse(0,-20,30,36,0,0,Math.PI*2); ctx.fill();
+      }
+      // 土台
+      ctx.fillStyle='#6f6a60'; ctx.fillRect(-16,-8,32,10);
+      ctx.fillStyle='#8a857a'; ctx.fillRect(-13,-13,26,6);
+      // 墓石(縦長の石)
+      ctx.fillStyle='#9aa0a8'; ctx.fillRect(-9,-42,18,30);
+      ctx.fillStyle='#b7bec7'; ctx.fillRect(-9,-42,5,30);
+      ctx.fillStyle='#7d838c'; ctx.fillRect(4,-42,5,30);
+      ctx.fillStyle='#9aa0a8';
+      ctx.beginPath(); ctx.arc(0,-42,9,Math.PI,0); ctx.fill();
+      ctx.fillStyle='#b7bec7';
+      ctx.beginPath(); ctx.arc(-2,-43,5,Math.PI,0); ctx.fill();
+      ctx.restore();
+    }
+  }
+
   function render() {
     if (!state) return;
     ctx.save();
@@ -10253,9 +10545,19 @@
     drawIntroPeach();
     drawTurtleScene();
     drawRyuguDice();
+    drawKintaroScene();
+    if(state.bearFlee){
+      // クマが逃げていく
+      const bf=state.bearFlee;
+      bf.t++;
+      bf.x+=bf.dir*6.5;
+      drawBearAt(bf.x,bf.y+Math.abs(Math.sin(bf.t*.3))*-4,false);
+      if(bf.t>140) state.bearFlee=null;
+    }
     drawCraters();
     drawInuGeysers();
     drawJizo();
+    drawGraves();
     drawFishAndKappa();
     const fighters=[state.player,...state.enemies.filter(e=>!e.dead && e.active!==false)];
     for(const f of fighters) drawShadow(f);
@@ -10372,6 +10674,7 @@
     {id:'nodmgboss',name:'無傷の武勇',desc:'ボスを一度もHPを減らさず撃破した'},
     {id:'jg5',name:'見切りの極意',desc:'ジャストガードを5連続で決めた'},
     {id:'idaten',name:'韋駄天',desc:'開始10分以内に鬼ヶ島(Wave16)へ到達した'},
+    {id:'solo',name:'ひとり旅',desc:'お供を一人も連れずに鬼を倒した'},
     {id:'cave',name:'岩の主を討つ者',desc:'秘密の洞窟の奥で岩の主を倒した',secret:true},
     {id:'ryugu',name:'竜宮の客人',desc:'カメに導かれて龍宮城を訪れた',secret:true},
     {id:'complete',name:'語り継がれる英雄',desc:'ほかのすべてのトロフィーを獲得した'}
@@ -10423,6 +10726,9 @@
     idaten:{name:'tp_idaten',px:[
       '.......ccc..','......cc....','....cccc....','...cc..c....','..cccccc....','.cc....c....',
       'cccccccc....','.....cc.....','....cc......','...cc.......','............','............']},
+    solo:{name:'tp_solo',px:[
+      '............','.....rr.....','....wwww....','....wwww....','.....ww.....','....wwww....',
+      '...w.ww.w...','.....ww.....','....w..w....','...w....w...','............','............']},
     cave:{name:'tp_cave',px:[
       '............','..SSSSSSSS..','.SSSSSSSSSS.','.SSyySSyySS.','.SSSSSSSSSS.','.SSSkkkkSSS.',
       '..SSSSSSSS..','...SSSSSS...','............','............','............','............']},
@@ -10458,6 +10764,71 @@
     scoreRecords.sort((a,b)=>b.score-a.score);
     scoreRecords=scoreRecords.slice(0,10);
     try{ localStorage.setItem('momoTaroScores',JSON.stringify(scoreRecords)); }catch(err){}
+  }
+
+  // ---- お墓: 死んだ場所に墓が増え続ける。最後に死んだ墓にだけ触れると、その時の強化を吸収できる ----
+  let graves=[];
+  try{ graves=JSON.parse(localStorage.getItem('momoTaroGraves')||'[]'); }catch(err){ graves=[]; }
+  function saveGraves(){ try{ localStorage.setItem('momoTaroGraves',JSON.stringify(graves)); }catch(err){} }
+  function recordGrave(){
+    if(!state || state.bossActive || state.inCave || state.inRyugu) return; // 特殊空間には残さない
+    const c=state.companion||{};
+    graves.push({
+      room:state.room,
+      x:Math.round(state.player.x), y:Math.round(state.player.y),
+      lv:{
+        shot:c.shotLevel||0, shotgun:c.shotgunLevel||0, laser:c.laserLevel||0,
+        missile:c.missileLevel||0, bomb:c.bombLevel||0,
+        melee:state.meleeLevel||0, guard:state.guardLevel||0,
+        rapid:c.rapidLevel||0, range:c.rangeLevel||0,
+        volley:Object.assign({},c.volleyLevelBy||{}),
+        dual:!!c.dualWield
+      }
+    });
+    if(graves.length>60) graves=graves.slice(-60); // 保存数の上限(古い墓から消える)
+    saveGraves();
+  }
+  function absorbGrave(g){
+    const c=state.companion;
+    if(!c) return;
+    const keepWeapon=c.weaponMode;
+    const byName=n=>upgradePool.find(u=>u.name===n);
+    let gained=0;
+    const lvup=(name,cur,target)=>{ const up=byName(name); for(let i=cur;i<target;i++){ up.apply(); gained++; } };
+    const gl=g.lv||{};
+    lvup('弓強化', c.shotLevel||0, gl.shot||0);
+    lvup('石つぶて強化', c.shotgunLevel||0, gl.shotgun||0);
+    lvup('レーザー強化', c.laserLevel||0, gl.laser||0);
+    lvup('蜂の巣強化', c.missileLevel||0, gl.missile||0);
+    lvup('爆弾強化', c.bombLevel||0, gl.bomb||0);
+    lvup('近接強化', state.meleeLevel||0, gl.melee||0);
+    lvup('ガード強化', state.guardLevel||0, gl.guard||0);
+    lvup('連射強化', c.rapidLevel||0, gl.rapid||0);
+    lvup('射程強化', c.rangeLevel||0, gl.range||0);
+    const vol=gl.volley||{};
+    for(const key in vol){
+      const cur=(c.volleyLevelBy||{})[key]||0;
+      if(vol[key]>cur){
+        const restore=c.weaponMode;
+        c.weaponMode=(key==='normal')?'orb':key; // 弾数強化は「いまの武器」に効くため一時的に切り替えて適用
+        for(let i=cur;i<vol[key];i++){ byName('弾数強化').apply(); gained++; }
+        c.weaponMode=restore;
+      }
+    }
+    if(gl.dual && !c.dualWield){ byName('二刀流').apply(); gained++; }
+    setCompanionWeapon(keepWeapon); // 吸収で武器モードが勝手に変わらないよう元に戻す
+    g.absorbed=true;
+    saveGraves();
+    if(gained>0){
+      showScorePop(g.x,g.y-70,'お墓から強化を吸収! (+'+gained+')',true);
+      burst(g.x,g.y-24,26,'#cfe0ff');
+      state.explosionEffects.push({x:g.x,y:g.y-20,radius:8,maxRadius:130,life:18,maxLife:18,color:'#cfe0ff'});
+      playSfx('levelup');
+    }else{
+      showScorePop(g.x,g.y-70,'いまの強化のほうが強い…',true);
+      burst(g.x,g.y-24,8,'#9fb3c8');
+    }
+    updateHud();
   }
 
   let highScore=0;
@@ -11060,6 +11431,24 @@
     exitRyugu();
   });
   document.getElementById('ryuguOverlay').addEventListener('pointerdown',ev=>ev.stopPropagation());
+  // キンタローのほうび選択
+  function kintaroPick(axe){
+    state.kintaroDone=true;
+    state.kintaroScene=null;
+    if(axe){
+      state.masakari=true; // 近接が中距離化(振りは遅い)。効果はattack()側
+      showScorePop(state.player.x,state.player.y-110,'まさかり を手に入れた!',true);
+    }else{
+      state.bearRide=true;
+      showScorePop(state.player.x,state.player.y-110,'クマ に乗った!',true);
+    }
+    playSfx('comboMile');
+    document.getElementById('kintaroOverlay').classList.remove('open');
+    state.over=false;
+  }
+  document.getElementById('kintaroAxe').addEventListener('click',ev=>{ ev.stopPropagation(); kintaroPick(true); });
+  document.getElementById('kintaroBear').addEventListener('click',ev=>{ ev.stopPropagation(); kintaroPick(false); });
+  document.getElementById('kintaroOverlay').addEventListener('pointerdown',ev=>ev.stopPropagation());
   // ボス戦モードはゲームクリア(鬼撃破)後に解放
   function updateTitleUnlocks(){
     const row=document.getElementById('bossModeRow');
@@ -11106,13 +11495,22 @@
   const menuButton=document.getElementById('menuButton');
   const menuPanel=document.getElementById('menuPanel');
   const pauseButton=document.getElementById('pauseButton');
+  const pauseQuitBtn=document.getElementById('pauseQuitBtn');
   function togglePause(){
     if(!state || state.gameEnded) return;
     if(titleOverlay && titleOverlay.classList.contains('open')) return;
     state.paused=!state.paused;
     if(pauseButton) pauseButton.textContent=state.paused?'▶':'❚❚';
     ui.message.textContent=state.paused?'PAUSED':'';
+    if(pauseQuitBtn) pauseQuitBtn.classList.toggle('show',state.paused);
   }
+  if(pauseQuitBtn) pauseQuitBtn.addEventListener('click',()=>{
+    if(!state || !state.paused) return;
+    state.paused=false;
+    pauseQuitBtn.classList.remove('show');
+    if(pauseButton) pauseButton.textContent='❚❚';
+    returnToTitle();
+  });
   if(menuButton) menuButton.addEventListener('click',()=>menuPanel.classList.toggle('open'));
   // 設定パネル(旧・右カラム)はドロワー化: ゲームは常に全幅
   const settingsButton=document.getElementById('settingsButton');
