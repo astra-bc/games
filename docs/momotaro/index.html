@@ -348,6 +348,7 @@
   }
   body.touch #guardBtn.holding { background: rgba(90,170,220,.65); }
   body.touch #dashBtn.holding { background: rgba(120,200,130,.6); }
+  body.touch.onehand #controlArea { display: none; } /* かたてモード: ボタン類は出さず全画面操作 */
   body.touch #help { display: none; }
   /* モバイル(縦持ち前提): 上部HUDを全幅コンパクト化し、ボタン列はその下に置いて重なりを防ぐ */
   /* モバイル差分: ノッチ回避と少しの縮小のみ(バー構成はPCと共通) */
@@ -839,8 +840,8 @@
   }
   #trophyOverlay.open { display: flex; }
   .trophyPanel {
-    width: min(560px, 92vw);
-    max-height: 82vh;
+    width: min(680px, 94vw);
+    max-height: 84vh;
     overflow: auto;
     background: #0d1522;
     border: 2px solid #3f5b7a;
@@ -848,18 +849,31 @@
     color: #dfe9f5;
   }
   .trophyPanel h2 { margin: 0 0 8px; font-size: 17px; letter-spacing: 3px; }
-  .trophyPanel h2 + h2, .trophyPanel #scoreRecordList { margin-top: 4px; }
-  .trophyItem {
+  .trophySummary { display: flex; align-items: center; gap: 12px; margin: 0 0 12px; font-size: 13px; color: #9fb3c8; }
+  .trophySummary .tpBar { flex: 1; display: block; height: 9px; background: rgba(255,255,255,.08); border: 1px solid #3f5b7a; }
+  .trophySummary .tpFill { display: block; height: 100%; background: #ffcc58; }
+  #trophyList { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .trophyCard {
     display: flex;
     gap: 10px;
-    align-items: baseline;
-    padding: 7px 4px;
-    border-bottom: 1px solid rgba(120,150,190,.18);
-    font-size: 13px;
+    align-items: center;
+    padding: 9px 10px;
+    border: 2px solid #3f5b7a;
+    background: #111c2c;
   }
-  .trophyItem.locked { opacity: .45; }
-  .trophyItem .tIcon { width: 24px; flex: none; }
+  .trophyCard.got { border-color: #b98a2e; background: #1d1a10; }
+  .trophyCard.locked { opacity: .55; }
+  .trophyCard .tcIcon { font-size: 22px; width: 34px; text-align: center; flex: none; }
+  .trophyCard .tcIcon .upIconPx { width: 30px; height: 30px; image-rendering: pixelated; display: block; margin: 0 auto; }
+  .trophyCard.locked .tcIcon { filter: grayscale(1) brightness(.55); }
+  .tcName { font-size: 13px; font-weight: 800; color: #ffe9ad; }
+  .trophyCard.locked .tcName { color: #8fa3ba; }
+  .tcDesc { font-size: 11px; color: #9fb3c8; margin-top: 2px; }
+  .tcDate { font-size: 10px; color: #b98a2e; margin-top: 2px; }
   #scoreRecordList { margin: 6px 0 14px; padding-left: 26px; font-size: 13px; line-height: 1.9; }
+  #scoreRecordList .top1 { color: #ffcc58; font-weight: 800; }
+  #scoreRecordList .top2 { color: #cfd6df; font-weight: 800; }
+  #scoreRecordList .top3 { color: #d9975a; font-weight: 800; }
   #trophyClose {
     margin-top: 6px;
     padding: 8px 22px;
@@ -1096,6 +1110,7 @@
     <div id="trophyOverlay">
       <div class="trophyPanel">
         <h2>トロフィー</h2>
+        <div class="trophySummary" id="trophySummary"></div>
         <div id="trophyList"></div>
         <h2 style="margin-top:16px">スコアきろく</h2>
         <ol id="scoreRecordList"></ol>
@@ -1183,6 +1198,9 @@
         </p>
         <p class="titleBossMode">きろく:
           <button class="bossModeBtn" id="trophyBtn">トロフィー / スコア</button>
+        </p>
+        <p class="titleBossMode" id="oneHandRow" style="display:none">スマホ操作:
+          <button class="bossModeBtn" id="oneHandBtn">かたてモード OFF</button>
         </p>
         <p class="titleAudioHint">♪ 音がならないときは、なにかキーをおしてください</p>
       </div>
@@ -1734,6 +1752,9 @@
 
   const keys = new Set();
   let touchGuardHeld = false; // モバイルのガードボタン押しっぱなし状態
+  // ワンハンドモード(スマホ): 全画面ドラッグ移動+タップJG+スワイプダッシュ+オートガード
+  let oneHand=false;
+  try{ oneHand=localStorage.getItem('momoTaroOneHand')==='1'; }catch(err){}
   let state;
   const FLOOR_RATIO = 0.18; // 画面上部の空の比率(旧0.34)。床=プレイ可能域を広く取る
 
@@ -3402,8 +3423,16 @@
     state.caveEntrance = (state.room===13 && !state.caveDone) ? {x:state.width*.5, y:state.height*FLOOR_RATIO+26} : null;
     // スタート演出: Wave1では川を大きな桃がどんぶらこと流れていく
     if(state.room===1 && !state.introPeachShown){
-      const rv=state.terrain.filter(t=>t.type==='river'&&t.height>70).sort((a,b)=>b.height-a.height)[0];
-      if(rv){ state.introPeach={x:rv.x+rv.width/2, y:rv.y+10, endY:rv.y+rv.height-14, t:0}; state.introPeachShown=true; }
+      // 川のいちばん上から流し、蛇行や橋で分かれた区間は流路を追従してつなぐ
+      const rivers=state.terrain.filter(t=>t.type==='river');
+      if(rivers.length){
+        const top=rivers.reduce((a,b)=>a.y<b.y?a:b);
+        const endY=Math.max(...rivers.map(r=>r.y+r.height))-12;
+        if(endY-top.y>120){
+          state.introPeach={x:top.x+top.width/2, y:top.y+6, endY, t:0, lastSeen:0};
+        }
+        state.introPeachShown=true;
+      }
     }
     state.enemies = [];
     state.bossActive = false;
@@ -4474,7 +4503,7 @@
   }
 
   // ファミコン風ドットアイコン: 12×12の文字グリッドをcanvasで描いてdataURL化する
-  const PX_PAL={k:'#1a1a1a',w:'#ffffff',r:'#e84a4a',y:'#f6d454',o:'#f28a3c',b:'#59b0f2',g:'#63b56b',s:'#9fb3c8',S:'#555c66',m:'#8b5a3c',c:'#a8f4ff'};
+  const PX_PAL={k:'#1a1a1a',w:'#ffffff',r:'#e84a4a',y:'#f6d454',o:'#f28a3c',b:'#59b0f2',g:'#63b56b',s:'#9fb3c8',S:'#555c66',m:'#8b5a3c',c:'#a8f4ff',p:'#8b5cf6'};
   const pxIconCache={};
   function pixelIconHTML(up){
     if(!up.px) return '<span class="upIcon">'+up.icon+'</span>';
@@ -6982,7 +7011,7 @@
           // 狙撃弾は木・岩を貫通する(piercesTerrain)。大きく明るい紫弾で視認しやすく
           state.projectiles.push({kind:'projectile',sourceType:'snipe',x:e.x,y:e.y-30,
             vx:Math.cos(sa)*15,vy:Math.sin(sa)*15,radius:8,life:80,piercesTerrain:true,
-            damage:Math.round(18*wdiff.attack),owner:{isPlayer:false},color:'#ff5fd7'});
+            damage:Math.round(9*wdiff.attack),owner:{isPlayer:false},color:'#ff5fd7'});
           e.snipeCooldown=170+Math.random()*60;
         }
       }else if(e.snipeCooldown<=0 && d<650){
@@ -7214,6 +7243,33 @@
     state.time++;
     // ガードキー押しっぱなしなら、ガードブレイク明けやロック明けに自動で再展開する
     if(!state.guarding && (keys.has(' ') || touchGuardHeld)) setGuard(true);
+    // ワンハンドモード: 攻撃が迫ったらオートガード(タップのジャストガードは別枠)
+    if(IS_TOUCH && oneHand && state.player && !state.player.dead && (state.playerSleep||0)<=0 && state.player.dashTimer<=0){
+      let threat=false;
+      for(const pr of state.projectiles){
+        if(pr.owner && pr.owner.isPlayer) continue;
+        const tdx=state.player.x-pr.x, tdy=(state.player.y-24)-pr.y;
+        const td=Math.hypot(tdx,tdy);
+        if(td<160){
+          const sp=Math.hypot(pr.vx,pr.vy)||1;
+          const closing=(pr.vx*tdx+pr.vy*tdy)/(sp*td||1);
+          if(closing>.6 && td/sp<22){ threat=true; break; }
+        }
+      }
+      if(!threat){
+        for(const en of state.enemies){
+          if(en.dead) continue;
+          if((en.srDash||en.kjSpin||en.dashTimer>0) && Math.hypot(en.x-state.player.x,en.y-state.player.y)<240){ threat=true; break; }
+        }
+      }
+      if(threat){
+        state.oneHandGuardT=12;
+        if(!state.guarding) setGuard(true);
+      }else if((state.oneHandGuardT||0)>0){
+        state.oneHandGuardT--;
+        if(state.oneHandGuardT<=0 && state.guarding && !touchGuardHeld && !keys.has(' ')) setGuard(false);
+      }
+    }
     // 洞窟の入口: 巻物を持って近づくと入れる(未所持はヒント表示)
     if(state.caveEntrance && !state.inCave && !state.over && !state.choosingUpgrade && !state.player.dead){
       const ce=state.caveEntrance;
@@ -7226,14 +7282,22 @@
         }
       }
     }
-    // スタート演出: 桃がどんぶらこと川を流れる
-    if(state.introPeach){
+    // スタート演出: 桃がどんぶらこと川を流れる(チュートリアル等で停止中は流れない=見逃し防止)
+    if(state.introPeach && !state.over && !state.choosingUpgrade){
       const ip=state.introPeach;
       ip.t++;
-      ip.y+=.9;
-      ip.x+=Math.sin(ip.t*.06)*.5;
+      ip.y+=.8;
+      // いまのyに重なる川区間の中心へ寄る(蛇行に追従。橋の下は少しの間そのまま通過)
+      const seg=state.terrain.filter(t=>t.type==='river' && ip.y>=t.y-8 && ip.y<=t.y+t.height+8)
+        .sort((a,b)=>Math.abs(a.x+a.width/2-ip.x)-Math.abs(b.x+b.width/2-ip.x))[0];
+      if(seg){
+        ip.x+=(seg.x+seg.width/2-ip.x)*.08+Math.sin(ip.t*.06)*.5;
+        ip.lastSeen=ip.t;
+      }else{
+        ip.x+=Math.sin(ip.t*.06)*.5;
+      }
       if(ip.t%9===0) state.particles.push({x:ip.x+(Math.random()-.5)*22,y:ip.y+8,vx:0,vy:.5,life:12,color:'#dff2ff'});
-      if(ip.y>=ip.endY){ burst(ip.x,ip.y-8,14,'#ffb7c5'); state.introPeach=null; }
+      if(ip.y>=ip.endY || ip.t-(ip.lastSeen||0)>140){ burst(ip.x,ip.y-8,14,'#ffb7c5'); state.introPeach=null; } // 幅広の橋の下でも消えない余裕を持つ
     }
     // キジの睡眠波動: チャネルしていない間は睡眠ゲージが自然減衰
     state.kijiSleepCd=Math.max(0,(state.kijiSleepCd||0)-1);
@@ -8638,6 +8702,10 @@
   function drawIntroPeach(){
     const ip=state.introPeach;
     if(!ip) return;
+    // 橋にさしかかっている間は橋の下をくぐる(桃は隠れる)
+    const underBridge=state.terrain.some(t=>t.type==='bridge' &&
+      ip.x>t.x-6 && ip.x<t.x+t.width+6 && ip.y>t.y-4 && ip.y<t.y+t.height+12);
+    if(underBridge) return;
     ctx.save();
     ctx.translate(ip.x,ip.y);
     ctx.rotate(Math.sin(ip.t*.06)*.14);
@@ -9868,6 +9936,39 @@
     {id:'kills100',name:'百人斬り',desc:'1プレイで敵を100体倒した'},
     {id:'score10k',name:'一万点',desc:'スコア10000点を達成した'}
   ];
+  // トロフィーの8ビット風ドット絵アイコン(12×12・強化アイコンと同じ描画系)
+  const TROPHY_PX={
+    inu:{name:'tp_inu',px:[
+      '............','..ss....ss..','.swwwwwwwws.','.wwwwwwwwww.','.wkwwwwwwkw.','.wwwwwwwwww.',
+      '.wwwskkswww.','.wwwwkkwwww.','..wwwwwwww..','...wwwwww...','............','............']},
+    saru:{name:'tp_saru',px:[
+      '............','..mmmmmmmm..','.mmmmmmmmmm.','.mmyyyyyymm.','.mykyyyykym.','.mmyyyyyymm.',
+      '.mmyykkyymm.','..myyyyyym..','...mmmmmm...','............','............','............']},
+    kiji:{name:'tp_kiji',px:[
+      '............','.....rr.....','....gggg....','...gggggg...','...gkgggg...','.yygggggg...',
+      '...gggggg...','...gggggggg.','....gggggg..','.....g..g...','............','............']},
+    oni:{name:'tp_oni',px:[
+      '.....ww.....','.....ww.....','..pppppppp..','.pppppppppp.','.pyyppppyyp.','.pppppppppp.',
+      '.ppwwppwwpp.','.pppppppppp.','..pppppppp..','............','............','............']},
+    allies:{name:'tp_allies',px:[
+      '............','....yyyy....','...yyyyyy...','....yyyy....','.....mm.....','....yyyy....',
+      '...yyyyyy...','....yyyy....','.....mm.....','....yyyy....','...yyyyyy...','....yyyy....']},
+    combo50:{name:'tp_combo50',px:[
+      '.w........w.','..w......w..','...w....w...','....w..w....','.....ww.....','.....ww.....',
+      '....w..w....','...w....w...','..w......w..','.y........y.','............','............']},
+    jg:{name:'tp_jg',px:[
+      '............','..bbbbbbbb..','..bwbbbbbb..','..bbbbbbbb..','..bbbwcbbb..','..bbbbbbbb..',
+      '...bbbbbb...','....bbbb....','.....bb.....','............','............','............']},
+    laststand:{name:'tp_laststand',px:[
+      '............','.rrr....rrr.','rrrrr..rrrrr','rrrrwrrrrrrr','rrrrrwrrrrrr','.rrrrwrrrrr.',
+      '..rrrwrrrr..','...rrwrrr...','....rwr.....','.....r......','............','............']},
+    kills100:{name:'tp_kills100',px:[
+      '.........ww.','........ww..','.......ww...','......ww....','.....ww.....','....ww......',
+      '..yyy.......','...mm.......','..mm........','............','............','............']},
+    score10k:{name:'tp_score10k',px:[
+      '............','...yyyyyy...','..yyyyyyyy..','.yyyyyyyyyy.','.yyykkkkyyy.','.yyyyyyyyyy.',
+      '..yyyyyyyy..','...yyyyyy...','............','............','............','............']}
+  };
   let trophies={};
   try{ trophies=JSON.parse(localStorage.getItem('momoTaroTrophies')||'{}'); }catch(err){ trophies={}; }
   function awardTrophy(id){
@@ -10043,6 +10144,84 @@
   // 移動タッチはcanvasに限定(オーバーレイやボタンのタップは通常のclickとして通す)
   if(IS_TOUCH){
     document.body.classList.add('touch');
+
+    // ---- ワンハンドモード: 画面のどこでもドラッグ移動 / タップ=ジャストガード狙い / スワイプ=ダッシュ ----
+    function applyOneHandUI(){
+      document.body.classList.toggle('onehand', oneHand);
+      const btn=document.getElementById('oneHandBtn');
+      if(btn) btn.textContent='かたてモード '+(oneHand?'ON':'OFF');
+      resize();
+    }
+    let ohTouchId=null, ohAnchor=null, ohStart=null, ohTapTimer=null;
+    const OH_DEAD=12, OH_REACH=48;
+    const ohActive=()=>oneHand && state && !state.over && !state.gameEnded && !state.choosingUpgrade && !state.waitingBossChoice && !state.paused;
+    gameWrap.addEventListener('touchstart',e=>{
+      if(!ohActive()) return; // タイトルやオーバーレイ中は通常のタップとして通す
+      if(e.target && e.target.closest && e.target.closest('button,#pauseButton,#menuButton')) return; // ボタン類は通常タップ
+      initAudio();
+      for(const t of e.changedTouches){
+        if(ohTouchId===null){
+          ohTouchId=t.identifier;
+          ohAnchor={x:t.clientX,y:t.clientY};
+          ohStart={x:t.clientX,y:t.clientY,at:performance.now()};
+        }
+      }
+      e.preventDefault();
+    },{passive:false});
+    gameWrap.addEventListener('touchmove',e=>{
+      if(!oneHand) return;
+      for(const t of e.changedTouches){
+        if(t.identifier!==ohTouchId || !ohAnchor) continue;
+        let dx=t.clientX-ohAnchor.x, dy=t.clientY-ohAnchor.y;
+        const len=Math.hypot(dx,dy);
+        if(len<OH_DEAD){ if(state) state.touchMove=null; continue; }
+        if(len>OH_REACH){
+          ohAnchor.x=t.clientX-dx/len*OH_REACH;
+          ohAnchor.y=t.clientY-dy/len*OH_REACH;
+        }
+        if(state) state.touchMove={dx:dx/len,dy:dy/len};
+        ohStart.lastX=t.clientX; ohStart.lastY=t.clientY;
+      }
+      if(ohTouchId!==null) e.preventDefault();
+    },{passive:false});
+    const ohEnd=e=>{
+      if(!oneHand) return;
+      for(const t of e.changedTouches){
+        if(t.identifier!==ohTouchId) continue;
+        if(ohStart){
+          const dt=performance.now()-ohStart.at;
+          const tx=(ohStart.lastX??t.clientX), ty=(ohStart.lastY??t.clientY);
+          const total=Math.hypot(t.clientX-ohStart.x, t.clientY-ohStart.y);
+          if(dt<240 && total<16){
+            // タップ: ジャストガード狙いの一瞬ガード
+            setGuard(true);
+            clearTimeout(ohTapTimer);
+            ohTapTimer=setTimeout(()=>{ if(!touchGuardHeld && oneHand) setGuard(false); },200);
+          }else if(dt<300 && total>44){
+            // スワイプ: その方向へダッシュ
+            requestDash((t.clientX-ohStart.x)/total,(t.clientY-ohStart.y)/total);
+          }
+        }
+        ohTouchId=null; ohAnchor=null; ohStart=null;
+        if(state) state.touchMove=null;
+      }
+    };
+    gameWrap.addEventListener('touchend',ohEnd,{passive:false});
+    gameWrap.addEventListener('touchcancel',ohEnd,{passive:false});
+    const oneHandRow=document.getElementById('oneHandRow');
+    if(oneHandRow) oneHandRow.style.display='';
+    const oneHandBtn=document.getElementById('oneHandBtn');
+    if(oneHandBtn){
+      oneHandBtn.addEventListener('pointerdown',ev=>ev.stopPropagation());
+      oneHandBtn.addEventListener('click',ev=>{
+        ev.stopPropagation(); ev.preventDefault();
+        oneHand=!oneHand;
+        try{ localStorage.setItem('momoTaroOneHand',oneHand?'1':'0'); }catch(err){}
+        applyOneHandUI();
+      });
+    }
+    applyOneHandUI();
+
     const touchCanvas=document.getElementById('movePad'); // 移動操作は下部操作エリアの左パッドで受ける
     const guardBtn=document.getElementById('guardBtn');
     const dashBtn=document.getElementById('dashBtn');
@@ -10310,18 +10489,34 @@
       ev.stopPropagation();
       ev.preventDefault();
       if(b.id==='trophyBtn'){ openTrophyOverlay(); return; }
+      if(!b.dataset.boss) return; // ボス選択以外の共用スタイルボタン(かたてモード等)は各自のハンドラに任せる
       openBossSetup(+b.dataset.boss);
     });
   });
   function openTrophyOverlay(){
+    const got=TROPHY_DEFS.filter(t=>trophies[t.id]).length;
+    document.getElementById('trophySummary').innerHTML=
+      '<span>獲得 '+got+' / '+TROPHY_DEFS.length+'</span>'+
+      '<span class="tpBar"><span class="tpFill" style="width:'+Math.round(got/TROPHY_DEFS.length*100)+'%"></span></span>';
     const list=document.getElementById('trophyList');
     list.innerHTML=TROPHY_DEFS.map(t=>{
-      const got=!!trophies[t.id];
-      return '<div class="trophyItem'+(got?'':' locked')+'"><span class="tIcon">'+(got?'🏆':'🔒')+'</span><span><strong>'+t.name+'</strong> — '+t.desc+'</span></div>';
+      const tr=trophies[t.id];
+      let dateStr='未獲得';
+      if(tr&&tr.at){
+        const d2=new Date(tr.at);
+        dateStr=d2.getFullYear()+'/'+(d2.getMonth()+1)+'/'+d2.getDate()+' 獲得';
+      }else if(tr){
+        dateStr='獲得済み';
+      }
+      return '<div class="trophyCard '+(tr?'got':'locked')+'">'
+        +'<span class="tcIcon">'+(TROPHY_PX[t.id]?pixelIconHTML(TROPHY_PX[t.id]):'🏆')+'</span>'
+        +'<span><div class="tcName">'+t.name+'</div><div class="tcDesc">'+t.desc+'</div>'
+        +'<div class="tcDate"'+(tr?'':' style="color:#5f7591"')+'>'+dateStr+'</div></span>'
+        +'</div>';
     }).join('');
     const ol=document.getElementById('scoreRecordList');
     ol.innerHTML=scoreRecords.length
-      ? scoreRecords.map(r=>'<li>'+r.score+'点 — Wave '+r.wave+'・最大'+r.combo+'コンボ ('+r.date+')</li>').join('')
+      ? scoreRecords.map((r,i)=>'<li'+(i<3?' class="top'+(i+1)+'"':'')+'>'+r.score+'点 — Wave '+r.wave+'・最大'+r.combo+'コンボ ('+r.date+')</li>').join('')
       : '<li>まだきろくがありません</li>';
     document.getElementById('trophyOverlay').classList.add('open');
   }
