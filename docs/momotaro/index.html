@@ -1198,6 +1198,7 @@
         <label for="volumeSlider">音量</label>
         <input id="volumeSlider" type="range" min="0" max="100" value="42">
         <button id="muteButton">ミュート</button>
+        <button id="menuTitleBtn">タイトルにもどる</button>
       </div>
     </div>
     <canvas id="game"></canvas>
@@ -1247,7 +1248,7 @@
         <h1 class="titleLogo">Momo Taro</h1>
         <div class="titleRule"></div>
         <p class="titleKana">モモタロウ</p>
-        <p class="titleVer">ver. 2026.08.03f (build 131)</p>
+        <p class="titleVer">ver. 2026.08.03g (build 132)</p>
         <div class="titleQr">
           <img id="titleQrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAklEQVR4AewaftIAAASESURBVO3BQU4rOhREwYOVXbV69Ve9DsYsgDF/dKUIOTgJefgPXPX2/vH5xbHN4NhqcGw1OLa68I1kXi0pmmQelRRNMi0pZiTTkqJJ5h5J0STzaknRBsdWg2OrCz9IimdJZiUpbpFMk8wrJMVvJMWzJDMzOLYaHFtduJNkVpJiJSmaZK4lRUuKGck0ybSkaEmxIplbkmJFMitJsTI4thocW134Y5J5lGSeJZmZpLgmmR0Gx1aDY6sLfywpbpFMS4qWFCuSmUmKGclcS4odBsdWg2OrC3dKileTzLWkaJJpSdEkM5MUM5L5F5LiFQbHVoNjqws/kMyrSaYlxTXJtKRokmlJ0SQzI5mWFE0yLSmuSaYlxYxkXm1wbDU4trrwTVL8Fcm8imRmJNOS4lFJ8S8Njq0Gx1YXvpFMS4ommZmkaJJZSYp7SObVJNOS4lpSzEimJcWMZFpSNMnMJEUbHFsNjq3e3j8+v7gimZmkaJKZSYoVyTwqKR4hmb+UFCuSaUnRBsdWg2OrwbHVhR8kRZPMimRWkqJJ5lpSNMk0ybSkaJJpSbGSFLdIpiXFjGRWJDOTFDODY6vBsdXb+8fnF78gmZmkaJJpSdEkcy0pViQzkxQrkvmNpHiWZFpStMGx1eDY6sITJNOSYkYyM5JpSXEPyTxLMi0pbpHMTFI0ybSkaJKZSYqWFDODY6vBsdXb+8fnF1ckM5MUM5KZSYoZybSkuEUyM0kxI5mZpJiRzLWkmJFMS4oVyawkRRscWw2Ord7ePz6/eBHJrCRFk8w9kuJZkvmNpHiEZFaSog2OrQbHVhe+kcxKUjTJzCTFjGRuSYoZybSkWJFMS4pXkcxMUrSkaJJpSTEzOLYaHFu9vX98fvEikllJilsk05KiSWYmKZpkWlKsSOYeSTEjmZmkaJJpSTEzOLYaHFu9vX98fvEgybSk+Nck05JiRjIrSXGLZFpSzEimJUWTzEpSzAyOrQbHVhe+kUxLiiaZlhQrknlUUjTJzEjmX5NMS4qVpGiSaUmxMji2GhxbXfgmKVYk05JiJimaZFpS3CKZmaRYkUxLiiaZJplbkmJGMv/S4NhqcGw1OLa68APJzCRFk8wjJNOS4pakaJJpSTGTFL8hmUdI5hUGx1aDY6u394/PL/6QZB6VFE0yLSlmJNOSokmmJcU1ybSkWJHMs5KiDY6tBsdWF76RzKslxT2S4q9I5h6SaUmxkhRNMi0pZgbHVoNjqws/SIpnSeY3JNOSYkYyLSlaUqwkxTXJzCTFs5JiZXBsNTi2unAnyawkxUpS3CKZlhRNMi0pZiTTkqJJpiXFPSTziKRokllJijY4thocW134Y5K5JSmaZGYksyKZRyVFk0xLihnJNMm0pJiRzMzg2GpwbHXhfyopmmRmkuJVJNOSYkYyLSlmJNOSYmVwbDU4trpwp6R4haRokrkmmZWkaJJZSYpHSaYlxYxkZpKiSaYlxczg2GpwbHXhB5J5NcncIymaZJpkVpJiRjItKe4hmZmkeIXBsdXg2Ort/ePzi2ObwbHV4NjqPxNVH7cJ+T3kAAAAAElFTkSuQmCC" alt="QRコード">
           <p>スマホで あそぶ</p>
@@ -1274,7 +1275,7 @@
       </div>
     </div>
     <div id="message"></div>
-    <button id="pauseQuitBtn">タイトルに戻る</button>
+    <button id="pauseQuitBtn">さいかいする</button>
     <div id="centerMsg"></div>
     <div id="weaponHud"></div>
     <div id="controlArea">
@@ -2564,7 +2565,7 @@
       }
       for (const h of pierced) {
         // 連続照射のティックダメージ: 約6F毎に刻む(×1.2→×1.0へ少し減衰。貫通数はそのまま)
-        const laserDamage=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1); // Lv4/5はDPS1.5倍
+        const laserDamage=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1)*(1+.2*(c.rapidLevel||0)); // Lv4/5はDPS1.5倍。連射強化は威力にも+20%/Lv
         h.enemy.hp -= laserDamage;
         showDamageNumber(h.enemy.x,h.enemy.y-h.enemy.height*.65,laserDamage,'#9ff7ff');
         burst(h.enemy.x,h.enemy.y-h.enemy.height*.4,6,'#9ff7ff');
@@ -2583,7 +2584,7 @@
       if(blocked){
         burst(c.x+Math.cos(baseAngle)*beamEnd,c.y+Math.sin(baseAngle)*beamEnd,6,'#9fb3c8');
         if(blocker && !blocker.dead){
-          const blockDmg=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1)*.2; // 連続ティック化(約6F毎)に合わせた1回分。Lv4/5は1.5倍
+          const blockDmg=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1)*(1+.2*(c.rapidLevel||0))*.2; // 連続ティック化に合わせた1回分。Lv4/5は1.5倍・連射+20%/Lv
           blocker.hp-=blockDmg;
           showDamageNumber(blocker.x,blocker.y-blocker.height*.65,blockDmg,'#9fb3c8');
           addCombo();
@@ -4993,10 +4994,10 @@
       '.kmk.kk.....',
       'kkk.........',
       '............'
-    ], text:'5段階強化。近接攻撃の威力が35%、攻撃距離が20%ずつ上がります。', apply(){
+    ], text:'5段階強化。近接攻撃の威力が50%、攻撃距離が20%ずつ上がり、振りも速くなります。', apply(){
         if(state.meleeLevel>=5) return;
         state.meleeLevel++;
-        state.config.player.attackPower=+(state.config.player.attackPower*1.35).toFixed(1);
+        state.config.player.attackPower=+(state.config.player.attackPower*1.5).toFixed(1);
         state.meleeRange=Math.round(state.meleeRange*1.2);
       } },
 
@@ -5297,7 +5298,7 @@
   function attack(attacker) {
     if (state.over || attacker.dead) return;
     if (attacker.attackCooldown > 0) return;
-    attacker.attackCooldown = attacker.isPlayer ? (state.himeMode ? 62 : (state.masakari?42:26)) : 28; // まさかりは振りが遅い。姫はハートが消えてから次を発射
+    attacker.attackCooldown = attacker.isPlayer ? (state.himeMode ? 62 : Math.round((state.masakari?42:26)*Math.max(.65,1-.07*(state.meleeLevel||0)))) : 28; // まさかりは振りが遅い。近接強化で振りも速くなる。姫はハートが消えてから次を発射
     attacker.attackTimer = 12;
 
     const targets = attacker.isPlayer ? state.enemies : [state.player];
@@ -12790,9 +12791,18 @@
   }
   if(pauseQuitBtn) pauseQuitBtn.addEventListener('click',()=>{
     if(!state || !state.paused) return;
+    // 再開する
     state.paused=false;
     pauseQuitBtn.classList.remove('show');
     if(pauseButton) pauseButton.textContent='❚❚';
+    ui.message.textContent='';
+  });
+  // タイトルへ戻るのはメニュー(≡)から
+  const menuTitleBtn=document.getElementById('menuTitleBtn');
+  if(menuTitleBtn) menuTitleBtn.addEventListener('click',()=>{
+    if(titleOverlay && titleOverlay.classList.contains('open')) return;
+    if(menuPanel) menuPanel.classList.remove('open');
+    if(state){ state.paused=false; if(pauseQuitBtn) pauseQuitBtn.classList.remove('show'); if(pauseButton) pauseButton.textContent='❚❚'; }
     returnToTitle();
   });
   if(menuButton) menuButton.addEventListener('click',()=>menuPanel.classList.toggle('open'));
