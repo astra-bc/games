@@ -796,14 +796,15 @@
   .titleScore { margin: 26px 0 0; font-size: 16px; letter-spacing: 4px; color: #20406a; font-weight: 700; }
   .titleVer { margin: 8px 0 0; font-size: 12px; letter-spacing: 3px; color: #4a6178; }
   .titleQr {
-    position: absolute;
-    right: 20px;
-    bottom: 20px;
+    position: fixed; /* 画面の右下隅に固定(中央メニューに被らない) */
+    right: 18px;
+    bottom: 18px;
     text-align: center;
     padding: 8px 10px 6px;
     background: rgba(223,233,245,.95);
     border: 2px solid #3f5b7a;
   }
+  @media (max-width: 1020px) { .titleQr { display: none; } } /* 狭い画面では中央メニューに被るため非表示 */
   .titleQr img { width: 96px; height: 96px; display: block; image-rendering: pixelated; }
   .titleQr p { margin: 5px 0 0; font-size: 10px; letter-spacing: 2px; color: #1a2432; }
   body.touch .titleQr { display: none; } /* スマホ本体ではQRは不要 */
@@ -1148,11 +1149,12 @@
     </div>
     <div id="ryuguOverlay">
       <div class="trophyPanel" style="width:min(440px,90vw);text-align:center">
-        <h2>丁半博打</h2>
-        <p style="font-size:13px;margin:8px 0 6px">壺振りが賽を振った——丁か、半か。</p>
-        <p style="font-size:11px;color:#9fb3c8;margin:0 0 12px">勝ち: レベルが2つ上がる ／ 負け: 老化(2Waveの間 移動・近接1/2)</p>
-        <button class="caveRewardBtn" id="ryuguChoBtn">丁（偶数）</button>
-        <button class="caveRewardBtn" id="ryuguHanBtn">半（奇数）</button>
+        <h2>玉手箱</h2>
+        <p style="font-size:13px;margin:8px 0 6px">乙姫「竜宮のみやげに、ひとつ選ぶがよい…」</p>
+        <p style="font-size:11px;color:#9fb3c8;margin:0 0 12px">どれかひとつずつ入っている: LVが2つ上がる ／ HP上限アップ ／ 老化(2Waveの間 移動・近接1/2)</p>
+        <button class="caveRewardBtn" id="ryuguBoxL">大きな玉手箱</button>
+        <button class="caveRewardBtn" id="ryuguBoxM">中くらいの玉手箱</button>
+        <button class="caveRewardBtn" id="ryuguBoxS">小さな玉手箱</button>
         <p id="ryuguResult" style="font-size:15px;line-height:1.9;margin:12px 0 0;color:#ffe9ad;white-space:pre-line"></p>
         <button class="caveRewardBtn" id="ryuguCloseBtn" style="display:none">帰る</button>
       </div>
@@ -1245,7 +1247,7 @@
         <h1 class="titleLogo">Momo Taro</h1>
         <div class="titleRule"></div>
         <p class="titleKana">モモタロウ</p>
-        <p class="titleVer">ver. 2026.08.02b (build 124)</p>
+        <p class="titleVer">ver. 2026.08.02c (build 125)</p>
         <div class="titleQr">
           <img id="titleQrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAklEQVR4AewaftIAAASESURBVO3BQU4rOhREwYOVXbV69Ve9DsYsgDF/dKUIOTgJefgPXPX2/vH5xbHN4NhqcGw1OLa68I1kXi0pmmQelRRNMi0pZiTTkqJJ5h5J0STzaknRBsdWg2OrCz9IimdJZiUpbpFMk8wrJMVvJMWzJDMzOLYaHFtduJNkVpJiJSmaZK4lRUuKGck0ybSkaEmxIplbkmJFMitJsTI4thocW134Y5J5lGSeJZmZpLgmmR0Gx1aDY6sLfywpbpFMS4qWFCuSmUmKGclcS4odBsdWg2OrC3dKileTzLWkaJJpSdEkM5MUM5L5F5LiFQbHVoNjqws/kMyrSaYlxTXJtKRokmlJ0SQzI5mWFE0yLSmuSaYlxYxkXm1wbDU4trrwTVL8Fcm8imRmJNOS4lFJ8S8Njq0Gx1YXvpFMS4ommZmkaJJZSYp7SObVJNOS4lpSzEimJcWMZFpSNMnMJEUbHFsNjq3e3j8+v7gimZmkaJKZSYoVyTwqKR4hmb+UFCuSaUnRBsdWg2OrwbHVhR8kRZPMimRWkqJJ5lpSNMk0ybSkaJJpSbGSFLdIpiXFjGRWJDOTFDODY6vBsdXb+8fnF78gmZmkaJJpSdEkcy0pViQzkxQrkvmNpHiWZFpStMGx1eDY6sITJNOSYkYyM5JpSXEPyTxLMi0pbpHMTFI0ybSkaJKZSYqWFDODY6vBsdXb+8fnF1ckM5MUM5KZSYoZybSkuEUyM0kxI5mZpJiRzLWkmJFMS4oVyawkRRscWw2Ord7ePz6/eBHJrCRFk8w9kuJZkvmNpHiEZFaSog2OrQbHVhe+kcxKUjTJzCTFjGRuSYoZybSkWJFMS4pXkcxMUrSkaJJpSTEzOLYaHFu9vX98fvEikllJilsk05KiSWYmKZpkWlKsSOYeSTEjmZmkaJJpSTEzOLYaHFu9vX98fvEgybSk+Nck05JiRjIrSXGLZFpSzEimJUWTzEpSzAyOrQbHVhe+kUxLiiaZlhQrknlUUjTJzEjmX5NMS4qVpGiSaUmxMji2GhxbXfgmKVYk05JiJimaZFpS3CKZmaRYkUxLiiaZJplbkmJGMv/S4NhqcGw1OLa68APJzCRFk8wjJNOS4pakaJJpSTGTFL8hmUdI5hUGx1aDY6u394/PL/6QZB6VFE0yLSlmJNOSokmmJcU1ybSkWJHMs5KiDY6tBsdWF76RzKslxT2S4q9I5h6SaUmxkhRNMi0pZgbHVoNjqws/SIpnSeY3JNOSYkYyLSlaUqwkxTXJzCTFs5JiZXBsNTi2unAnyawkxUpS3CKZlhRNMi0pZiTTkqJJpiXFPSTziKRokllJijY4thocW134Y5K5JSmaZGYksyKZRyVFk0xLihnJNMm0pJiRzMzg2GpwbHXhfyopmmRmkuJVJNOSYkYyLSlmJNOSYmVwbDU4trpwp6R4haRokrkmmZWkaJJZSYpHSaYlxYxkZpKiSaYlxczg2GpwbHXhB5J5NcncIymaZJpkVpJiRjItKe4hmZmkeIXBsdXg2Ort/ePzi2ObwbHV4NjqPxNVH7cJ+T3kAAAAAElFTkSuQmCC" alt="QRコード">
           <p>スマホで あそぶ</p>
@@ -2348,7 +2350,7 @@
       dx*=1.2; dy*=1.2;
       if(riverAt(entity.x,entity.y)){ dx*=.5; dy*=.5; }
     }
-    // 老化(丁半博打の負け): ヒーローの移動速度1/2
+    // 老化(玉手箱のハズレ): ヒーローの移動速度1/2
     if(entity.isPlayer && (state.agingWaves||0)>0){
       dx*=.5; dy*=.5;
     }
@@ -3564,7 +3566,7 @@
     state.waveStats = {maxCombo:0, coins:0, meleeKills:0, kills:0,
       hpStart: state.player ? state.player.hp : 0,
       levelStart: (state.level||1)+(state.pendingLevelUps||0)};
-    // 老化(丁半博打の負け)はWaveをまたぐごとに回復へ向かう
+    // 老化(玉手箱のハズレ)はWaveをまたぐごとに回復へ向かう
     if((state.agingWaves||0)>0) state.agingWaves--;
     // 韋駄天: 開始10分以内に鬼ヶ島(Wave16)へ到達
     if(state.room===16 && performance.now()-(state.startedAt||0) < 10*60*1000) awardTrophy('idaten');
@@ -3585,8 +3587,8 @@
     if(state.room===12 && !state.ryuguDone){
       state.turtleScene={x:state.width*(.3+Math.random()*.4), y:state.height-72, hits:0, used:false, flash:0};
     }
-    // Stage3-Wave3(room13): 画面上部中央に洞窟の入口(秘密の巻物で開く・1プレイ1回)
-    state.caveEntrance = (state.room===13 && !state.caveDone) ? {x:state.width*.5, y:state.height*FLOOR_RATIO+26} : null;
+    // Stage4-Wave3(room18): 画面上部中央に洞窟の入口(秘密の巻物で開く・1プレイ1回)
+    state.caveEntrance = (state.room===18 && !state.caveDone) ? {x:state.width*.5, y:state.height*FLOOR_RATIO+26} : null;
     // スタート演出: Wave1では川を大きな桃がどんぶらこと流れていく
     if(state.room===1 && !state.introPeachShown){
       state.introPeachShown=true;
@@ -3743,7 +3745,7 @@
   }
 
 
-  // ===== 洞窟(Stage3-Wave3の隠しダンジョン): コウモリ2Wave→岩の主→報酬 =====
+  // ===== 洞窟(Stage4-Wave3の隠しダンジョン): コウモリ2Wave→岩の主→報酬 =====
   function spawnBats(count){
     const floorTop=state.height*FLOOR_RATIO;
     for(let i=0;i<count;i++){
@@ -3834,7 +3836,7 @@
     document.getElementById('caveRewardOverlay').classList.add('open');
   }
 
-  // ===== 龍宮城(浦島イベント): カメの背に乗って海へ→癒し空間で丁半博打 =====
+  // ===== 龍宮城(浦島イベント): カメの背に乗って海へ→癒し空間で玉手箱選び =====
   function enterRyugu(){
     state.ryuguReturn={
       enemies:state.enemies, terrain:state.terrain, oldTerrain:state.oldTerrain,
@@ -4602,8 +4604,12 @@
     state.player.invincibleTimer=Math.max(state.player.invincibleTimer,20);
     // 演出は音+軽い発光のみ(停止・スローモ・シェイクは操作リズムを崩すため入れない)
     state.flashTimer=Math.max(state.flashTimer||0,6);
-    state.explosionEffects.push({x,y,radius:4,maxRadius:110,life:12,maxLife:12,color:'#ffffff'});
-    burst(x,y,14,'#bfeeff');
+    // 爆発ではなく「受け止めた」表現: 正面のシールドアーク+弾いた火花
+    const jgAng=Math.atan2(y-(state.player.y-28),x-state.player.x);
+    state.parryFx=state.parryFx||[];
+    state.parryFx.push({type:'shield',ang:jgAng,t:0,dur:18});
+    state.parryFx.push({type:'spark',x,y,ang:jgAng,t:0,dur:14});
+    burst(x,y,8,'#dff4ff');
     const label='JUST GUARD!'+(state.jgChain>1?' ×'+state.jgChain:'');
     showScorePop(x,y-60,label,true);
     ui.message.textContent=label;
@@ -4616,8 +4622,9 @@
       burst(state.player.x,state.player.y-30,10,'#8fe98f');
     }
     if(state.jgChain>=3){
-      // チェイン3以上: 金色の衝撃波で周囲を弾き飛ばす
-      state.explosionEffects.push({x:state.player.x,y:state.player.y-25,radius:10,maxRadius:240,life:20,maxLife:20,color:'#ffd964'});
+      // チェイン3以上: 金色の結界パルスで周囲を弾き飛ばす(爆発の面ではなく破線の輪)
+      state.parryFx=state.parryFx||[];
+      state.parryFx.push({type:'pulse',t:0,dur:22,maxR:240});
       for(const en of state.enemies){
         if(en.dead) continue;
         const dx=en.x-state.player.x, dy=en.y-state.player.y, d=Math.hypot(dx,dy)||1;
@@ -4968,14 +4975,14 @@
       '.ywy...ywy..',
       '..y.....y...',
       '............'
-    ], text:'5段階強化。いま使っている武器の同時発射数が +2, +3, +5, +10, +13 と加算で増えます(武器ごとに独立。石つぶて・ハチの発射数にも上乗せ)。', apply(){
+    ], text:'5段階強化。いま使っている武器の同時発射数が +1, +2, +3, +5, +7 と加算で増えます(武器ごとに独立。石つぶて・ハチの発射数にも上乗せ)。', apply(){
         const c=state.companion;
         // 武器ごとに独立したレベル: 取った時のメイン武器にだけ効く。
         // 上書きではなく「+x」の加算式(石つぶて強化などで既に多い弾数を減らさない)
         const key=c.weaponMode==='orb'?'normal':c.weaponMode;
         c.volleyLevelBy=c.volleyLevelBy||{};
         c.projectileCountBy=c.projectileCountBy||{};
-        const additions=[0,2,5,10,20,33];
+        const additions=[0,1,3,6,11,18]; // 増えすぎ調整(旧: 2/5/10/20/33)
         const lv=Math.min(5,(c.volleyLevelBy[key]||0)+1);
         const delta=additions[lv]-additions[lv-1];
         c.volleyLevelBy[key]=lv;
@@ -5354,6 +5361,7 @@
 
     if (p.dashTimer > 0) {
       state.playerMoveY = p.dashY || 0; // 桃の回り込み用にダッシュ方向も記録
+      state.playerMoveX = p.dashX || 0;
       const dashPow=p.dashPower||1;
       moveEntity(p,p.dashX * state.dashSpeed * dashPow,p.dashY * state.dashSpeed * .72 * dashPow);
       if (state.time % 2 === 0) burst(p.x, p.y-p.height*.35, 2, '#d9f4ff');
@@ -5406,6 +5414,7 @@
     }
     if (dx) p.facing = Math.sign(dx);
     state.playerMoveY = dy; // 桃の回り込み用に縦移動方向を記録
+    state.playerMoveX = dx;
     moveEntity(p,dx/len * state.config.player.speed,dy/len * state.config.player.speed*.72);
   }
 
@@ -5991,11 +6000,12 @@
   function saruTroopFrame(){
     if(state.saruTick===state.time) return;
     state.saruTick=state.time;
-    // そばに居続ける時間を群れ全体で監視(3秒で掴み投げの合図。ガードは不要)
+    // そばに居続ける時間を群れ全体で監視(約1.8秒で掴み投げの合図。ガードは不要)
     {
       const pl=state.player;
-      const near=state.enemies.some(m=>m.isBoss && !m.dead && m.bossType?.trait==='splitter' && Math.hypot(m.x-pl.x,m.y-pl.y)<240);
-      state.saruGuardT = (near && !pl.dead) ? (state.saruGuardT||0)+1 : 0;
+      const near=state.enemies.some(m=>m.isBoss && !m.dead && m.bossType?.trait==='splitter' && Math.hypot(m.x-pl.x,m.y-pl.y)<340);
+      // 離れても即リセットせず減衰: 出入りしてもカウントが積み上がり、投げが出やすい
+      state.saruGuardT = (near && !pl.dead) ? (state.saruGuardT||0)+1 : Math.max(0,(state.saruGuardT||0)-2);
     }
     state.saruGrabCd = Math.max(0,(state.saruGrabCd||0)-1);
     // ぶん投げ飛行: 空中から画面端まで水平に飛び、壁際に叩きつけられて着地
@@ -6027,12 +6037,12 @@
     }
     const troop=state.enemies.filter(m=>m.isBoss && !m.dead && m.bossType?.trait==='splitter');
     // そばに3秒居続けた: 一番近い手すきのサルを指名して掴みに向かわせる
-    if(!state.saruEvent && state.saruGuardT>=180 && state.saruGrabCd<=0 && !state.player.dead && !state.over){
+    if(!state.saruEvent && state.saruGuardT>=110 && state.saruGrabCd<=0 && !state.player.dead && !state.over){
       const pl=state.player;
       const free=troop.filter(m=>!saruBusy(m));
       free.sort((a,b)=>Math.hypot(a.x-pl.x,a.y-pl.y)-Math.hypot(b.x-pl.x,b.y-pl.y));
       if(free.length && Math.hypot(free[0].x-pl.x,free[0].y-pl.y)<420){ // 「そばで」ガードしている時だけ
-        state.saruGrabCd=420;
+        state.saruGrabCd=260; // 投げの頻度アップ(旧420)
         free[0].srGrab={phase:'reach',t:0};
         free[0].srRally=null;
         free[0].facing=Math.sign(pl.x-free[0].x)||free[0].facing;
@@ -6497,36 +6507,110 @@
     const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
     e.facing=Math.sign(dx)||e.facing;
     if(atk==='fan'){
-      // 前方へ扇状の波(11本)。遅めの水弾で「届く直前に回避」できる
+      // 前方へ扇状の波(13本)。強化: 弾速・威力アップ
       const base=Math.atan2((p.y-28)-(e.y-50),p.x-e.x);
-      for(let i=-5;i<=5;i++){
-        const a=base+i*.13;
+      for(let i=-6;i<=6;i++){
+        const a=base+i*.12;
         state.projectiles.push({kind:'projectile',sourceType:'kijiFan',x:e.x+e.facing*30,y:e.y-50,
-          vx:Math.cos(a)*5.6,vy:Math.sin(a)*5.6,radius:11,life:130,damage:12,
+          vx:Math.cos(a)*6.6,vy:Math.sin(a)*6.6,radius:11,life:130,damage:14,
           owner:{isPlayer:false},color:'#8fe0ff'});
       }
       playSfx('enemyShot');
-      e.kjCd=170;
+      e.kjCd=150;
     }else if(atk==='spin'){
       const travel=dl*1.25;
-      const T=Math.max(10,Math.round(travel/17));
+      const T=Math.max(9,Math.round(travel/21)); // 強化: 突進速度アップ
       e.kjSpin={t:0,dur:T,vx:dx/dl*travel/T,vy:dy/dl*travel/T};
     }else if(atk==='sleepwave'){
       e.kjSleep={t:300,hp0:e.hp};
       state.kijiSleepCd=1500; // 睡眠波動は約25秒に1回まで
     }else if(atk==='drop'){
       spawnKijiDrop(e,p);
-      e.kjCd=220;
+      e.kjCd=190;
     }else if(atk==='jelly'){
       spawnKurage(e);
-      e.kjCd=190;
+      e.kjCd=165;
+    }else if(atk==='phoenix'){
+      // 火の鳥: 一度画面外へ飛び去り、炎をまとって5回連続の高速体当たり
+      e.kjPhoenix={phase:'exit',t:0,dives:0,vx:0,vy:0};
+      state.kijiPhoenixCd=1150; // 約19秒に1回
+      playSfx('boss');
     }
   }
 
   function updateKijiBoss(e,p,d,wdiff){
     e.kjCd=Math.max(0,(e.kjCd??90)-1);
+    if(state.kijiPhoenixCd===undefined) state.kijiPhoenixCd=480; // 開幕からは撃たない(約8秒後に解禁)
+    state.kijiPhoenixCd=Math.max(0,state.kijiPhoenixCd-1);
     const bodyR=e.width*.4;
     if(e.stunTimer>0){e.stunTimer--; e.vx*=.9; e.vy*=.9; moveEntity(e,e.vx,e.vy); return true;}
+
+    // --- 火の鳥: 画面外へ退避→炎をまとい5回連続の高速体当たり
+    if(e.kjPhoenix){
+      const ph=e.kjPhoenix;
+      ph.t++;
+      const ww=state.worldW||state.width, wh=state.worldH||state.height;
+      if(ph.phase==='exit'){
+        e.vx=0; e.vy=0;
+        e.y-=14; // 上空へ飛び去る
+        e.jumpLift=Math.min(200,(e.jumpLift||0)+6);
+        if(state.time%2===0) state.particles.push({x:e.x+(Math.random()-.5)*e.width,y:e.y-e.height*.5,vx:0,vy:1.2,life:10,color:'#ff8c3c'});
+        if(e.y<-140){ ph.phase='warn'; ph.t=0; }
+      }else if(ph.phase==='warn'){
+        if(ph.t===1){
+          // 突入経路: 左右交互の画面外からヒーローを貫く直線
+          const side=ph.dives%2===0 ? -1 : 1;
+          const ty2=p.y-20;
+          ph.sx = side<0 ? -120 : ww+120;
+          ph.sy = clamp(ty2+(Math.random()-.5)*160, 80, wh-40);
+          const ang=Math.atan2(ty2-ph.sy, p.x-ph.sx);
+          const LEN=Math.hypot(ww,wh)+300;
+          ph.ex=ph.sx+Math.cos(ang)*LEN;
+          ph.ey=ph.sy+Math.sin(ang)*LEN;
+          playSfx('enemyShot');
+        }
+        // 予告線(炎の粒が経路に沿って走る)
+        for(let i2=0;i2<7;i2++){
+          const k2=Math.random();
+          state.particles.push({x:ph.sx+(ph.ex-ph.sx)*k2,y:ph.sy+(ph.ey-ph.sy)*k2,vx:0,vy:0,life:5,color:i2%2?'#ff8c3c':'#ffd964'});
+        }
+        e.x=ph.sx; e.y=ph.sy; // 画面外で待機
+        if(ph.t>=26){
+          ph.phase='dive'; ph.t=0; ph.hitDone=false;
+          const ang=Math.atan2(ph.ey-ph.sy,ph.ex-ph.sx);
+          ph.vx=Math.cos(ang)*27; ph.vy=Math.sin(ang)*27;
+          e.facing=Math.sign(ph.vx)||1;
+          playSfx('slashWhiff');
+        }
+      }else if(ph.phase==='dive'){
+        e.x+=ph.vx; e.y+=ph.vy;
+        e.jumpLift=14;
+        // 炎の尾
+        for(let i2=0;i2<3;i2++){
+          state.particles.push({x:e.x-ph.vx*(i2*.5)+(Math.random()-.5)*26,y:e.y-e.height*.4-ph.vy*(i2*.5)+(Math.random()-.5)*26,vx:-ph.vx*.08,vy:-ph.vy*.08-.6,life:12,color:['#ffd964','#ff8c3c','#e2542c'][i2]});
+        }
+        if(!ph.hitDone && Math.hypot(p.x-e.x,(p.y-20)-(e.y-e.height*.3))<bodyHalfW(e)+46){
+          ph.hitDone=true;
+          inuHitHero(18, ph.vx*.9, -7);
+          state.shake=Math.max(state.shake,12);
+        }
+        if(e.x<-160 || e.x>ww+160 || e.y<-160 || e.y>wh+160){
+          ph.dives++;
+          if(ph.dives>=5){
+            // 5回突進し終えたら戦線へ舞い戻る
+            e.kjPhoenix=null;
+            e.x=clamp(p.x+(Math.random()<.5?-1:1)*320,80,ww-80);
+            e.y=clamp(p.y,state.height*FLOOR_RATIO+80,wh-60);
+            e.jumpLift=10;
+            burst(e.x,e.y-40,20,'#ff8c3c');
+            e.kjCd=190;
+          }else{
+            ph.phase='warn'; ph.t=0;
+          }
+        }
+      }
+      return true;
+    }
     e.facing=Math.sign(p.x-e.x)||e.facing;
 
     // --- 予兆
@@ -6542,6 +6626,10 @@
       if(e.kjAttack==='drop') e.jumpLift=Math.min(140,(e.jumpLift||0)+5); // 高く浮かぶ
       if(e.kjAttack==='sleepwave' && e.kjWindup%4===0){
         state.particles.push({x:e.x+(Math.random()-.5)*60,y:e.y-90,vx:0,vy:-1.4,life:14,color:'#d9a0ff'});
+      }
+      if(e.kjAttack==='phoenix' && e.kjWindup%2===0){
+        // 体に炎が灯りはじめる予兆
+        state.particles.push({x:e.x+(Math.random()-.5)*e.width,y:e.y-e.height*.5+(Math.random()-.5)*40,vx:0,vy:-2,life:12,color:Math.random()<.5?'#ff8c3c':'#ffd964'});
       }
       if(e.kjWindup===0) kijiStartAttack(e,p);
       return true;
@@ -6595,7 +6683,7 @@
       sl.t--;
       e.vx*=.8; e.vy*=.8;
       // 波動の見た目は描画側の「怪電波」リング(ビカビカする爆発リングは使わない)
-      state.kijiSleepGauge=Math.min(100,(state.kijiSleepGauge||0)+100/280);
+      state.kijiSleepGauge=Math.min(100,(state.kijiSleepGauge||0)+100/230); // 強化: たまりが速い
       if(state.kijiSleepGauge>=100 && (state.playerSleep||0)<=0 && !p.dead){
         // 満タン: ヒーローが眠る(2.5秒行動不能)
         state.playerSleep=150;
@@ -6624,7 +6712,8 @@
     if(e.kjCd<=0 && !p.dead){
       const roll=Math.random();
       let atk;
-      if(roll<.3) atk='fan';
+      if((state.kijiPhoenixCd||0)<=0 && roll<.22) atk='phoenix';
+      else if(roll<.3) atk='fan';
       else if(roll<.55) atk='spin';
       else if(roll<.7) atk='jelly';
       else if(roll<.85) atk='drop';
@@ -6633,7 +6722,7 @@
       if(atk==='drop' && state.enemies.some(x=>x.special==='kijiDrop'&&!x.dead)) atk='spin';
       if(atk==='jelly' && state.enemies.filter(x=>x.special==='kurage'&&!x.dead).length>=8) atk='fan';
       e.kjAttack=atk;
-      e.kjWindup= atk==='fan'?40 : atk==='spin'?30 : atk==='sleepwave'?36 : atk==='drop'?40 : 26;
+      e.kjWindup= atk==='fan'?34 : atk==='spin'?26 : atk==='sleepwave'?36 : atk==='drop'?36 : atk==='phoenix'?24 : 24;
       return true;
     }
 
@@ -6642,7 +6731,7 @@
     const tx=p.x+Math.cos(e.kjOrbit)*380;
     const ty=p.y+Math.sin(e.kjOrbit)*190;
     const a=Math.atan2(ty-e.y,tx-e.x);
-    if(Math.hypot(tx-e.x,ty-e.y)>30) moveEntity(e,Math.cos(a)*2.2,Math.sin(a)*1.5);
+    if(Math.hypot(tx-e.x,ty-e.y)>30) moveEntity(e,Math.cos(a)*2.6,Math.sin(a)*1.8);
     const hoverTarget=10+Math.sin(state.time*.08)*6;
     e.jumpLift=(e.jumpLift||0)+(hoverTarget-(e.jumpLift||0))*.08;
     return true;
@@ -6702,6 +6791,51 @@
     if(enraged && state.time%5===0){
       state.particles.push({x:e.x+(Math.random()-.5)*60,y:e.y-40-Math.random()*50,vx:0,vy:-1.8,life:12,color:'#ff5a5a'}); // 怒りの赤い気
     }
+    // 発狂連携: 技が終わった瞬間を捉え、1回だけクールダウンを飛ばして次の技へ繋げる
+    {
+      const busy=!!(e.onCombo||e.onFive||e.onDark||e.onDim||e.onLaser||e.onGrab||e.onWindup>0);
+      if(enraged && e.onWasBusy && !busy){
+        if(!e.onChained){ e.onChained=true; e.onCd=Math.min(e.onCd,6); showScorePop(e.x,e.y-e.height-30,'連携!',false); }
+        else e.onChained=false; // 2連目が終わったら通常クールダウンへ
+      }
+      if(!enraged) e.onChained=false;
+      e.onWasBusy=busy;
+    }
+    // 迫る炎の壁: 周期的にアリーナ外周から炎の輪が中心へ収縮し、輪の外は焼かれる
+    if(!state.oniRing){
+      state.oniRingCd=(state.oniRingCd??600)-1; // 初回は約10秒後
+      if(state.oniRingCd<=0 && !p.dead){
+        const ww=state.worldW||state.width, wh=state.worldH||state.height;
+        const fy=state.height*FLOOR_RATIO;
+        state.oniRing={t:0,cx:ww/2,cy:fy+(wh-fy)/2,r0:Math.hypot(ww,wh)/2+120,r1:250,r:0,shrink:360,hold:240};
+        state.oniRing.r=state.oniRing.r0;
+        state.oniRingCd=1300; // 次回は約22秒後
+        showScorePop(p.x,p.y-120,'炎の壁が迫る!',true);
+        playSfx('boss');
+      }
+    }else{
+      const R=state.oniRing;
+      R.t++;
+      const rk=Math.min(1,R.t/R.shrink);
+      R.r=R.r0+(R.r1-R.r0)*rk;
+      // 縁でゆらめく炎の粒
+      for(let i2=0;i2<6;i2++){
+        const a2=Math.random()*Math.PI*2;
+        state.particles.push({x:R.cx+Math.cos(a2)*R.r,y:R.cy+Math.sin(a2)*R.r*.62,vx:0,vy:-1.6,life:10,color:i2%2?'#ff8c3c':'#e2542c'});
+      }
+      // 輪の外にいると焼かれ、中心側へ弾かれる(0.5秒ごと)
+      const pdr=Math.hypot(p.x-R.cx,(p.y-R.cy)/.62);
+      if(pdr>R.r && R.t%30===0 && !p.dead){
+        const burn=Math.max(2,Math.round(8/(state.playerDefense||1)));
+        p.hp-=burn;
+        p.hurtTimer=14;
+        showDamageNumber(p.x,p.y-70,burn,'#ff8c3c');
+        burst(p.x,p.y-24,10,'#ff8c3c');
+        const aa=Math.atan2(p.y-R.cy,p.x-R.cx);
+        p.vx-=Math.cos(aa)*6; p.vy-=Math.sin(aa)*4;
+      }
+      if(R.t>=R.shrink+R.hold) state.oniRing=null;
+    }
     const bodyR=e.width*.4;
     // 振った金棒の持続当たり判定: 触れたらダメージ+大きくふっとばす
     if(e.onSwingHit){
@@ -6719,8 +6853,8 @@
     }
     if(e.stunTimer>0){e.stunTimer--; e.vx*=.9; e.vy*=.9; moveEntity(e,e.vx,e.vy); return true;}
 
-    // そばに居続ける時間の監視(3秒で掴み投げ。ガードは不要)
-    state.oniGuardT = (d<240 && !p.dead) ? (state.oniGuardT||0)+1 : 0;
+    // そばに居続ける時間の監視(約1.8秒で掴み投げ。ガードは不要。離れても減衰のみ)
+    state.oniGuardT = (d<340 && !p.dead) ? (state.oniGuardT||0)+1 : Math.max(0,(state.oniGuardT||0)-2);
     state.oniGrabCd = Math.max(0,(state.oniGrabCd||0)-1);
 
     // --- 掴み投げ: そばでガードし続けるヒーローへの崩し(サルと同じ流れ・ガード不能)
@@ -6789,9 +6923,9 @@
       }
       return true;
     }
-    // そばに3秒以上居続けると掴みに来る
-    if(state.oniGuardT>=180 && (state.oniGrabCd||0)<=0 && d<420 && !p.dead){
-      state.oniGrabCd=420;
+    // そばに約1.8秒居続けると掴みに来る
+    if(state.oniGuardT>=110 && (state.oniGrabCd||0)<=0 && d<480 && !p.dead){
+      state.oniGrabCd=260; // 投げの頻度アップ(旧420)
       e.onGrab={phase:'reach',t:0};
       e.facing=Math.sign(p.x-e.x)||e.facing;
       return true;
@@ -7495,7 +7629,9 @@
     const floorTop = state.height*FLOOR_RATIO;
     const ww = state.worldW||state.width;
     const wh = state.worldH||state.height;
-    if(state.bossActive){
+    if(f.kjPhoenix){
+      // キジの火の鳥中は画面外へ出入りするためクランプしない
+    }else if(state.bossActive){
       f.x = clamp(f.x, 35, ww-35);
       f.y = clamp(f.y, floorTop+45, wh-38);
     }else{
@@ -7613,7 +7749,7 @@
         enterRyugu();
       }
     }
-    // 龍宮城: 泡の演出と、賭場ゴザに近づくと丁半博打
+    // 龍宮城: 泡の演出と、飾り台に近づくと玉手箱選び
     if(state.inRyugu){
       if(state.time%7===0){
         state.particles.push({x:Math.random()*state.width,y:state.height-40-Math.random()*120,vx:0,vy:-1.4,life:26,color:'#bfe8ff'});
@@ -7621,9 +7757,9 @@
       const dc=state.ryuguDice;
       if(dc && !dc.opened && Math.hypot(state.player.x-dc.x,state.player.y-dc.y)<58){
         dc.opened=true;
+        state.ryuguBoxes=['level','maxhp','aging'].sort(()=>Math.random()-.5); // 中身をシャッフル
         document.getElementById('ryuguResult').textContent='';
-        document.getElementById('ryuguChoBtn').style.display='';
-        document.getElementById('ryuguHanBtn').style.display='';
+        for(const id of ['ryuguBoxL','ryuguBoxM','ryuguBoxS']) document.getElementById(id).style.display='';
         document.getElementById('ryuguCloseBtn').style.display='none';
         document.getElementById('ryuguOverlay').classList.add('open');
       }
@@ -7662,6 +7798,17 @@
           d-=L;
         }
         if(ip.t%9===0) state.particles.push({x:ip.x+(Math.random()-.5)*22,y:ip.y+8,vx:0,vy:.5,life:12,color:'#dff2ff'});
+        if(ip.t%5===0) state.particles.push({x:ip.x,y:ip.y-22,vx:0,vy:-.6,life:10,color:'#ffd9e4'}); // 取れる目印のきらめき
+        const plp1=state.player;
+        if(plp1 && !plp1.dead && Math.hypot(plp1.x-ip.x,plp1.y-ip.y)<44){
+          // 初っ端のモモも取れる: 回復モモと同じごほうび
+          plp1.maxHp=Math.round(plp1.maxHp*1.2);
+          plp1.hp=plp1.maxHp;
+          burst(ip.x,ip.y-10,22,'#ffb7c5');
+          showScorePop(plp1.x,plp1.y-110,'モモを食べた! HP全回復+上限20%UP',true);
+          playSfx('comboMile');
+          state.introPeach=null;
+        }
       }
     }
     // Wave3の回復モモ: 川を流れてくる。触れるとHP全回復+上限20%UP
@@ -7741,6 +7888,8 @@
         absorbGrave(lastGrave);
       }
     }
+    // 炎の壁: 鬼が倒れたら消える
+    if(state.oniRing && !state.enemies.some(x=>!x.dead && x.bossType?.name==='鬼')) state.oniRing=null;
     // 鬼の暗転と属性爆発(発光予告→爆発)
     if((state.oniDark||0)>0) state.oniDark--;
     if(state.oniErupt && state.oniErupt.length){
@@ -9143,7 +9292,7 @@
     }
   }
 
-  // 洞窟の入口(room13): 巻物所持なら黒い口が開き、未所持は巨石で封印されている
+  // 洞窟の入口(room18): 巻物所持なら黒い口が開き、未所持は巨石で封印されている
   function drawCaveEntrance(){
     const c=state.caveEntrance;
     if(!c || state.inCave) return;
@@ -9191,9 +9340,10 @@
   }
 
   // クマ(乗騎/相撲用): 茶色い体+耳+鼻先
-  function drawBearAt(x,y,standing){
+  function drawBearAt(x,y,standing,scale,facing){
     ctx.save();
     ctx.translate(Math.round(x),Math.round(y));
+    ctx.scale((facing||1)*(scale||1),scale||1);
     ctx.fillStyle='rgba(0,0,0,.25)';
     ctx.beginPath(); ctx.ellipse(0,3,17,5,0,0,Math.PI*2); ctx.fill();
     ctx.fillStyle='#6b4a2f';
@@ -9338,17 +9488,23 @@
     ctx.save();
     ctx.translate(Math.round(dc.x),Math.round(dc.y));
     ctx.fillStyle='#c9b06a';
-    ctx.fillRect(-46,-20,92,34); // ゴザ
+    ctx.fillRect(-52,-20,104,34); // 敷物
     ctx.strokeStyle='#8a6b42';
     ctx.lineWidth=3;
-    ctx.strokeRect(-46,-20,92,34);
-    ctx.fillStyle='#23262e';
-    ctx.beginPath(); ctx.ellipse(0,-14,14,9,0,0,Math.PI*2); ctx.fill(); // 伏せた壺
-    ctx.fillRect(-14,-14,28,10);
+    ctx.strokeRect(-52,-20,104,34);
+    // 大中小の玉手箱(漆塗り+金の帯)
+    for(const [bx,bw,bh] of [[-42,26,20],[-9,20,16],[18,15,12]]){
+      ctx.fillStyle='#7c2f3a';
+      ctx.fillRect(bx,-2-bh,bw,bh);
+      ctx.fillStyle='#a03d4a';
+      ctx.fillRect(bx,-2-bh,bw,4); // フタ
+      ctx.fillStyle='#e8b13c';
+      ctx.fillRect(bx+Math.floor(bw/2)-2,-2-bh,4,bh); // 金の帯
+    }
     if(!dc.opened){
       const g=.5+.4*Math.sin(state.time*.15);
       ctx.fillStyle='rgba(255,233,173,'+g.toFixed(2)+')';
-      ctx.fillRect(-3,-38,6,6); // 誘いの光
+      ctx.fillRect(-3,-44,6,6); // 誘いの光
     }
     ctx.restore();
   }
@@ -9580,6 +9736,19 @@
           ctx.stroke();
         }
         ctx.restore();
+      }
+      // 火の鳥: 炎をまとった三層の焔(突進中の専用グラフィック)
+      if(f.kjPhoenix && f.kjPhoenix.phase==='dive'){
+        const FL=[['#e2542c',1.35],['#ff8c3c',1.05],['#ffd964',.75]];
+        for(let i2=0;i2<3;i2++){
+          const flk=Math.sin(state.time*.7+i2*2)*3;
+          ctx.fillStyle=FL[i2][0];
+          ctx.globalAlpha=.6;
+          ctx.beginPath();
+          ctx.ellipse(-18-i2*11+flk,-7,34*FL[i2][1],17*FL[i2][1],0,0,Math.PI*2);
+          ctx.fill();
+        }
+        ctx.globalAlpha=1;
       }
       // 予兆ポーズ: 回転(回転突進)・反らし(波)・見上げ(睡眠波動)
       if(f.kjSpin || (f.kjWindup>0&&f.kjAttack==='spin')) ctx.rotate(state.time*.55);
@@ -9821,8 +9990,17 @@
       // カメを助けた後、海の上ではカメに乗って移動する
       drawTurtleAt(f.x,f.y+2,true);
     }else if(f.isPlayer && state.bearRide){
-      // キンタローのほうび: クマに乗って移動
-      drawBearAt(f.x,f.y+2,false);
+      // キンタローのほうび: クマに乗って移動(大きめに描き、ヒーローは背の上へ)
+      drawBearAt(f.x,f.y+2,false,1.9,f.facing);
+      // 背中の赤い鞍布(乗っている感の目印)
+      ctx.save();
+      ctx.translate(Math.round(f.x),Math.round(f.y+2));
+      ctx.scale(f.facing*1.9,1.9);
+      ctx.fillStyle='#c23b3b';
+      ctx.fillRect(-9,-17,18,7);
+      ctx.fillStyle='#e8b13c';
+      ctx.fillRect(-9,-11,18,2);
+      ctx.restore();
     }
     if(f.jumpLift>0){
       // ジャンプ・投げられ中は地面にはっきりした影を落として本体を浮かせる
@@ -9831,7 +10009,9 @@
       ctx.ellipse(Math.round(f.x),Math.round(f.y)+4,16+Math.min(10,f.jumpLift*.08),5+Math.min(3,f.jumpLift*.03),0,0,Math.PI*2);
       ctx.fill();
     }
-    ctx.translate(Math.round(f.x),Math.round(f.y-(f.jumpLift||0)));
+    // クマ乗り中はヒーローをクマの背の高さまで持ち上げる(トコトコ揺れも同期)
+    const rideLift=(f.isPlayer && state.bearRide) ? 32+Math.sin(state.time*.25)*1.5 : 0;
+    ctx.translate(Math.round(f.x),Math.round(f.y-(f.jumpLift||0)-rideLift));
     const sizeScale = f.scale || 1;
     ctx.scale(f.facing*sizeScale,sizeScale);
 
@@ -10484,6 +10664,90 @@
     ctx.restore();
   }
 
+  // 鬼の炎の壁: 収縮する炎の輪。外側はうっすら赤く染まる
+  function drawOniRing(){
+    const R=state.oniRing;
+    if(!R || !R.r) return;
+    ctx.save();
+    const ww=state.worldW||state.width, wh=state.worldH||state.height;
+    // 輪の外側を赤く染める(内側をくり抜く)
+    ctx.globalAlpha=.16;
+    ctx.fillStyle='#e2542c';
+    ctx.beginPath();
+    ctx.rect(-200,-200,ww+400,wh+400);
+    ctx.ellipse(R.cx,R.cy,R.r,R.r*.62,0,0,Math.PI*2,true);
+    ctx.fill('evenodd');
+    ctx.globalAlpha=1;
+    // ゆらめく炎の輪(二重線)
+    for(let L2=0;L2<2;L2++){
+      ctx.strokeStyle=L2?'#ffd964':'#ff8c3c';
+      ctx.lineWidth=L2?3:7;
+      ctx.beginPath();
+      for(let k2=0;k2<=44;k2++){
+        const a2=Math.PI*2*k2/44;
+        const wob=Math.sin(a2*7+state.time*.3)*6;
+        const wx=R.cx+Math.cos(a2)*(R.r+wob);
+        const wy=R.cy+Math.sin(a2)*(R.r+wob)*.62;
+        k2?ctx.lineTo(wx,wy):ctx.moveTo(wx,wy);
+      }
+      ctx.closePath();
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // ジャストガードの「受け止めた」演出: シールドアーク/弾き火花/チェインの結界パルス(爆発表現は使わない)
+  function drawParryFx(){
+    const fx=state.parryFx;
+    if(!fx || !fx.length) return;
+    const pl=state.player;
+    for(let i=fx.length-1;i>=0;i--){
+      const f=fx[i];
+      f.t++;
+      const k=f.t/f.dur;
+      if(k>=1){ fx.splice(i,1); continue; }
+      ctx.save();
+      if(f.type==='shield'){
+        // ヒーロー正面に浮かぶ受けの弧(攻撃が来た向きに展開)
+        const cx=pl.x, cy=pl.y-28;
+        const r=40+10*k;
+        ctx.globalAlpha=1-k;
+        ctx.lineCap='round';
+        ctx.strokeStyle='#e8f8ff';
+        ctx.lineWidth=9*(1-k)+2;
+        ctx.beginPath(); ctx.arc(cx,cy,r,f.ang-.95,f.ang+.95); ctx.stroke();
+        ctx.strokeStyle='#8fd8ff';
+        ctx.lineWidth=3;
+        ctx.beginPath(); ctx.arc(cx,cy,r+7,f.ang-.7,f.ang+.7); ctx.stroke();
+      }else if(f.type==='spark'){
+        // 金属的に弾いた火花: 攻撃と反対側へ短い線が散る
+        ctx.globalAlpha=1-k;
+        ctx.strokeStyle=f.t%2?'#ffffff':'#ffe9a8';
+        ctx.lineWidth=2.5;
+        for(let j=0;j<6;j++){
+          const a=f.ang+Math.PI+(j-2.5)*.42;
+          const r0=6+k*26, r1=r0+14*(1-k);
+          ctx.beginPath();
+          ctx.moveTo(f.x+Math.cos(a)*r0,f.y+Math.sin(a)*r0);
+          ctx.lineTo(f.x+Math.cos(a)*r1,f.y+Math.sin(a)*r1);
+          ctx.stroke();
+        }
+      }else if(f.type==='pulse'){
+        // チェイン3以上の結界パルス: 回転する破線の輪(ヒーロー追従)
+        const r=f.maxR*(.25+.75*k);
+        ctx.globalAlpha=(1-k)*.9;
+        ctx.strokeStyle='#ffd964';
+        ctx.lineWidth=4*(1-k)+1.5;
+        ctx.setLineDash([18,10]);
+        ctx.beginPath(); ctx.arc(pl.x,pl.y-25,r,state.time*.05,state.time*.05+Math.PI*2); ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.globalAlpha=(1-k)*.5;
+        ctx.beginPath(); ctx.arc(pl.x,pl.y-25,r*.82,0,Math.PI*2); ctx.stroke();
+      }
+      ctx.restore();
+    }
+  }
+
   // 死んだ場所のお墓: この部屋の墓を全部描く。最後に死んだ墓(未吸収)だけ淡く光る
   function drawGraves(){
     if(!state || state.bossActive || state.inCave || state.inRyugu) return;
@@ -10551,7 +10815,7 @@
       const bf=state.bearFlee;
       bf.t++;
       bf.x+=bf.dir*6.5;
-      drawBearAt(bf.x,bf.y+Math.abs(Math.sin(bf.t*.3))*-4,false);
+      drawBearAt(bf.x,bf.y+Math.abs(Math.sin(bf.t*.3))*-4,false,1.9,bf.dir||1);
       if(bf.t>140) state.bearFlee=null;
     }
     drawCraters();
@@ -10565,6 +10829,8 @@
     for(const f of fighters) drawFighter(f);
     drawGibs();
     drawSlashEffects();
+    drawParryFx();
+    drawOniRing();
     drawSniperSights();
     drawCompanionRange();
     drawMissileLocks();
@@ -11401,30 +11667,33 @@
   });
   document.getElementById('caveRewardOverlay').addEventListener('pointerdown',ev=>ev.stopPropagation());
   document.getElementById('storyOverlay').addEventListener('pointerdown',ev=>{ ev.stopPropagation(); closeStory(); });
-  // 龍宮城の丁半博打
-  function ryuguBet(cho){
-    const d1=1+Math.floor(Math.random()*6), d2=1+Math.floor(Math.random()*6);
-    const even=(d1+d2)%2===0;
-    const win=(even===cho);
-    const KAN=['','一','二','三','四','五','六'];
-    let msg='出目は '+KAN[d1]+'・'+KAN[d2]+' — '+(even?'丁':'半')+'！\n';
-    if(win){
+  // 龍宮城の玉手箱: 大中小の3箱に「LV+2」「HP上限アップ」「老化」がひとつずつランダムに入っている
+  function ryuguOpenBox(i){
+    const kind=(state.ryuguBoxes||['level','maxhp','aging'])[i];
+    let msg='';
+    if(kind==='level'){
       state.pendingLevelUps=(state.pendingLevelUps||0)+2;
-      msg+='勝ち！ レベルが2つ上がる！';
+      msg='まばゆい光…！ レベルが2つ上がる！';
       playSfx('comboMile');
+    }else if(kind==='maxhp'){
+      const add=Math.round(state.player.maxHp*.25);
+      state.player.maxHp+=add;
+      state.player.hp=Math.min(state.player.maxHp,state.player.hp+add);
+      msg='あたたかい光… HP上限+'+add+'！';
+      playSfx('levelup');
     }else{
       state.agingWaves=2;
-      msg+='負け… 玉手箱の煙で老いてしまった\n(2Waveの間 移動・近接が半分)';
+      msg='白い煙が…！ 老いてしまった\n(2Waveの間 移動・近接が半分)';
       playSfx('guardBreak');
       burst(state.player.x,state.player.y-40,18,'#d9d9d9');
     }
     document.getElementById('ryuguResult').textContent=msg;
-    document.getElementById('ryuguChoBtn').style.display='none';
-    document.getElementById('ryuguHanBtn').style.display='none';
+    for(const id of ['ryuguBoxL','ryuguBoxM','ryuguBoxS']) document.getElementById(id).style.display='none';
     document.getElementById('ryuguCloseBtn').style.display='';
   }
-  document.getElementById('ryuguChoBtn').addEventListener('click',ev=>{ ev.stopPropagation(); ryuguBet(true); });
-  document.getElementById('ryuguHanBtn').addEventListener('click',ev=>{ ev.stopPropagation(); ryuguBet(false); });
+  ['ryuguBoxL','ryuguBoxM','ryuguBoxS'].forEach((id,i)=>{
+    document.getElementById(id).addEventListener('click',ev=>{ ev.stopPropagation(); ryuguOpenBox(i); });
+  });
   document.getElementById('ryuguCloseBtn').addEventListener('click',ev=>{
     ev.stopPropagation();
     document.getElementById('ryuguOverlay').classList.remove('open');
@@ -11481,6 +11750,13 @@
   }
   ui.endingOverlay.addEventListener('click',()=>{
     if(state.gameEnded && performance.now()-(state.endingAt||0)>35000) returnToTitle();
+  });
+  // エンディングの早送り: スペースを押している間(キーリピート)1秒ずつ進む
+  window.addEventListener('keydown',e=>{
+    if(e.code!=='Space' || !state || !state.gameEnded) return;
+    e.preventDefault();
+    state.endingAt=(state.endingAt||performance.now())-1000; // タイトルへ戻れる時刻も前倒し
+    document.getAnimations().forEach(a=>{ try{ a.currentTime=(a.currentTime||0)+1000; }catch(err){} });
   });
   // ゲームオーバーからの復帰: 表示0.6秒後以降に何かキー/クリックでタイトルへ戻る
   function backToTitleFromGameOver(){
