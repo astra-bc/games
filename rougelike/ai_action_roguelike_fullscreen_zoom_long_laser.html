@@ -784,6 +784,93 @@
   }
   .bossModeBtn:hover { background: #fff; }
   /* ボス戦の準備画面: ボスを選んだ後に武器とレベルを選ぶ */
+  #bossIntroOverlay, #storyOverlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(4,6,12,.88);
+    z-index: 80;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+  }
+  #bossIntroOverlay.open, #storyOverlay.open { display: flex; }
+  .bossIntroInner { padding: 26px 46px; border-top: 2px solid #7a2c2c; border-bottom: 2px solid #7a2c2c; }
+  .biEpithet { margin: 0 0 8px; font-size: 14px; letter-spacing: 6px; color: #d9a0a0; }
+  .biName { margin: 0; font-size: 46px; letter-spacing: 12px; color: #fff; text-shadow: 3px 3px 0 #7a1a1a; }
+  .biText { margin: 14px 0 0; font-size: 12px; letter-spacing: 2px; color: #9fb3c8; }
+  .storyInner { max-width: 580px; padding: 26px 44px; border-top: 2px solid #3f5b7a; border-bottom: 2px solid #3f5b7a; }
+  .stLabel { margin: 0 0 14px; font-size: 14px; letter-spacing: 5px; color: #9fdcff; }
+  .stText { margin: 0; font-size: 14px; line-height: 2; color: #dfe9f5; white-space: pre-line; }
+  .stHint { margin: 18px 0 0; font-size: 11px; color: #5f7591; }
+  #caveRewardOverlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(6,10,18,.85);
+    z-index: 72;
+    align-items: center;
+    justify-content: center;
+  }
+  #caveRewardOverlay.open { display: flex; }
+  .caveRewardBtn {
+    display: block;
+    width: 100%;
+    margin: 8px 0;
+    padding: 12px;
+    font-family: inherit;
+    font-size: 15px;
+    line-height: 1.6;
+    background: #1c2c42;
+    color: #ffe9ad;
+    border: 2px solid #3f5b7a;
+    cursor: pointer;
+  }
+  .caveRewardBtn span { font-size: 12px; color: #9fb3c8; }
+  .caveRewardBtn:hover { background: #273954; border-color: #6f93bd; }
+  #trophyOverlay {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background: rgba(6,10,18,.85);
+    z-index: 70;
+    align-items: center;
+    justify-content: center;
+  }
+  #trophyOverlay.open { display: flex; }
+  .trophyPanel {
+    width: min(560px, 92vw);
+    max-height: 82vh;
+    overflow: auto;
+    background: #0d1522;
+    border: 2px solid #3f5b7a;
+    padding: 18px 22px;
+    color: #dfe9f5;
+  }
+  .trophyPanel h2 { margin: 0 0 8px; font-size: 17px; letter-spacing: 3px; }
+  .trophyPanel h2 + h2, .trophyPanel #scoreRecordList { margin-top: 4px; }
+  .trophyItem {
+    display: flex;
+    gap: 10px;
+    align-items: baseline;
+    padding: 7px 4px;
+    border-bottom: 1px solid rgba(120,150,190,.18);
+    font-size: 13px;
+  }
+  .trophyItem.locked { opacity: .45; }
+  .trophyItem .tIcon { width: 24px; flex: none; }
+  #scoreRecordList { margin: 6px 0 14px; padding-left: 26px; font-size: 13px; line-height: 1.9; }
+  #trophyClose {
+    margin-top: 6px;
+    padding: 8px 22px;
+    font-family: inherit;
+    font-size: 13px;
+    background: #1c2c42;
+    color: #dfe9f5;
+    border: 2px solid #3f5b7a;
+    cursor: pointer;
+  }
+  #trophyClose:hover { background: #273954; border-color: #6f93bd; }
   #bossSetupOverlay {
     display: none;
     position: absolute;
@@ -984,6 +1071,37 @@
       <div id="comboNumber" style="font-size:42px;font-weight:900;line-height:.9;letter-spacing:2px;color:#fff;text-shadow:2px 2px 0 #7a1a1a,4px 4px 0 #000;">0 COMBO</div>
       <div id="comboLabel" style="font-size:14px;font-weight:800;letter-spacing:4px;color:#ffe7a8;text-shadow:0 0 7px #ff6a00;">KEEP ATTACKING</div>
     </div>
+    <div id="bossIntroOverlay">
+      <div class="bossIntroInner">
+        <p class="biEpithet" id="bossIntroEpithet"></p>
+        <h2 class="biName" id="bossIntroName"></h2>
+        <p class="biText" id="bossIntroText"></p>
+      </div>
+    </div>
+    <div id="storyOverlay">
+      <div class="storyInner">
+        <p class="stLabel" id="storyStageLabel"></p>
+        <p class="stText" id="storyText"></p>
+        <p class="stHint">クリック / 何かキーで すすむ</p>
+      </div>
+    </div>
+    <div id="caveRewardOverlay">
+      <div class="trophyPanel" style="width:min(460px,90vw);text-align:center">
+        <h2>岩の主を倒した!</h2>
+        <p style="font-size:13px;margin:8px 0 14px">洞窟の宝から ひとつ選んでください</p>
+        <button class="caveRewardBtn" id="caveAtk">直接攻撃 強化<br><span>近接攻撃力 1.6倍</span></button>
+        <button class="caveRewardBtn" id="caveGrd">ガード 強化<br><span>ガード上限 1.6倍 + 全回復</span></button>
+      </div>
+    </div>
+    <div id="trophyOverlay">
+      <div class="trophyPanel">
+        <h2>トロフィー</h2>
+        <div id="trophyList"></div>
+        <h2 style="margin-top:16px">スコアきろく</h2>
+        <ol id="scoreRecordList"></ol>
+        <button id="trophyClose">とじる</button>
+      </div>
+    </div>
     <div id="bossSetupOverlay">
       <div class="bossSetupPanel">
         <h2 id="bossSetupTitle">ボス戦の準備</h2>
@@ -1057,11 +1175,14 @@
         <p class="titleVer">ver. 2026.08.02a (build 123)</p>
         <p class="titleScore">HIGH SCORE <span id="titleHighScore">0</span></p>
         <p class="titleStart">クリック / Enter でスタート</p>
-        <p class="titleBossMode">ボス戦モード:
+        <p class="titleBossMode" id="bossModeRow">ボス戦モード:
           <button class="bossModeBtn" data-boss="1">イヌ</button>
           <button class="bossModeBtn" data-boss="2">サル</button>
           <button class="bossModeBtn" data-boss="3">キジ</button>
           <button class="bossModeBtn" data-boss="4">鬼</button>
+        </p>
+        <p class="titleBossMode">きろく:
+          <button class="bossModeBtn" id="trophyBtn">トロフィー / スコア</button>
         </p>
         <p class="titleAudioHint">♪ 音がならないときは、なにかキーをおしてください</p>
       </div>
@@ -1569,9 +1690,20 @@
         if(s%4===0) noise(.05,.028);
       }else{
         const wave=Math.max(1,state?.room||1);
-        const base=melody[s%melody.length]*(1+Math.min(3,wave-1)*.04);
-        tone(base,.24,'triangle',.055,185);
-        if(s%4===0) tone(base/2,.36,'sine',.04,0);
+        const hurry=state && !state.over && !state.waveCleared && (state.waveTimeLeft??9999)<=900; // 残り15秒
+        if(hurry){
+          // 残り15秒: 倍テンポ+半音上げで焦らせる
+          const b1=melody[(s*2)%melody.length]*1.06;
+          const b2=melody[(s*2+1)%melody.length]*1.06;
+          tone(b1,.13,'triangle',.06,120);
+          tone(b2,.13,'triangle',.055,120,.13);
+          if(s%2===0) tone(b1/2,.2,'sine',.042,0);
+          if(s%2===1) noise(.05,.03);
+        }else{
+          const base=melody[s%melody.length]*(1+Math.min(3,wave-1)*.04);
+          tone(base,.24,'triangle',.055,185);
+          if(s%4===0) tone(base/2,.36,'sine',.04,0);
+        }
       }
       audio.musicStep++;
     },260);
@@ -3148,6 +3280,7 @@
   }
 
   function spawnEnemyBatch() {
+    if(state.inCave) return; // 洞窟内では通常Waveの湧きを起こさない(退出時に必要なら再湧き)
     const floorTop = state.height * FLOOR_RATIO;
     // Wave開始時に全敵を一括出現(繰り返しのバッチ湧きは廃止)
     const count = state.normalEnemiesPerWave - state.spawnedThisWave;
@@ -3265,6 +3398,13 @@
     state.waveStats = {maxCombo:0, coins:0, meleeKills:0, kills:0,
       hpStart: state.player ? state.player.hp : 0,
       levelStart: (state.level||1)+(state.pendingLevelUps||0)};
+    // Stage3-Wave3(room13): 画面上部中央に洞窟の入口(秘密の巻物で開く・1プレイ1回)
+    state.caveEntrance = (state.room===13 && !state.caveDone) ? {x:state.width*.5, y:state.height*FLOOR_RATIO+26} : null;
+    // スタート演出: Wave1では川を大きな桃がどんぶらこと流れていく
+    if(state.room===1 && !state.introPeachShown){
+      const rv=state.terrain.filter(t=>t.type==='river'&&t.height>70).sort((a,b)=>b.height-a.height)[0];
+      if(rv){ state.introPeach={x:rv.x+rv.width/2, y:rv.y+10, endY:rv.y+rv.height-14, t:0}; state.introPeachShown=true; }
+    }
     state.enemies = [];
     state.bossActive = false;
     state.bossDefeated = null;
@@ -3317,10 +3457,10 @@
   }
 
   const bossTypes = [
-    {name:'イヌ',color:'#f2f0e8',skill:'bomb',text:'白い巨犬。一定間隔で一直線に高速突進する',spikes:2,aura:false,heads:1,size:5,trait:'charger'},
-    {name:'サル',color:'#8b5a3c',skill:'staff',text:'7体の猿の群れ。棒の連撃・叩きつけ・奇襲、そして全体突撃で攻める',spikes:4,aura:false,heads:1,size:5,trait:'splitter'},
-    {name:'キジ',color:'#2f8f76',skill:'laser',text:'扇状の波・回転突進・睡眠波動・巨大な雫・クラゲ召喚で攻める',spikes:7,aura:true,heads:1,size:3.33,trait:'wave'},
-    {name:'鬼',color:'#7c3aed',skill:'oni',text:'金棒の連続打撃・衝撃波・暗闇の追尾光弾・次元打ちで攻める鬼',spikes:10,aura:true,heads:1,size:2.25,trait:'fiveHeads'}
+    {name:'イヌ',epithet:'白き牙',color:'#f2f0e8',skill:'bomb',text:'白い巨犬。一定間隔で一直線に高速突進する',spikes:2,aura:false,heads:1,size:5,trait:'charger'},
+    {name:'サル',epithet:'山の大あばれ',color:'#8b5a3c',skill:'staff',text:'7体の猿の群れ。棒の連撃・叩きつけ・奇襲、そして全体突撃で攻める',spikes:4,aura:false,heads:1,size:5,trait:'splitter'},
+    {name:'キジ',epithet:'水面の翼',color:'#2f8f76',skill:'laser',text:'扇状の波・回転突進・睡眠波動・巨大な雫・クラゲ召喚で攻める',spikes:7,aura:true,heads:1,size:3.33,trait:'wave'},
+    {name:'鬼',epithet:'鬼ヶ島の主',color:'#7c3aed',skill:'oni',text:'金棒の連続打撃・衝撃波・暗闇の追尾光弾・次元打ちで攻める鬼',spikes:10,aura:true,heads:1,size:2.25,trait:'fiveHeads'}
   ];
 
   function spawnBoss() {
@@ -3387,11 +3527,101 @@
   }
 
 
+  // ===== 洞窟(Stage3-Wave3の隠しダンジョン): コウモリ2Wave→岩の主→報酬 =====
+  function spawnBats(count){
+    const floorTop=state.height*FLOOR_RATIO;
+    for(let i=0;i<count;i++){
+      const m=makeFighter(state.width*(.15+.7*Math.random()), floorTop+40+Math.random()*70, '#2a2333', false, 9500+i);
+      m.special='bat';
+      m.movementType='flying';
+      m.maxHp=Math.round(state.config.enemy.hp*.7);
+      m.hp=m.maxHp;
+      m.batPhase=Math.random()*Math.PI*2;
+      m.batCd=60+Math.random()*90;
+      m.active=true;
+      state.enemies.push(m);
+    }
+  }
+
+  function spawnRockBoss(){
+    const m=makeFighter(state.width*.5, state.height*FLOOR_RATIO+100, '#8d8a82', false, 9600);
+    m.special='rockBoss';
+    m.movementType='walking';
+    m.width*=2.6; m.height*=2.2;
+    m.maxHp=Math.round(state.config.enemy.hp*45*(state.room>=11?1.5:1));
+    m.hp=m.maxHp;
+    m.rkCd=80;
+    m.active=true;
+    state.enemies.push(m);
+    ui.centerMsg.textContent='岩の主が目を覚ました…!';
+    setTimeout(()=>{ if(ui.centerMsg.textContent.startsWith('岩の主')) ui.centerMsg.textContent=''; },1600);
+    playSfx('boss');
+  }
+
+  function enterCave(){
+    // 元のWaveの状態を丸ごと退避して、洞窟から戻ったら再開する
+    state.caveReturn={
+      enemies:state.enemies, terrain:state.terrain, oldTerrain:state.oldTerrain,
+      coins:state.coins, meats:state.meats,
+      waveTimeLeft:state.waveTimeLeft, waveTimeTotal:state.waveTimeTotal
+    };
+    state.inCave=true;
+    state.caveWave=1;
+    state.caveRewardOpen=false;
+    state.terrain=[];
+    state.oldTerrain=null;
+    state.enemies=[];
+    state.coins=[];
+    state.meats=[];
+    state.projectiles=[];
+    state.player.x=state.width*.5;
+    state.player.y=state.height*FLOOR_RATIO+130;
+    spawnBats(9);
+    ui.centerMsg.textContent='洞窟に入った!';
+    setTimeout(()=>{ if(ui.centerMsg.textContent==='洞窟に入った!') ui.centerMsg.textContent=''; },1500);
+    playSfx('comboMile');
+  }
+
+  function exitCave(){
+    const r=state.caveReturn||{};
+    state.inCave=false;
+    state.caveDone=true; // 一度入った洞窟にはもう入れない
+    state.caveRewardOpen=false;
+    state.enemies=r.enemies||[];
+    state.terrain=r.terrain||[];
+    state.oldTerrain=r.oldTerrain||null;
+    state.coins=r.coins||[];
+    state.meats=r.meats||[];
+    state.projectiles=[];
+    state.waveTimeLeft=r.waveTimeLeft??3600;
+    state.waveTimeTotal=r.waveTimeTotal??3600;
+    state.caveReturn=null;
+    if(state.caveEntrance){
+      state.player.x=state.caveEntrance.x;
+      state.player.y=state.caveEntrance.y+90;
+      burst(state.caveEntrance.x,state.caveEntrance.y-20,18,'#6f675c'); // 入口は崩れて塞がる
+      state.caveEntrance=null; // 一度入った洞窟にはもう入れない
+    }
+    state.over=false;
+    // 入洞が早すぎてWaveの敵が湧く前だった場合は、戻ってから湧かせる(進行の詰まり防止)
+    if(!state.enemies.some(en=>!en.dead)) setTimeout(()=>{ if(state && !state.inCave) spawnEnemyBatch(); },600);
+    ui.centerMsg.textContent='洞窟から戻ってきた!';
+    setTimeout(()=>{ if(ui.centerMsg.textContent==='洞窟から戻ってきた!') ui.centerMsg.textContent=''; },1500);
+  }
+
+  function openCaveReward(){
+    state.caveRewardOpen=true;
+    state.over=true; // 選択中は進行を止める
+    document.getElementById('caveRewardOverlay').classList.add('open');
+  }
+
   function registerEnemyKill(enemy) {
     if (!enemy || enemy.isPlayer || enemy.killCounted || enemy.isBoss) return;
 
     enemy.killCounted = true;
     state.killsThisWave++;
+    state.runKills=(state.runKills||0)+1;
+    if(state.runKills>=100) awardTrophy('kills100');
     if(state.waveStats){
       state.waveStats.kills++;
       if(enemy.meleeKill) state.waveStats.meleeKills++;
@@ -3399,6 +3629,7 @@
     const comboMult = 1 + Math.min(4,(state.combo||0)*.04);
     const gained = Math.round(25*comboMult);
     state.score += gained;
+    if(state.score>=10000) awardTrophy('score10k');
     showScorePop(enemy.x, enemy.y - enemy.height*.85, '+'+gained);
     // キル時のヒットストップ/スローモーションは廃止(連続撃破時に処理落ちのようにカクついて爽快感を損なうため)
     // コンボ段階(10/25/50)でキル演出が育つ(停止させないシェイク+バーストのみ)
@@ -3652,6 +3883,7 @@
       attackCooldown: 30
     });
     burst(state.player.x,state.player.y-40,24,type.color);
+    if(state.allies.length>=3) awardTrophy('allies'); // イヌ・サル・キジ全員お供に
   }
 
   function updateAllies() {
@@ -3935,6 +4167,31 @@
       state.pendingLevelUps = carriedLevelUps;
       maybeShowLevelUps();
     }
+    showStageStory(state.room); // 新しいステージの始まりに短いストーリーを挟む
+  }
+
+  // ステージ切替時のストーリー(クリック/キーで進む)
+  const STORY_BY_STAGE={
+    6:{label:'― ステージ2 あれ地 ―', text:'イヌをおともにした桃太郎。\n乾いた荒野のむこうには、暴れ者の猿の群れが巣くう山があるという。'},
+    11:{label:'― ステージ3 川のほとり ―', text:'サルたちも旅の仲間になった。\n川辺の道の先、水面には大きな鳥の影がゆらめく——。'},
+    16:{label:'― ステージ4 鬼ヶ島 ―', text:'キジの翼が示す先に、ついに鬼ヶ島が見えた。\n金棒を握る島の主が、桃太郎を待ち構えている。'}
+  };
+  function showStageStory(room){
+    const st=STORY_BY_STAGE[room];
+    if(!st) return false;
+    state.over=true;
+    state.storyOpen=true;
+    document.getElementById('storyStageLabel').textContent=st.label;
+    document.getElementById('storyText').textContent=st.text;
+    document.getElementById('storyOverlay').classList.add('open');
+    return true;
+  }
+  function closeStory(){
+    if(!state || !state.storyOpen) return false;
+    state.storyOpen=false;
+    document.getElementById('storyOverlay').classList.remove('open');
+    state.over=false;
+    return true;
   }
 
 
@@ -4054,6 +4311,7 @@
     // 連続JGチェイン: 5秒以内の連続成立でカウントが伸び、音程が上がりバフも延長
     state.jgChain=(state.time-(state.lastJustGuard??-999)<300)?(state.jgChain||0)+1:1;
     state.lastJustGuard=state.time;
+    awardTrophy('jg');
     state.meleePowerUntil=Math.max(state.meleePowerUntil||0,state.time)+(state.jgChain===1?300:120);
     // 仁王立ち: 吹き飛び速度を打ち消し、同時着弾にも押されないよう短時間無敵
     state.player.vx=0;
@@ -4863,6 +5121,7 @@
       playSfx('comboMile');
     }
     if(state.combo>state.maxCombo) state.maxCombo=state.combo;
+    if(state.combo>=50) awardTrophy('combo50');
     if(state.waveStats && state.combo>state.waveStats.maxCombo) state.waveStats.maxCombo=state.combo;
     updateComboDisplay();
 
@@ -6106,8 +6365,12 @@
   }
 
   function updateOniBoss(e,p,d,wdiff){
-    e.onCd=Math.max(0,(e.onCd??80)-(d<240?3:1)); // 近距離では攻撃間隔3倍速=ガンガン攻める
+    const enraged=e.hp<=e.maxHp/3; // 発狂モード: HP1/3以下で攻撃頻度・攻撃速度・歩行速度3倍
+    e.onCd=Math.max(0,(e.onCd??80)-((d<240?3:1)*(enraged?3:1))); // 近距離では攻撃間隔3倍速=ガンガン攻める
     e.onSwingFx=Math.max(0,(e.onSwingFx||0)-1);
+    if(enraged && state.time%5===0){
+      state.particles.push({x:e.x+(Math.random()-.5)*60,y:e.y-40-Math.random()*50,vx:0,vy:-1.8,life:12,color:'#ff5a5a'}); // 怒りの赤い気
+    }
     const bodyR=e.width*.4;
     // 振った金棒の持続当たり判定: 触れたらダメージ+大きくふっとばす
     if(e.onSwingHit){
@@ -6235,7 +6498,7 @@
       e.facing=Math.sign(p.x-e.x)||e.facing;
       if(c.t>=c.next){
         c.t=0;
-        c.next=18+Math.random()*22;
+        c.next=(18+Math.random()*22)/(enraged?3:1); // 発狂中は振りも3倍速
         const ddx=p.x-e.x, ddy=p.y-e.y, ddl=Math.hypot(ddx,ddy)||1;
         e.vx+=ddx/ddl*7; e.vy+=ddy/ddl*4;
         oniSwing(e,14,240,60); // 2倍金棒ぶんリーチも広い・当たると大きくふっとぶ(距離2倍)
@@ -6252,7 +6515,7 @@
       if(f5.phase==='swings'){
         e.facing=Math.sign(p.x-e.x)||e.facing;
         if(f5.t>=f5.next){
-          f5.t=0; f5.next=11;
+          f5.t=0; f5.next=enraged?4:11;
           const ddx=p.x-e.x, ddy=p.y-e.y, ddl=Math.hypot(ddx,ddy)||1;
           e.vx+=ddx/ddl*8; e.vy+=ddy/ddl*4.6;
           oniSwing(e,12,230,52); // 2倍金棒ぶんリーチも広い・当たると大きくふっとぶ(距離2倍)
@@ -6368,13 +6631,15 @@
       e.onAttack=atk;
       e.onShockVert=Math.random()<.5;
       e.onWindup= atk==='combo'?50 : atk==='shock'?36 : atk==='dark'?44 : atk==='dimension'?30 : atk==='laser'?44 : 70;
+      if(enraged) e.onWindup=Math.max(8,Math.round(e.onWindup/3)); // 発狂中は予兆も短い
       e.vx*=.5; e.vy*=.5;
       return true;
     }
 
-    // --- 通常時: 間合いを詰める(ダッシュ速度2倍)
+    // --- 通常時: 間合いを詰める(ダッシュ速度2倍・発狂中はさらに3倍)
     if(d>120 && !p.dead){
-      enemyChaseStep(e, state.config.enemy.speed*wdiff.move*1.8, state.config.enemy.speed*.6*wdiff.move*1.8);
+      const spd=1.8*(enraged?3:1);
+      enemyChaseStep(e, state.config.enemy.speed*wdiff.move*spd, state.config.enemy.speed*.6*wdiff.move*spd);
       e.facing=Math.sign(p.x-e.x)||e.facing;
     }
     return true;
@@ -6535,6 +6800,69 @@
     const p = state.player;
     const d = dist(e,p);
     const wdiff = waveDifficulty();
+    if(e.special==='bat'){
+      // コウモリ: 頭上をふわふわ旋回し、時々急降下して引っかく
+      e.jumpLift=26+Math.sin(state.time*.12+e.batPhase)*10;
+      e.batCd=Math.max(0,(e.batCd||0)-1);
+      e.batHitCd=Math.max(0,(e.batHitCd||0)-1);
+      if((e.batDive||0)>0){
+        e.batDive--;
+        moveEntity(e,e.batVx,e.batVy);
+        if(!p.dead && Math.hypot(p.x-e.x,p.y-e.y)<42 && e.batHitCd<=0){
+          e.batHitCd=40;
+          inuHitHero(7, Math.sign(p.x-e.x)*8, -3);
+        }
+        if(e.batDive===0) e.batCd=80+Math.random()*70;
+      }else{
+        const a=state.time*.02+e.batPhase;
+        const tx=p.x+Math.cos(a)*170, ty=p.y-40+Math.sin(a)*60;
+        if(Math.hypot(tx-e.x,ty-e.y)>16){
+          const aa=Math.atan2(ty-e.y,tx-e.x);
+          moveEntity(e,Math.cos(aa)*3.4,Math.sin(aa)*2.6);
+        }
+        e.facing=Math.sign(p.x-e.x)||e.facing;
+        if(e.batCd<=0 && !p.dead){
+          const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
+          e.batVx=dx/dl*9; e.batVy=dy/dl*7;
+          e.batDive=Math.max(10,Math.round(dl/9))+4;
+          playSfx('slashWhiff');
+        }
+      }
+      return;
+    }
+    if(e.special==='rockBoss'){
+      // 岩の主: のっそり迫り、近距離は地割れスラム・遠距離は岩投げ
+      e.rkCd=Math.max(0,(e.rkCd||0)-1);
+      if((e.rkSlam||0)>0){
+        e.rkSlam--;
+        e.vx*=.85; e.vy*=.85;
+        if(e.rkSlam===0){
+          const R=170;
+          state.shake=Math.max(state.shake,16);
+          state.explosionEffects.push({x:e.x,y:e.y,radius:10,maxRadius:R,life:16,maxLife:16,color:'#bdb6a6'});
+          burst(e.x,e.y-10,18,'#8d8a82');
+          playSfx('bomb');
+          if(!p.dead && Math.hypot(p.x-e.x,p.y-e.y)<R) inuHitHero(18, Math.sign(p.x-e.x)*18, -8);
+          e.rkCd=110;
+        }
+        return;
+      }
+      if(e.rkCd<=0 && !p.dead){
+        if(d<230){ e.rkSlam=34; return; }
+        for(let ri=-1;ri<=1;ri++){
+          const a=Math.atan2((p.y-24)-(e.y-60),p.x-e.x)+ri*.16;
+          state.projectiles.push({kind:'projectile',sourceType:'rockThrow',x:e.x,y:e.y-60,
+            vx:Math.cos(a)*6,vy:Math.sin(a)*6,radius:12,life:110,damage:14,
+            owner:{isPlayer:false},color:'#9b968a'});
+        }
+        playSfx('enemyShot');
+        e.rkCd=120;
+        return;
+      }
+      if(d>150 && !p.dead) enemyChaseStep(e, state.config.enemy.speed*.5, state.config.enemy.speed*.33);
+      e.facing=Math.sign(p.x-e.x)||e.facing;
+      return;
+    }
     if(e.special==='kijiDrop'){
       // 巨大な雫: 上空で待機(この間に撃ち壊せる)→落下→着弾地点で広範囲爆発
       e.vx=0; e.vy=0;
@@ -6886,6 +7214,27 @@
     state.time++;
     // ガードキー押しっぱなしなら、ガードブレイク明けやロック明けに自動で再展開する
     if(!state.guarding && (keys.has(' ') || touchGuardHeld)) setGuard(true);
+    // 洞窟の入口: 巻物を持って近づくと入れる(未所持はヒント表示)
+    if(state.caveEntrance && !state.inCave && !state.over && !state.choosingUpgrade && !state.player.dead){
+      const ce=state.caveEntrance;
+      if(Math.hypot(state.player.x-ce.x,state.player.y-ce.y)<64){
+        if(state.hasSecretScroll){
+          enterCave();
+        }else if(!state.caveHintShown){
+          state.caveHintShown=true;
+          showScorePop(state.player.x,state.player.y-110,'封印されている…(秘密の巻物が必要)',true);
+        }
+      }
+    }
+    // スタート演出: 桃がどんぶらこと川を流れる
+    if(state.introPeach){
+      const ip=state.introPeach;
+      ip.t++;
+      ip.y+=.9;
+      ip.x+=Math.sin(ip.t*.06)*.5;
+      if(ip.t%9===0) state.particles.push({x:ip.x+(Math.random()-.5)*22,y:ip.y+8,vx:0,vy:.5,life:12,color:'#dff2ff'});
+      if(ip.y>=ip.endY){ burst(ip.x,ip.y-8,14,'#ffb7c5'); state.introPeach=null; }
+    }
     // キジの睡眠波動: チャネルしていない間は睡眠ゲージが自然減衰
     state.kijiSleepCd=Math.max(0,(state.kijiSleepCd||0)-1);
     if((state.kijiSleepGauge||0)>0 && !state.enemies.some(m=>!m.dead&&m.kjSleep)) state.kijiSleepGauge=Math.max(0,state.kijiSleepGauge-.25);
@@ -6956,9 +7305,9 @@
       updateFishAndKappa();
       updateInuGeysers();
 
-      // Wave制限時間: 通常60秒・ボス戦120秒。時間切れで巨大な鬼の脚が降ってきてヒーローを踏み潰す
+      // Wave制限時間: 通常60秒・ボス戦120秒。時間切れで巨大な鬼の脚が降ってきてヒーローを踏み潰す(洞窟内は時間なし)
       if(!state.over && !state.gameEnded && !state.choosingUpgrade && !state.waitingBossChoice &&
-         !state.waveCleared && !state.oniStomp){
+         !state.waveCleared && !state.oniStomp && !state.inCave){
         state.waveTimeLeft=Math.max(0,(state.waveTimeLeft??3600)-1);
         if(state.waveTimeLeft<=0 && !state.player.dead){
           state.oniStomp={t:0,dur:46,x:state.player.x,y:state.player.y};
@@ -7006,8 +7355,9 @@
           showScorePop(state.player.x,state.player.y-95,'危機一髪!',true);
           burst(state.player.x,state.player.y-30,26,'#ffffff');
           playSfx('guardBreak');
+          awardTrophy('laststand');
         }else{
-          state.over=true; state.win=false; state.gameOverAt=performance.now(); saveHighScore();
+          state.over=true; state.win=false; state.gameOverAt=performance.now(); saveHighScore(); recordScore();
           state.pendingLevelUps=0;
           state.choosingUpgrade=false;
           ui.upgradeOverlay.classList.remove('open');
@@ -7024,11 +7374,31 @@
           // この条件で撃破シーケンスを止めない(止めると吸収選択が永久に出ないデッドロック)
           (state.pendingLevelUps===0 || state.bossActive) &&
           !state.waitingBossChoice) {
-        if (state.bossActive) {
+        if (state.inCave) {
+          // 洞窟の進行: コウモリWave1→Wave2→岩の主→報酬選択
+          if(state.caveWave===1){
+            state.caveWave=2;
+            spawnBats(12);
+            ui.centerMsg.textContent='奥からさらに羽音が…';
+            setTimeout(()=>{ if(ui.centerMsg.textContent==='奥からさらに羽音が…') ui.centerMsg.textContent=''; },1500);
+          }else if(state.caveWave===2){
+            state.caveWave=3;
+            spawnRockBoss();
+          }else if(!state.caveRewardOpen){
+            openCaveReward();
+          }
+        } else if (state.bossActive) {
           const boss = state.enemies[0];
           if(!boss.finisherPlayed){
             boss.finisherPlayed=true; // 毎フレーム再実行によるスコア二重加算も防ぐ
             state.score += 500 * state.room;
+            // トロフィー: ボス撃破
+            const bt=boss.bossType?.trait;
+            if(bt==='charger') awardTrophy('inu');
+            else if(bt==='splitter') awardTrophy('saru');
+            else if(bt==='wave') awardTrophy('kiji');
+            else if(bt==='fiveHeads') awardTrophy('oni');
+            if(state.score>=10000) awardTrophy('score10k');
             // キメ演出: 一拍止めて白フラッシュ→両断が飛び散る
             state.hitStop=Math.max(state.hitStop||0,45);
             state.slowMo=Math.max(state.slowMo||0,55);
@@ -7039,16 +7409,26 @@
             ui.message.textContent='BOSS DEFEATED';
             logWaveBalance('boss');
             if(boss.bossType && boss.bossType.name==='鬼'){
+              recordScore(); // クリア時もスコアきろくに残す
               setTimeout(showEnding,1900);
             }else{
               setTimeout(()=>showBossAbsorbChoice(boss),1800);
             }
           }
         } else if (state.room % 5 === 0) {
-          ui.message.textContent='BOSS INCOMING';
+          // ボス登場演出: いきなり切り替えず、名前カードを見せてから戦闘へ
+          ui.message.textContent='';
           playSfx('boss');
           state.over = true;
-          setTimeout(spawnBoss,900);
+          const bt=bossTypes[Math.max(0,Math.min(3,Math.floor(state.room/5)-1))];
+          document.getElementById('bossIntroEpithet').textContent=bt.epithet||'';
+          document.getElementById('bossIntroName').textContent=bt.name;
+          document.getElementById('bossIntroText').textContent=bt.text;
+          document.getElementById('bossIntroOverlay').classList.add('open');
+          setTimeout(()=>{
+            document.getElementById('bossIntroOverlay').classList.remove('open');
+            spawnBoss();
+          },2400);
         } else if (!state.waveCleared) {
           // ボスは5Waveごと。中間Waveは右壁が開き、右端まで進むと次のWaveへ
           state.waveCleared = true;
@@ -7113,6 +7493,33 @@
     }
     const vRight=vx+vw, vBottom=vy+vh;
 
+    if(state.inCave){
+      // 洞窟: 暗い岩壁と土の床、天井のつらら岩
+      const horizon=h*FLOOR_RATIO;
+      ctx.fillStyle='#0e0b12';
+      ctx.fillRect(vx,vy,vw,vh);
+      ctx.fillStyle='#37302b';
+      ctx.fillRect(vx,horizon,vw,Math.max(0,vBottom-horizon));
+      for(let x=Math.floor(vx/120)*120;x<vRight;x+=120){
+        for(let y=Math.floor(Math.max(horizon,vy)/90)*90;y<vBottom;y+=90){
+          if(y<horizon) continue;
+          const st=jHash(x*11+y*7);
+          ctx.fillStyle='rgba(20,16,22,'+(0.15+st*.2).toFixed(2)+')';
+          ctx.fillRect(x+st*70,y+st*40,16+st*20,10+st*12);
+        }
+      }
+      ctx.fillStyle='#241d29';
+      for(let x=Math.floor(vx/90)*90;x<vRight;x+=90){
+        const st=jHash(x*13);
+        ctx.beginPath();
+        ctx.moveTo(x,vy);
+        ctx.lineTo(x+34,vy);
+        ctx.lineTo(x+17,vy+30+st*34);
+        ctx.closePath();
+        ctx.fill();
+      }
+      return;
+    }
     if(state.bossActive){
       // ボス戦: コンクリート打ちっぱなしの無機質アリーナ
       const horizon=h*FLOOR_RATIO;
@@ -8195,6 +8602,57 @@
     }
   }
 
+  // 洞窟の入口(room13): 巻物所持なら黒い口が開き、未所持は巨石で封印されている
+  function drawCaveEntrance(){
+    const c=state.caveEntrance;
+    if(!c || state.inCave) return;
+    ctx.save();
+    ctx.translate(c.x,c.y);
+    ctx.fillStyle='#5d564c';
+    ctx.beginPath();
+    ctx.moveTo(-70,10); ctx.lineTo(-40,-46); ctx.lineTo(0,-60); ctx.lineTo(42,-44); ctx.lineTo(70,10);
+    ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#6f675c';
+    ctx.fillRect(-52,-30,24,18);
+    ctx.fillRect(20,-38,26,20);
+    if(state.hasSecretScroll){
+      ctx.fillStyle='#0b080f';
+      ctx.beginPath();
+      ctx.moveTo(-24,10); ctx.lineTo(-18,-26); ctx.lineTo(0,-34); ctx.lineTo(18,-26); ctx.lineTo(24,10);
+      ctx.closePath(); ctx.fill();
+      const g=.4+.3*Math.sin(state.time*.1);
+      ctx.fillStyle='rgba(190,160,255,'+g.toFixed(2)+')';
+      ctx.fillRect(-3,-20,6,6);
+    }else{
+      ctx.fillStyle='#7a7266';
+      ctx.beginPath(); ctx.arc(0,-8,24,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#8d8578';
+      ctx.beginPath(); ctx.arc(-7,-14,8,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#d8c690';
+      ctx.fillRect(-24,-12,48,5); // 注連縄
+    }
+    ctx.restore();
+  }
+
+  // スタート演出: どんぶらこと川を流れる大きな桃
+  function drawIntroPeach(){
+    const ip=state.introPeach;
+    if(!ip) return;
+    ctx.save();
+    ctx.translate(ip.x,ip.y);
+    ctx.rotate(Math.sin(ip.t*.06)*.14);
+    ctx.fillStyle='rgba(10,20,60,.18)';
+    ctx.beginPath(); ctx.ellipse(0,8,16,5,0,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#ff9db4';
+    ctx.beginPath(); ctx.arc(-6,-6,11,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(6,-6,11,0,Math.PI*2); ctx.fill();
+    ctx.beginPath(); ctx.arc(0,-2,13,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle='#57a05a';
+    ctx.fillRect(-2,-22,4,7);
+    ctx.beginPath(); ctx.ellipse(7,-19,7,4,-.5,0,Math.PI*2); ctx.fill();
+    ctx.restore();
+  }
+
   function drawShadow(f) {
     ctx.save();
     ctx.translate(f.x,f.y);
@@ -8436,8 +8894,8 @@
       // 頭
       ctx.fillStyle=tint||'#7c3aed';
       ctx.fillRect(-12,-44,24,20);
-      // 目(暗闇中は強く光る)
-      ctx.fillStyle=(f.onDark||(state.oniDark||0)>0)?'#fff3a8':'#ffdd77';
+      // 目(発狂中は赤く、暗闇中は強く光る)
+      ctx.fillStyle=f.hp<=f.maxHp/3?'#ff5a5a':(f.onDark||(state.oniDark||0)>0)?'#fff3a8':'#ffdd77';
       ctx.fillRect(-7,-38,5,5);
       ctx.fillRect(3,-38,5,5);
       // 牙
@@ -8545,6 +9003,52 @@
     }
     if(f.special==='giant' && !f.dead){
       drawGiantZako(f);
+      return;
+    }
+    if(f.special==='bat' && !f.dead){
+      // コウモリ: 黒い翼をはためかせる。急降下中は紫がかる
+      const yy=f.y-(f.jumpLift||0);
+      const flap=Math.sin(state.time*.5+(f.batPhase||0))*8;
+      ctx.save();
+      ctx.fillStyle='rgba(0,0,0,.22)';
+      ctx.beginPath(); ctx.ellipse(f.x,f.y+3,10,3.5,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=(f.batDive||0)>0?'#4a3a55':'#2a2333';
+      ctx.beginPath(); ctx.moveTo(f.x-2,yy-20); ctx.lineTo(f.x-18,yy-24-flap); ctx.lineTo(f.x-8,yy-14); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(f.x+2,yy-20); ctx.lineTo(f.x+18,yy-24-flap); ctx.lineTo(f.x+8,yy-14); ctx.closePath(); ctx.fill();
+      ctx.fillRect(f.x-5,yy-24,10,12);
+      ctx.fillRect(f.x-5,yy-28,3,5);
+      ctx.fillRect(f.x+2,yy-28,3,5);
+      ctx.fillStyle='#ffd75e';
+      ctx.fillRect(f.x-3,yy-21,2,2);
+      ctx.fillRect(f.x+1,yy-21,2,2);
+      ctx.restore();
+      return;
+    }
+    if(f.special==='rockBoss' && !f.dead){
+      // 岩の主: ゴツゴツした岩の塊。スラム予兆で持ち上がり目が赤く光る
+      ctx.save();
+      const rise=(f.rkSlam||0)>0?Math.min(10,(34-f.rkSlam)*.6):0;
+      ctx.translate(Math.round(f.x),Math.round(f.y-rise));
+      ctx.fillStyle='rgba(0,0,0,.28)';
+      ctx.beginPath(); ctx.ellipse(0,4+rise,46,13,0,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='#6f6b62';
+      ctx.fillRect(-42,-64,84,64);
+      ctx.fillStyle='#8d8a82';
+      ctx.fillRect(-34,-58,30,26);
+      ctx.fillRect(2,-50,32,38);
+      ctx.fillRect(-26,-26,40,22);
+      ctx.fillStyle='#57544d';
+      ctx.fillRect(-42,-18,18,18);
+      ctx.fillRect(28,-64,14,16);
+      ctx.fillStyle=(f.rkSlam||0)>0?'#ff6a5a':'#ffd75e';
+      ctx.fillRect(-16,-44,7,7);
+      ctx.fillRect(9,-44,7,7);
+      const hpR=Math.max(0,f.hp/f.maxHp);
+      ctx.fillStyle='rgba(12,14,16,.72)';
+      ctx.fillRect(-45,-78,90,7);
+      ctx.fillStyle=hpR>.5?'#7ddf64':hpR>.25?'#ffc93e':'#ff5a3c';
+      ctx.fillRect(-45,-78,90*hpR,7);
+      ctx.restore();
       return;
     }
     if(f.special==='kijiDrop' && !f.dead){
@@ -8679,6 +9183,16 @@
       ctx.fillRect(13,-42,12,8);
       ctx.translate(0,-10);
     }
+    if (f.isPlayer && state.caveBuffGrd) {
+      // 洞窟の宝(ガード強化): 背中に青い丸盾を背負う
+      ctx.fillStyle='#2c4d7d';
+      ctx.beginPath(); ctx.arc(-16,-30,10,0,Math.PI*2); ctx.fill();
+      ctx.strokeStyle='#8fc3ff';
+      ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(-16,-30,10,0,Math.PI*2); ctx.stroke();
+      ctx.fillStyle='#8fc3ff';
+      ctx.fillRect(-18,-32,4,4);
+    }
     ctx.fillStyle = f.flash ? '#ffffff'
       : (!f.isPlayer && f.dashTimer>0) ? '#ffd23f' // 突進中(接触ダメージあり)は黄色
       // 構えの明滅は金色/オレンジ(体が白いイヌでも見えるように白は使わない)
@@ -8697,6 +9211,12 @@
       ctx.fillRect(-10,-57,20,18);
       ctx.fillStyle='#c93a3a';
       ctx.fillRect(-10,-57,20,5);
+      if(state.caveBuffAtk){
+        // 洞窟の宝(直接攻撃強化): 鉢巻の紐が長くなびく
+        const wv=Math.sin(state.time*.2)*3;
+        ctx.fillRect(-17,-54+wv*.4,7,3);
+        ctx.fillRect(-23,-52+wv,7,3);
+      }
     } else {
       ctx.fillRect(-10,-57,20,18);
     }
@@ -8710,6 +9230,24 @@
     ctx.fillStyle = f.isPlayer ? '#202020' : '#ffe6e6';
     ctx.fillRect(-17,-40,5,22);
     ctx.fillRect(12,-40,5,22);
+    if (f.isPlayer && state.caveBuffAtk) {
+      // 洞窟の宝(直接攻撃強化): 両腕に赤い篭手
+      ctx.fillStyle='#c93a3a';
+      ctx.fillRect(-18,-28,7,11);
+      ctx.fillRect(11,-28,7,11);
+      ctx.fillStyle='#8f1f1f';
+      ctx.fillRect(-18,-20,7,3);
+      ctx.fillRect(11,-20,7,3);
+    }
+    if (f.isPlayer && state.caveBuffGrd) {
+      // 洞窟の宝(ガード強化): 青い肩当て
+      ctx.fillStyle='#3f6fb0';
+      ctx.fillRect(-18,-43,7,7);
+      ctx.fillRect(11,-43,7,7);
+      ctx.fillStyle='#8fc3ff';
+      ctx.fillRect(-18,-43,7,2);
+      ctx.fillRect(11,-43,7,2);
+    }
 
     if (!f.isPlayer && f.poisonTimer>0) {
       // 毒状態: 体に緑っぽい斑点(個体ごとに位置を少しずらし、明滅させる)
@@ -9213,6 +9751,8 @@
     drawBackground();
     drawArenaWalls();
     drawTerrain();
+    drawCaveEntrance();
+    drawIntroPeach();
     drawCraters();
     drawInuGeysers();
     drawJizo();
@@ -9313,6 +9853,44 @@
     }
     drawDamageNumbers();
     ctx.restore();
+  }
+
+  // ===== トロフィー & スコアきろく(ローカルストレージ保存) =====
+  const TROPHY_DEFS=[
+    {id:'inu',name:'犬退治',desc:'イヌを倒した'},
+    {id:'saru',name:'猿退治',desc:'サルの群れを倒した'},
+    {id:'kiji',name:'雉退治',desc:'キジを倒した'},
+    {id:'oni',name:'鬼退治',desc:'鬼を倒した'},
+    {id:'allies',name:'家来あつまれ',desc:'イヌ・サル・キジを全員お供にした'},
+    {id:'combo50',name:'コンボの達人',desc:'50コンボを達成した'},
+    {id:'jg',name:'見切りの達人',desc:'ジャストガードを決めた'},
+    {id:'laststand',name:'危機一髪',desc:'致死ダメージをHP1で耐えた'},
+    {id:'kills100',name:'百人斬り',desc:'1プレイで敵を100体倒した'},
+    {id:'score10k',name:'一万点',desc:'スコア10000点を達成した'}
+  ];
+  let trophies={};
+  try{ trophies=JSON.parse(localStorage.getItem('momoTaroTrophies')||'{}'); }catch(err){ trophies={}; }
+  function awardTrophy(id){
+    if(trophies[id]) return;
+    trophies[id]={at:Date.now()};
+    try{ localStorage.setItem('momoTaroTrophies',JSON.stringify(trophies)); }catch(err){}
+    const def=TROPHY_DEFS.find(t=>t.id===id);
+    if(def && state && state.player){
+      showScorePop(state.player.x,state.player.y-140,'トロフィー獲得! '+def.name,true);
+      playSfx('comboMile');
+    }
+  }
+  let scoreRecords=[];
+  try{ scoreRecords=JSON.parse(localStorage.getItem('momoTaroScores')||'[]'); }catch(err){ scoreRecords=[]; }
+  function recordScore(){
+    // 1プレイにつき1回、スコアきろく(トップ10)へ保存
+    if(!state || state.scoreRecorded || !(state.score>0)) return;
+    state.scoreRecorded=true;
+    const d=new Date();
+    scoreRecords.push({score:state.score,wave:state.room,combo:state.maxCombo||0,date:(d.getMonth()+1)+'/'+d.getDate()});
+    scoreRecords.sort((a,b)=>b.score-a.score);
+    scoreRecords=scoreRecords.slice(0,10);
+    try{ localStorage.setItem('momoTaroScores',JSON.stringify(scoreRecords)); }catch(err){}
   }
 
   let highScore=0;
@@ -9436,6 +10014,7 @@
     initAudio();
     const k=e.key.length===1?e.key.toLowerCase():e.key;
     if(closeTutorial()) return; // チュートリアルは何かキーを押せば閉じる
+    if(closeStory()) return;    // ストーリーも何かキーで進む
     const fresh=!e.repeat && !keys.has(k);
     keys.add(k);
     if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].includes(e.key)) e.preventDefault();
@@ -9643,6 +10222,8 @@
     if(!titleOverlay || !titleOverlay.classList.contains('open')) return;
     const bs=document.getElementById('bossSetupOverlay');
     if(bs && bs.classList.contains('open')) return; // ボス戦の準備中はクリック/Enterで通常スタートしない
+    const tro=document.getElementById('trophyOverlay');
+    if(tro && tro.classList.contains('open')) return; // トロフィー閲覧中も同様
     titleOverlay.classList.remove('open');
     stopTitleBgm();
     initAudio();
@@ -9728,13 +10309,61 @@
     b.addEventListener('click',ev=>{
       ev.stopPropagation();
       ev.preventDefault();
+      if(b.id==='trophyBtn'){ openTrophyOverlay(); return; }
       openBossSetup(+b.dataset.boss);
     });
   });
+  function openTrophyOverlay(){
+    const list=document.getElementById('trophyList');
+    list.innerHTML=TROPHY_DEFS.map(t=>{
+      const got=!!trophies[t.id];
+      return '<div class="trophyItem'+(got?'':' locked')+'"><span class="tIcon">'+(got?'🏆':'🔒')+'</span><span><strong>'+t.name+'</strong> — '+t.desc+'</span></div>';
+    }).join('');
+    const ol=document.getElementById('scoreRecordList');
+    ol.innerHTML=scoreRecords.length
+      ? scoreRecords.map(r=>'<li>'+r.score+'点 — Wave '+r.wave+'・最大'+r.combo+'コンボ ('+r.date+')</li>').join('')
+      : '<li>まだきろくがありません</li>';
+    document.getElementById('trophyOverlay').classList.add('open');
+  }
+  document.getElementById('trophyClose').addEventListener('click',ev=>{
+    ev.stopPropagation();
+    document.getElementById('trophyOverlay').classList.remove('open');
+  });
+  // 洞窟の報酬選択
+  document.getElementById('caveAtk').addEventListener('click',ev=>{
+    ev.stopPropagation();
+    state.config.player.attackPower=Math.round(state.config.player.attackPower*1.6);
+    state.caveBuffAtk=true; // 見た目: 赤い篭手+なびく鉢巻の紐
+    document.getElementById('caveRewardOverlay').classList.remove('open');
+    exitCave();
+    showScorePop(state.player.x,state.player.y-110,'直接攻撃が大幅強化!',true);
+    playSfx('comboMile');
+  });
+  document.getElementById('caveGrd').addEventListener('click',ev=>{
+    ev.stopPropagation();
+    state.guardGaugeMax=Math.round(guardMax()*1.6);
+    state.guardGauge=state.guardGaugeMax;
+    state.caveBuffGrd=true; // 見た目: 青い肩当て+背中の丸盾
+    document.getElementById('caveRewardOverlay').classList.remove('open');
+    exitCave();
+    showScorePop(state.player.x,state.player.y-110,'ガードが大幅強化!',true);
+    playSfx('comboMile');
+  });
+  document.getElementById('caveRewardOverlay').addEventListener('pointerdown',ev=>ev.stopPropagation());
+  document.getElementById('storyOverlay').addEventListener('pointerdown',ev=>{ ev.stopPropagation(); closeStory(); });
+  // ボス戦モードはゲームクリア(鬼撃破)後に解放
+  function updateTitleUnlocks(){
+    const row=document.getElementById('bossModeRow');
+    if(row) row.style.display = trophies.oni ? '' : 'none';
+  }
+  updateTitleUnlocks();
+  document.getElementById('trophyOverlay').addEventListener('pointerdown',ev=>ev.stopPropagation());
+  document.getElementById('trophyOverlay').addEventListener('click',ev=>ev.stopPropagation());
   document.getElementById('tutorialClose').addEventListener('click',closeTutorial);
   document.getElementById('tutorialOverlay').addEventListener('pointerdown',closeTutorial);
   function returnToTitle(){
     stopEndingBgm();
+    updateTitleUnlocks(); // クリア済みならボス戦モードを解放
     ui.endingOverlay.classList.remove('open');
     saveHighScore();
     reset();
