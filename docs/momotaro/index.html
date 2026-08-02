@@ -6831,8 +6831,10 @@
         if(a.special==='kijiDrop'||b.special==='kijiDrop') continue; // 上空の雫は押し出し対象外
         const dx=b.x-a.x,dy=b.y-a.y;
         const d=Math.hypot(dx,dy);
-        if(d>0 && d<34){
-          const push=(34-d)/2;
+        // 分離距離は互いの体格に応じて決める(固定34pxだと大きい敵に食い込む)
+        const minD=Math.max(36,(a.width||34)*.45+(b.width||34)*.45);
+        if(d>0 && d<minD){
+          const push=(minD-d)/2;
           const ax=a.x-dx/d*push, ay=a.y-dy/d*push;
           if(a.special!=='giant' && canMoveTo(a,ax,ay)){ a.x=ax; a.y=ay; } // 巨大雑魚は押し出されない
           const bx2=b.x+dx/d*push, by2=b.y+dy/d*push;
