@@ -1542,12 +1542,37 @@
   function startBgm() {
     if(audio.bgmTimer) return;
     const melody=[220,262,294,330,294,262,196,220,247,294,330,392,330,294,247,220];
+    // ボス戦: 勇ましい行進曲(Aマイナーの力強いベース+ファンファーレ+スネア)
+    const bossBass=[110,110,146.83,110,130.81,130.81,164.81,196];
+    const bossFan=[440,0,523.25,659.25,587.33,0,523.25,440,659.25,0,783.99,659.25,880,0,659.25,523.25];
+    // 鬼戦: おどろおどろしい低音ドローン+忍び寄る半音階+濁った鐘
+    const oniCreep=[220,233.08,220,207.65,220,246.94,233.08,207.65];
     audio.bgmTimer=setInterval(()=>{
-      if(!audio.ctx || audio.ctx.state!=='running' || state?.gameEnded) return;
-      const wave=Math.max(1,state?.room||1);
-      const base=melody[audio.musicStep%melody.length]*(1+Math.min(3,wave-1)*.04);
-      tone(base,.24,'triangle',.055, state?.bossActive ? 105 : 185);
-      if(audio.musicStep%4===0) tone(base/2,.36,'sine',.04,0);
+      if(!audio.ctx || audio.ctx.state!=='running' || state?.gameEnded || state?.paused) return; // 一時停止中は音楽も止める
+      const s=audio.musicStep;
+      const oniFight=state?.bossActive && state.enemies.some(x=>x.isBoss&&!x.dead&&x.bossType?.trait==='fiveHeads');
+      if(oniFight){
+        // おどろおどろしく: 唸る低音、半音でぶつかる鐘、じわじわ迫る旋律
+        if(s%8===0){ tone(55,2.2,'sawtooth',.05,0); tone(82.41,2.2,'sawtooth',.028,0); }
+        if(s%8===4) tone(58.27,1.1,'sawtooth',.045,0);
+        if(s%2===0) tone(oniCreep[(s>>1)%8],.5,'triangle',.05,0);
+        if(s%16===7){ tone(622.25,1.8,'sine',.032,0); tone(659.25,1.8,'sine',.026,0); }
+        if(s%4===2) tone(155.56,.3,'square',.02,0);
+        if(s%16===15) noise(.5,.05);
+      }else if(state?.bossActive){
+        // 勇ましく: 進軍ベース+裏打ち+ファンファーレ
+        tone(bossBass[s%8],.22,'sawtooth',.055,0);
+        tone(bossBass[s%8]*2,.1,'square',.02,0,.13); // 裏打ちで前進感
+        const f=bossFan[s%16];
+        if(f) tone(f,.3,'square',.04,0);
+        if(s%4===2) noise(.1,.05);  // スネア風
+        if(s%4===0) noise(.05,.028);
+      }else{
+        const wave=Math.max(1,state?.room||1);
+        const base=melody[s%melody.length]*(1+Math.min(3,wave-1)*.04);
+        tone(base,.24,'triangle',.055,185);
+        if(s%4===0) tone(base/2,.36,'sine',.04,0);
+      }
       audio.musicStep++;
     },260);
   }
@@ -5712,7 +5737,7 @@
         const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
         e.facing=Math.sign(dx)||e.facing;
         if(dl>50) moveEntity(e,dx/dl*6.5,dy/dl*4.4);
-        if(dl<=55+bodyR*.5 && !p.dead){
+        if(dl<=bodyHalfW(e)+bodyHalfW(p)+14 && !p.dead){ // 体格ぶんの分離距離まで寄れば掴める
           g.phase='hold'; g.t=0;
           state.saruHolder=e;
           triggerGuardBreak(); // 掴みはガードで防げない
@@ -5939,7 +5964,7 @@
       moveEntity(e,s.vx,s.vy);
       if(s.t%2===0) state.particles.push({x:e.x+(Math.random()-.5)*e.width,y:e.y-e.height*.4+(Math.random()-.5)*e.height*.5,vx:-s.vx*.06,vy:-s.vy*.06,life:12,color:'#8fe0ff'});
       const hd=Math.hypot(p.x-e.x,p.y-e.y);
-      if(!s.hitDone && hd<70+bodyR){
+      if(!s.hitDone && hd<bodyHalfW(e)+50){
         if(p.dashTimer>0 && state.time-(state.lastJustDodge??-99)>18){ triggerJustDodge(p); s.hitDone=true; }
         else if(state.guarding){
           // 回転突進は通常ガードを打ち破る(対抗はJGか横回避)
@@ -5953,7 +5978,7 @@
           burst(p.x,p.y-24,18,'#bfeeff');
         }
         else { inuHitHero(14, s.vx*.9, s.vy*.6-4); s.hitDone=true; }
-      }else if(hd<170+bodyR && !s.jgDone && tryJustGuard(p.x,p.y-30)){
+      }else if(hd<bodyHalfW(e)+120 && !s.jgDone && tryJustGuard(p.x,p.y-30)){
         s.jgDone=true;
         e.vx=-s.vx*.7; e.vy=-s.vy*.5;
         e.kjSpin=null;
@@ -6112,7 +6137,7 @@
         const dx=p.x-e.x, dy=p.y-e.y, dl=Math.hypot(dx,dy)||1;
         e.facing=Math.sign(dx)||e.facing;
         if(dl>60) moveEntity(e,dx/dl*6.5,dy/dl*4.4);
-        if(dl<=70+bodyR*.5 && !p.dead){
+        if(dl<=bodyHalfW(e)+bodyHalfW(p)+14 && !p.dead){ // 体格ぶんの分離距離まで寄れば掴める
           g.phase='hold'; g.t=0;
           state.saruHolder=e;
           triggerGuardBreak(); // 掴みはガードで防げない
@@ -6822,6 +6847,13 @@
     f.depth=f.y;
   }
 
+  // 見た目どおりの体の半幅(px)。描画倍率(ボスは1.7×formScale)を反映した唯一の基準
+  function bodyHalfW(f){
+    if(f && f.isBoss && f.bossType) return 25*1.7*(f.formScale||f.bossType.size||5)*.9; // ボス絵の半幅≈25アート単位
+    if(f && f.special==='giant') return 90;
+    return ((f&&f.width)||34)*.46;
+  }
+
   function collisions() {
     const all=[state.player,...state.enemies.filter(e=>!e.dead && e.active!==false)];
     for(let i=0;i<all.length;i++){
@@ -6831,10 +6863,13 @@
         if(a.special==='kijiDrop'||b.special==='kijiDrop') continue; // 上空の雫は押し出し対象外
         const dx=b.x-a.x,dy=b.y-a.y;
         const d=Math.hypot(dx,dy);
-        // 分離距離は互いの体格に応じて決める(固定34pxだと大きい敵に食い込む)
-        const minD=Math.max(36,(a.width||34)*.45+(b.width||34)*.45);
-        if(d>0 && d<minD){
-          const push=(minD-d)/2;
+        if(d<=0) continue;
+        // 分離は見た目の体幅ベースの楕円(横=体幅ぶん・縦=奥行きなのでスレ違いは許す)
+        const rx=bodyHalfW(a)+bodyHalfW(b);
+        const ry=Math.max(26,rx*.38);
+        const s=Math.sqrt((dx*dx)/(rx*rx)+(dy*dy)/(ry*ry));
+        if(s>0 && s<1){
+          const push=(d/s-d)/2;
           const ax=a.x-dx/d*push, ay=a.y-dy/d*push;
           if(a.special!=='giant' && canMoveTo(a,ax,ay)){ a.x=ax; a.y=ay; } // 巨大雑魚は押し出されない
           const bx2=b.x+dx/d*push, by2=b.y+dy/d*push;
