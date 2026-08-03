@@ -1248,7 +1248,7 @@
         <h1 class="titleLogo">Momo Taro</h1>
         <div class="titleRule"></div>
         <p class="titleKana">モモタロウ</p>
-        <p class="titleVer">ver. 2026.08.03m (build 138)</p>
+        <p class="titleVer">ver. 2026.08.03n (build 139)</p>
         <div class="titleQr">
           <img id="titleQrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAklEQVR4AewaftIAAASESURBVO3BQU4rOhREwYOVXbV69Ve9DsYsgDF/dKUIOTgJefgPXPX2/vH5xbHN4NhqcGw1OLa68I1kXi0pmmQelRRNMi0pZiTTkqJJ5h5J0STzaknRBsdWg2OrCz9IimdJZiUpbpFMk8wrJMVvJMWzJDMzOLYaHFtduJNkVpJiJSmaZK4lRUuKGck0ybSkaEmxIplbkmJFMitJsTI4thocW134Y5J5lGSeJZmZpLgmmR0Gx1aDY6sLfywpbpFMS4qWFCuSmUmKGclcS4odBsdWg2OrC3dKileTzLWkaJJpSdEkM5MUM5L5F5LiFQbHVoNjqws/kMyrSaYlxTXJtKRokmlJ0SQzI5mWFE0yLSmuSaYlxYxkXm1wbDU4trrwTVL8Fcm8imRmJNOS4lFJ8S8Njq0Gx1YXvpFMS4ommZmkaJJZSYp7SObVJNOS4lpSzEimJcWMZFpSNMnMJEUbHFsNjq3e3j8+v7gimZmkaJKZSYoVyTwqKR4hmb+UFCuSaUnRBsdWg2OrwbHVhR8kRZPMimRWkqJJ5lpSNMk0ybSkaJJpSbGSFLdIpiXFjGRWJDOTFDODY6vBsdXb+8fnF78gmZmkaJJpSdEkcy0pViQzkxQrkvmNpHiWZFpStMGx1eDY6sITJNOSYkYyM5JpSXEPyTxLMi0pbpHMTFI0ybSkaJKZSYqWFDODY6vBsdXb+8fnF1ckM5MUM5KZSYoZybSkuEUyM0kxI5mZpJiRzLWkmJFMS4oVyawkRRscWw2Ord7ePz6/eBHJrCRFk8w9kuJZkvmNpHiEZFaSog2OrQbHVhe+kcxKUjTJzCTFjGRuSYoZybSkWJFMS4pXkcxMUrSkaJJpSTEzOLYaHFu9vX98fvEikllJilsk05KiSWYmKZpkWlKsSOYeSTEjmZmkaJJpSTEzOLYaHFu9vX98fvEgybSk+Nck05JiRjIrSXGLZFpSzEimJUWTzEpSzAyOrQbHVhe+kUxLiiaZlhQrknlUUjTJzEjmX5NMS4qVpGiSaUmxMji2GhxbXfgmKVYk05JiJimaZFpS3CKZmaRYkUxLiiaZJplbkmJGMv/S4NhqcGw1OLa68APJzCRFk8wjJNOS4pakaJJpSTGTFL8hmUdI5hUGx1aDY6u394/PL/6QZB6VFE0yLSlmJNOSokmmJcU1ybSkWJHMs5KiDY6tBsdWF76RzKslxT2S4q9I5h6SaUmxkhRNMi0pZgbHVoNjqws/SIpnSeY3JNOSYkYyLSlaUqwkxTXJzCTFs5JiZXBsNTi2unAnyawkxUpS3CKZlhRNMi0pZiTTkqJJpiXFPSTziKRokllJijY4thocW134Y5K5JSmaZGYksyKZRyVFk0xLihnJNMm0pJiRzMzg2GpwbHXhfyopmmRmkuJVJNOSYkYyLSlmJNOSYmVwbDU4trpwp6R4haRokrkmmZWkaJJZSYpHSaYlxYxkZpKiSaYlxczg2GpwbHXhB5J5NcncIymaZJpkVpJiRjItKe4hmZmkeIXBsdXg2Ort/ePzi2ObwbHV4NjqPxNVH7cJ+T3kAAAAAElFTkSuQmCC" alt="QRコード">
           <p>スマホで あそぶ</p>
@@ -5016,10 +5016,10 @@
       '.c..kyk.....',
       'c...kk......',
       '............'
-    ], text:'ダッシュ速度20%アップ、再使用時間15%短縮、持続時間+2Fをまとめて強化します(最大3回)。', apply(){
-        state.dashSpeed=+(state.dashSpeed*1.2).toFixed(1);
-        state.dashDuration+=2;
-        state.dashCooldownMax=Math.max(18,Math.round(state.dashCooldownMax*.85));
+    ], text:'ダッシュ速度30%アップ、ゲージのたまりやすさ2倍、持続時間+4Fをまとめて強化します(最大3回)。', apply(){
+        state.dashSpeed=+(state.dashSpeed*1.3).toFixed(1); // 速度をもう少し(20%→30%)
+        state.dashDuration+=4; // 距離ももう少し(+2F→+4F)
+        state.dashCooldownMax=Math.max(12,Math.round(state.dashCooldownMax*.5)); // たまりやすさ2倍(再使用時間半減)
       } },
     { name:'近接強化', icon:'⚔️', px:[
       '.........kk.',
