@@ -1248,7 +1248,7 @@
         <h1 class="titleLogo">Momo Taro</h1>
         <div class="titleRule"></div>
         <p class="titleKana">モモタロウ</p>
-        <p class="titleVer">ver. 2026.08.03i (build 134)</p>
+        <p class="titleVer">ver. 2026.08.03m (build 138)</p>
         <div class="titleQr">
           <img id="titleQrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAklEQVR4AewaftIAAASESURBVO3BQU4rOhREwYOVXbV69Ve9DsYsgDF/dKUIOTgJefgPXPX2/vH5xbHN4NhqcGw1OLa68I1kXi0pmmQelRRNMi0pZiTTkqJJ5h5J0STzaknRBsdWg2OrCz9IimdJZiUpbpFMk8wrJMVvJMWzJDMzOLYaHFtduJNkVpJiJSmaZK4lRUuKGck0ybSkaEmxIplbkmJFMitJsTI4thocW134Y5J5lGSeJZmZpLgmmR0Gx1aDY6sLfywpbpFMS4qWFCuSmUmKGclcS4odBsdWg2OrC3dKileTzLWkaJJpSdEkM5MUM5L5F5LiFQbHVoNjqws/kMyrSaYlxTXJtKRokmlJ0SQzI5mWFE0yLSmuSaYlxYxkXm1wbDU4trrwTVL8Fcm8imRmJNOS4lFJ8S8Njq0Gx1YXvpFMS4ommZmkaJJZSYp7SObVJNOS4lpSzEimJcWMZFpSNMnMJEUbHFsNjq3e3j8+v7gimZmkaJKZSYoVyTwqKR4hmb+UFCuSaUnRBsdWg2OrwbHVhR8kRZPMimRWkqJJ5lpSNMk0ybSkaJJpSbGSFLdIpiXFjGRWJDOTFDODY6vBsdXb+8fnF78gmZmkaJJpSdEkcy0pViQzkxQrkvmNpHiWZFpStMGx1eDY6sITJNOSYkYyM5JpSXEPyTxLMi0pbpHMTFI0ybSkaJKZSYqWFDODY6vBsdXb+8fnF1ckM5MUM5KZSYoZybSkuEUyM0kxI5mZpJiRzLWkmJFMS4oVyawkRRscWw2Ord7ePz6/eBHJrCRFk8w9kuJZkvmNpHiEZFaSog2OrQbHVhe+kcxKUjTJzCTFjGRuSYoZybSkWJFMS4pXkcxMUrSkaJJpSTEzOLYaHFu9vX98fvEikllJilsk05KiSWYmKZpkWlKsSOYeSTEjmZmkaJJpSTEzOLYaHFu9vX98fvEgybSk+Nck05JiRjIrSXGLZFpSzEimJUWTzEpSzAyOrQbHVhe+kUxLiiaZlhQrknlUUjTJzEjmX5NMS4qVpGiSaUmxMji2GhxbXfgmKVYk05JiJimaZFpS3CKZmaRYkUxLiiaZJplbkmJGMv/S4NhqcGw1OLa68APJzCRFk8wjJNOS4pakaJJpSTGTFL8hmUdI5hUGx1aDY6u394/PL/6QZB6VFE0yLSlmJNOSokmmJcU1ybSkWJHMs5KiDY6tBsdWF76RzKslxT2S4q9I5h6SaUmxkhRNMi0pZgbHVoNjqws/SIpnSeY3JNOSYkYyLSlaUqwkxTXJzCTFs5JiZXBsNTi2unAnyawkxUpS3CKZlhRNMi0pZiTTkqJJpiXFPSTziKRokllJijY4thocW134Y5K5JSmaZGYksyKZRyVFk0xLihnJNMm0pJiRzMzg2GpwbHXhfyopmmRmkuJVJNOSYkYyLSlmJNOSYmVwbDU4trpwp6R4haRokrkmmZWkaJJZSYpHSaYlxYxkZpKiSaYlxczg2GpwbHXhB5J5NcncIymaZJpkVpJiRjItKe4hmZmkeIXBsdXg2Ort/ePzi2ObwbHV4NjqPxNVH7cJ+T3kAAAAAElFTkSuQmCC" alt="QRコード">
           <p>スマホで あそぶ</p>
@@ -1483,7 +1483,7 @@
         </div>
         <div class="bossActions">
           <button id="eatBoss">きびだんごをあげる（仲間にする）</button>
-          <button id="skipBoss" class="secondary">だんごにする（HP・防御・近接 1.5倍）</button>
+          <button id="skipBoss" class="secondary">だんごにする（HP・防御1.5倍 / 近接2倍）</button>
         </div>
       </div>
     </div>
@@ -3376,6 +3376,10 @@
             // ヒーロー自身のガード円(半径84+弾サイズ)で受け止める
             if(tryJustGuard(p.x,p.y)){
               parryReflect(p); // ジャストなら弾き返し
+            }else if(p.giantRock){
+              // 割れる前の巨岩はガードごと打ち破る
+              triggerGuardBreak();
+              target.vx+=Math.sign(p.vx||1)*14; target.vy-=5;
             }else if(p.sourceType!=='parry'){
               // 完全ガード: HPダメージ0。受けた威力ぶんガード値を削る(0でガードブレイク)。弾ごとに削り値の上書き可
               damageGuardGauge(p.guardChip||p.damage);
@@ -3564,9 +3568,9 @@
         const g = makeFighter(state.width*(.6+gi*.22), floorTop+(state.height-floorTop)*(.66+gi*.18), '#e15b5b', false, 900+gi);
         g.special='giant';
         g.movementType='walking';
-        g.scale=6;
-        g.width=34*6;
-        g.height=58*6;
+        g.scale=3; // 大きさ1/2(旧6)
+        g.width=34*3;
+        g.height=58*3;
         g.maxHp=Math.round(state.config.enemy.hp*(2/3)*(4/5)*(1/2)*1.5*(1+(state.room-1)*.2)*30); // 雑魚の30倍(6倍→耐久不足のため5倍増し)
         g.hp=g.maxHp;
         g.giantState='idle';
@@ -4584,13 +4588,13 @@
     saveHighScore();
     if (eat && state.bossDefeated) addAllyFromBoss(state.bossDefeated.bossType);
     else if (!eat && state.bossDefeated) {
-      // だんごにする: HP・防御力・近接攻撃が1.5倍(ボスごとに重ね掛け可)
+      // だんごにする: HP・防御力1.5倍+近接攻撃2倍(ボスごとに重ね掛け可)
       const p=state.player;
       p.maxHp=Math.round(p.maxHp*1.5);
       p.hp=Math.min(p.maxHp,Math.round(p.hp*1.5));
       state.playerDefense=(state.playerDefense||1)*1.5;
-      state.config.player.attackPower=+(state.config.player.attackPower*1.5).toFixed(1);
-      showScorePop(p.x,p.y-100,'HP・ぼうぎょ・近接 1.5倍！',true);
+      state.config.player.attackPower=+(state.config.player.attackPower*2).toFixed(1);
+      showScorePop(p.x,p.y-100,'HP・ぼうぎょ1.5倍+近接2倍！',true);
       burst(p.x,p.y-30,26,'#ffd18b');
       playSfx('comboMile');
     }
@@ -4813,7 +4817,8 @@
     state.lastJustDodge=state.time;
     state.slowMo=Math.max(state.slowMo||0,22);
     pl.dashCooldown=0;
-    showScorePop(pl.x,pl.y-92,'JUST!',true);
+    state.spinReadyUntil=state.time+120; // 2秒以内の近接が回転斬り(全周・1.5倍)になる
+    showScorePop(pl.x,pl.y-92,'JUST! 回転斬り!',true);
     burst(pl.x,pl.y-30,14,'#9fe8ff');
     playSfx('guard');
   }
@@ -5029,10 +5034,10 @@
       '.kmk.kk.....',
       'kkk.........',
       '............'
-    ], text:'5段階強化。近接攻撃の威力が50%、攻撃距離が20%ずつ上がり、振りも速くなります。', apply(){
+    ], text:'5段階強化。近接攻撃の威力が70%、攻撃距離が20%ずつ上がり、振りも速くなります。', apply(){
         if(state.meleeLevel>=5) return;
         state.meleeLevel++;
-        state.config.player.attackPower=+(state.config.player.attackPower*1.5).toFixed(1);
+        state.config.player.attackPower=+(state.config.player.attackPower*1.7).toFixed(1);
         state.meleeRange=Math.round(state.meleeRange*1.2);
       } },
 
@@ -5345,6 +5350,8 @@
       stage3 = state.meleeCombo===2;
     }
     const hime = attacker.isPlayer && state.himeMode; // 姫: 近接はハート爆弾(全周・強ノックバック・Lv10まで)
+    const spinReady = attacker.isPlayer && state.time < (state.spinReadyUntil||0); // ジャスト回避後の回転斬り
+    if(spinReady) state.spinReadyUntil=0; // 1回で消費
     const range = attacker.isPlayer
       ? (hime
         ? (state.masakari ? Math.max(120+(state.himeHeartLv||1)*12, state.meleeRange*(stage3?1.3:1)*.9) : 120+(state.himeHeartLv||1)*12) // 姫+まさかり: 広い方のリーチ
@@ -5352,8 +5359,8 @@
       : 136*(zako?zako.reach:1); // まさかり: リーチは1/2に調整(旧1.8)
     const justBuff = attacker.isPlayer && state.meleePowerUntil>state.time ? 2 : 1; // ジャストガード成功で近接2倍
     const agingF = attacker.isPlayer && (state.agingWaves||0)>0 ? .5 : 1; // 老化中は近接1/2
-    const power = attacker.isPlayer ? Math.round(state.config.player.attackPower*(stage3?2:1)*justBuff*agingF*(hime?(1+.35*((state.himeHeartLv||1)-1)):1)) : Math.round(13*(zako?zako.attack:1));
-    const aimMin = hime ? -1 : .38; // 姫のハート爆弾は全周に当たる
+    const power = attacker.isPlayer ? Math.round(state.config.player.attackPower*(stage3?2:1)*justBuff*agingF*(hime?(1+.35*((state.himeHeartLv||1)-1)):1)*(spinReady?1.5:1)) : Math.round(13*(zako?zako.attack:1));
+    const aimMin = (hime||spinReady) ? -1 : .38; // 姫のハート爆弾と回転斬りは全周に当たる
 
     let aimX = attacker.lastMoveX ?? attacker.facing;
     let aimY = attacker.lastMoveY ?? 0;
@@ -5377,6 +5384,14 @@
           combo: state.meleeCombo, color: '#ffffff'
         });
       }
+    } else if (attacker.isPlayer && spinReady) {
+      // 回転斬り: 体を軸に一回転する金色の斬撃
+      state.slashEffects.push({
+        x: attacker.x, y: attacker.y-28, angle: attacker.aimAngle,
+        life: 16, maxLife: 16, range: range, spin: true,
+        combo: state.meleeCombo, color: '#ffd964'
+      });
+      state.shake=Math.max(state.shake,8);
     } else if (attacker.isPlayer) {
       // 近接エフェクト: 通常は白い刀、まさかり所持中は大きな斧の振り抜き
       const axeLife=state.masakari?22:(stage3?18:12);
@@ -5787,9 +5802,13 @@
       hit:new Set()
     });
     const p=state.player;
-    if(p && !p.dead && p.invincibleTimer<=0){
+    if(p && !p.dead){
       const d=Math.hypot(p.x-e.x,(p.y-25)-(e.y-24));
-      if(d<=radius){
+      if(d<=radius && state.guarding){
+        // 自爆の爆発はガードごと打ち破る
+        triggerGuardBreak();
+        p.vx+=Math.sign(p.x-e.x)*14; p.vy-=5;
+      }else if(p.invincibleTimer<=0 && d<=radius){
         const dmg=Math.max(1,Math.round(26*waveDifficulty().attack*(1-d/radius*.5)*(p.dashTimer>0?.5:1)/(state.playerDefense||1)));
         p.hp-=dmg;
         p.hurtTimer=14;
@@ -6887,7 +6906,14 @@
         }
         if(!ph.hitDone && Math.hypot(p.x-e.x,(p.y-20)-(e.y-e.height*.3))<bodyHalfW(e)+46){
           ph.hitDone=true;
-          inuHitHero(18, ph.vx*.9, -7);
+          if(state.guarding){
+            // 火の鳥の体当たりはガードごと打ち破る
+            triggerGuardBreak();
+            p.vx+=Math.sign(ph.vx)*16; p.vy-=6;
+            p.invincibleTimer=Math.max(p.invincibleTimer,40);
+          }else{
+            inuHitHero(18, ph.vx*.9, -7);
+          }
           state.shake=Math.max(state.shake,12);
         }
         if(e.x<-160 || e.x>ww+160 || e.y<-160 || e.y>wh+160){
@@ -7444,7 +7470,8 @@
       if(hd<p.radius*1.05){
         const a=hd>1 ? Math.atan2(pl.y-p.ty,pl.x-p.tx) : Math.PI;
         if(state.guarding && pl.invincibleTimer>0){
-          damageGuardGauge(p.damage*1.6); // ガードでHPは守れるがガード値を大きく削られる
+          triggerGuardBreak(); // 巨岩の直撃はガードごと打ち破る
+          pl.vx+=Math.cos(a)*16; pl.vy+=Math.sin(a)*10-4;
         }else if(pl.invincibleTimer<=0){
           const dmg=Math.max(1,Math.round(p.damage/(state.playerDefense||1)));
           pl.hp-=dmg;
@@ -7979,7 +8006,7 @@
   // 見た目どおりの体の半幅(px)。描画倍率(ボスは1.7×formScale)を反映した唯一の基準
   function bodyHalfW(f){
     if(f && f.isBoss && f.bossType) return 25*1.7*(f.formScale||f.bossType.size||5)*.9; // ボス絵の半幅≈25アート単位
-    if(f && f.special==='giant') return 90;
+    if(f && f.special==='giant') return 45; // 巨大雑魚1/2に合わせて半減
     return ((f&&f.width)||34)*.46;
   }
 
@@ -8252,8 +8279,8 @@
         playSfx('bomb');
       }
     }
-    // お墓の吸収: 最後に死んだ墓(未吸収)に触れると当時の強化を吸収
-    if(!state.bossActive && !state.inCave && !state.inRyugu && !state.over){
+    // お墓の吸収: 最後に死んだ墓(未吸収)に触れると当時の強化を吸収(ボス戦中も可)
+    if(!state.inCave && !state.inRyugu && !state.over){
       const lastGrave=graves[graves.length-1];
       if(lastGrave && !lastGrave.absorbed && lastGrave.room===state.room &&
          Math.hypot(lastGrave.x-state.player.x,lastGrave.y-state.player.y)<46){
@@ -10977,6 +11004,31 @@
       const alpha=s.life/s.maxLife;
       const color=s.color||'#ffffff';
 
+      if(s.spin){
+        // 回転斬り: 全周を金色の刃が一回転する
+        const prog=Math.min(1,t*1.5+.1);
+        const a0=s.angle;
+        const a1=a0+Math.PI*2*prog;
+        const r=s.range*.85;
+        g.save();
+        g.translate(s.x,s.y);
+        g.globalCompositeOperation='lighter';
+        g.lineCap='round';
+        g.globalAlpha=alpha*.5;
+        g.strokeStyle='#ffd964';
+        g.lineWidth=20;
+        g.beginPath(); g.arc(0,0,r*.86,a0,a1); g.stroke();
+        g.globalAlpha=alpha;
+        g.strokeStyle='#fff3a8';
+        g.lineWidth=8;
+        g.beginPath(); g.arc(0,0,r,a0,a1); g.stroke();
+        g.strokeStyle='#ffffff';
+        g.lineWidth=3;
+        g.beginPath(); g.arc(0,0,r+6,a0,a1); g.stroke();
+        g.restore();
+        continue;
+      }
+
       if(s.axe){
         // まさかり(金太郎の広刃斧): 木の長柄の先に大きな半月の刃。刃は振りの進行方向へ膨らむ
         const sweep=2.2;
@@ -11743,7 +11795,7 @@
 
   // 死んだ場所のお墓: この部屋の墓を全部描く。最後に死んだ墓(未吸収)だけ淡く光る
   function drawGraves(){
-    if(!state || state.bossActive || state.inCave || state.inRyugu) return;
+    if(!state || state.inCave || state.inRyugu) return; // ボス戦のアリーナでも墓は見える
     const last=graves[graves.length-1];
     for(const g of graves){
       if(g.room!==state.room) continue;
@@ -12037,7 +12089,7 @@
   try{ graves=JSON.parse(localStorage.getItem('momoTaroGraves')||'[]'); }catch(err){ graves=[]; }
   function saveGraves(){ try{ localStorage.setItem('momoTaroGraves',JSON.stringify(graves)); }catch(err){} }
   function recordGrave(){
-    if(!state || state.bossActive || state.inCave || state.inRyugu) return; // 特殊空間には残さない
+    if(!state || state.inCave || state.inRyugu) return; // 洞窟・龍宮城以外(ボス戦含む)は墓を残す
     const c=state.companion||{};
     graves.push({
       room:state.room,
