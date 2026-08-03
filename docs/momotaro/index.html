@@ -1248,7 +1248,7 @@
         <h1 class="titleLogo">Momo Taro</h1>
         <div class="titleRule"></div>
         <p class="titleKana">モモタロウ</p>
-        <p class="titleVer">ver. 2026.08.03g (build 132)</p>
+        <p class="titleVer">ver. 2026.08.03i (build 134)</p>
         <div class="titleQr">
           <img id="titleQrImg" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGAAAABgCAYAAADimHc4AAAAAklEQVR4AewaftIAAASESURBVO3BQU4rOhREwYOVXbV69Ve9DsYsgDF/dKUIOTgJefgPXPX2/vH5xbHN4NhqcGw1OLa68I1kXi0pmmQelRRNMi0pZiTTkqJJ5h5J0STzaknRBsdWg2OrCz9IimdJZiUpbpFMk8wrJMVvJMWzJDMzOLYaHFtduJNkVpJiJSmaZK4lRUuKGck0ybSkaEmxIplbkmJFMitJsTI4thocW134Y5J5lGSeJZmZpLgmmR0Gx1aDY6sLfywpbpFMS4qWFCuSmUmKGclcS4odBsdWg2OrC3dKileTzLWkaJJpSdEkM5MUM5L5F5LiFQbHVoNjqws/kMyrSaYlxTXJtKRokmlJ0SQzI5mWFE0yLSmuSaYlxYxkXm1wbDU4trrwTVL8Fcm8imRmJNOS4lFJ8S8Njq0Gx1YXvpFMS4ommZmkaJJZSYp7SObVJNOS4lpSzEimJcWMZFpSNMnMJEUbHFsNjq3e3j8+v7gimZmkaJKZSYoVyTwqKR4hmb+UFCuSaUnRBsdWg2OrwbHVhR8kRZPMimRWkqJJ5lpSNMk0ybSkaJJpSbGSFLdIpiXFjGRWJDOTFDODY6vBsdXb+8fnF78gmZmkaJJpSdEkcy0pViQzkxQrkvmNpHiWZFpStMGx1eDY6sITJNOSYkYyM5JpSXEPyTxLMi0pbpHMTFI0ybSkaJKZSYqWFDODY6vBsdXb+8fnF1ckM5MUM5KZSYoZybSkuEUyM0kxI5mZpJiRzLWkmJFMS4oVyawkRRscWw2Ord7ePz6/eBHJrCRFk8w9kuJZkvmNpHiEZFaSog2OrQbHVhe+kcxKUjTJzCTFjGRuSYoZybSkWJFMS4pXkcxMUrSkaJJpSTEzOLYaHFu9vX98fvEikllJilsk05KiSWYmKZpkWlKsSOYeSTEjmZmkaJJpSTEzOLYaHFu9vX98fvEgybSk+Nck05JiRjIrSXGLZFpSzEimJUWTzEpSzAyOrQbHVhe+kUxLiiaZlhQrknlUUjTJzEjmX5NMS4qVpGiSaUmxMji2GhxbXfgmKVYk05JiJimaZFpS3CKZmaRYkUxLiiaZJplbkmJGMv/S4NhqcGw1OLa68APJzCRFk8wjJNOS4pakaJJpSTGTFL8hmUdI5hUGx1aDY6u394/PL/6QZB6VFE0yLSlmJNOSokmmJcU1ybSkWJHMs5KiDY6tBsdWF76RzKslxT2S4q9I5h6SaUmxkhRNMi0pZgbHVoNjqws/SIpnSeY3JNOSYkYyLSlaUqwkxTXJzCTFs5JiZXBsNTi2unAnyawkxUpS3CKZlhRNMi0pZiTTkqJJpiXFPSTziKRokllJijY4thocW134Y5K5JSmaZGYksyKZRyVFk0xLihnJNMm0pJiRzMzg2GpwbHXhfyopmmRmkuJVJNOSYkYyLSlmJNOSYmVwbDU4trpwp6R4haRokrkmmZWkaJJZSYpHSaYlxYxkZpKiSaYlxczg2GpwbHXhB5J5NcncIymaZJpkVpJiRjItKe4hmZmkeIXBsdXg2Ort/ePzi2ObwbHV4NjqPxNVH7cJ+T3kAAAAAElFTkSuQmCC" alt="QRコード">
           <p>スマホで あそぶ</p>
@@ -2431,6 +2431,7 @@
   }
   // 発射武器自身が最大Lvのとき、他の最大Lv武器の特性を弾へ合流させる(合体武器)
   function fusionPartnerTraits(firingKey){
+    return null; // 合体武器モードは廃止
     if(companionWeaponLevel(firingKey)<weaponLevelCap(firingKey)) return null;
     const partners=maxedCompanionWeapons().filter(w=>w!==firingKey);
     return partners.length?partners:null;
@@ -2505,6 +2506,7 @@
       const bombShot = {
         kind:'projectile',
         sourceType:'companionBomb',
+        bombWeapon:true, // 対ボス1.5倍の対象
         bouncingBomb:true,
         bounceAge:0,
         bouncePeriod:16,
@@ -2565,7 +2567,7 @@
       }
       for (const h of pierced) {
         // 連続照射のティックダメージ: 約6F毎に刻む(×1.2→×1.0へ少し減衰。貫通数はそのまま)
-        const laserDamage=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1)*(1+.2*(c.rapidLevel||0)); // Lv4/5はDPS1.5倍。連射強化は威力にも+20%/Lv
+        const laserDamage=c.damage*1.5*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1)*(1+.2*(c.rapidLevel||0)); // 基礎1.5倍+Lv4/5でさらに1.5倍。連射強化は威力にも+20%/Lv
         h.enemy.hp -= laserDamage;
         showDamageNumber(h.enemy.x,h.enemy.y-h.enemy.height*.65,laserDamage,'#9ff7ff');
         burst(h.enemy.x,h.enemy.y-h.enemy.height*.4,6,'#9ff7ff');
@@ -2584,7 +2586,7 @@
       if(blocked){
         burst(c.x+Math.cos(baseAngle)*beamEnd,c.y+Math.sin(baseAngle)*beamEnd,6,'#9fb3c8');
         if(blocker && !blocker.dead){
-          const blockDmg=c.damage*1.0*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1)*(1+.2*(c.rapidLevel||0))*.2; // 連続ティック化に合わせた1回分。Lv4/5は1.5倍・連射+20%/Lv
+          const blockDmg=c.damage*1.5*(1+.45*Math.max(0,c.laserLevel-1))*(c.laserLevel>=4?1.5:1)*(1+.2*(c.rapidLevel||0))*.2; // 連続ティック化に合わせた1回分。基礎1.5倍・Lv4/5で1.5倍・連射+20%/Lv
           blocker.hp-=blockDmg;
           showDamageNumber(blocker.x,blocker.y-blocker.height*.65,blockDmg,'#9fb3c8');
           addCombo();
@@ -2758,7 +2760,7 @@
   function updateSubWeapons(c){
     const curKey = c.weaponMode==='orb' ? 'normal' : c.weaponMode;
     c.subCooldowns = c.subCooldowns || {};
-    const fused = companionWeaponLevel(curKey)>=5 && curKey!=='laser';
+    const fused = false; // 合体武器モードは廃止(Lv5でもサブ武器は普通に撃ち続ける)
     const baseCooldown = Math.max(3,Math.round(c.attackInterval));
     // 二刀流: Lv5固定武器に加えて、切り替え前の武器(secondaryWeapon)もサブとして撃ち続ける
     const subKeys = new Set(maxedCompanionWeapons());
@@ -2766,7 +2768,7 @@
     for(const w of subKeys){
       if(w===curKey) continue;
       c.subCooldowns[w]=Math.max(0,(c.subCooldowns[w]||0)-1);
-      if(fused) continue;
+
       if(c.subCooldowns[w]>0) continue;
       if(w==='missile'){
         if(acquireMissileTargets().length===0) continue;
@@ -2935,6 +2937,7 @@
       damageRadius:p.blastRadius||80,
       life:30,maxLife:30,
       damage:p.damage,
+      bombWeapon:!!p.bombWeapon, // 対ボス1.5倍の対象
       ownerIsPlayer:!!p.owner.isPlayer,
       hit:new Set()
     };
@@ -2948,7 +2951,7 @@
         zone.hit.add(target);
         const scale = 1 - d/p.blastRadius*.55;
         const dx=(target.x-p.x)/(d||1), dy=((target.y-25)-p.y)/(d||1);
-        const dealt=p.damage*scale;
+        const dealt=p.damage*scale*((p.bombWeapon&&target.isBoss)?1.5:1); // 爆弾はボスに1.5倍
         target.hp -= dealt;
         showDamageNumber(target.x,target.y-target.height*.65,dealt,'#ffe18a');
         addCombo();
@@ -3001,7 +3004,7 @@
           target.invincibleTimer=Math.max(target.invincibleTimer,30);
           showDamageNumber(target.x,target.y-70,dealt,'#ff9a8f');
         }else{
-          const dealt=b.damage*scale;
+          const dealt=b.damage*scale*((b.bombWeapon&&target.isBoss)?1.5:1); // 爆弾はボスに1.5倍
           target.hp-=dealt;
             showDamageNumber(target.x,target.y-target.height*.65,dealt,'#ffe18a');
           addCombo();
@@ -3419,6 +3422,7 @@
           continue;
         }
         let dmgAmt=(target.isPlayer&&target.dashTimer>0)?Math.round(p.damage*.5):p.damage; // ダッシュ中の被弾は半減
+        if(p.bombWeapon && !target.isPlayer && target.isBoss) dmgAmt=Math.round(dmgAmt*1.5); // 爆弾はボスに1.5倍
         if(target.isPlayer) dmgAmt=Math.max(1,Math.round(dmgAmt/(state.playerDefense||1))); // だんご強化の防御力
         target.hp -= dmgAmt;
           // ボス・巨大雑魚は巨体なので、数字は体の中心ではなく実際に当たった場所(弾の位置)に出す
@@ -3483,7 +3487,8 @@
     // Wave開始時に全敵を一括出現(繰り返しのバッチ湧きは廃止)
     const count = state.normalEnemiesPerWave - state.spawnedThisWave;
     if (count <= 0) return; // reset直後の二重タイマーで再呼び出しされた際に出現済みの敵を消さない
-    state.enemies = [];
+    // 一括湧きで配列を作り直す際、居座り型の大ダコは消さずに残す(「出た瞬間消える」バグの真因)
+    state.enemies = state.enemies.filter(e2=>e2.special==='octopus' && !e2.dead);
 
     for (let i=0; i<count; i++) {
       const edge = Math.random() < .5 ? 'right' : 'top';
@@ -3703,6 +3708,7 @@
       const path=buildRiverPath();
       if(path) state.riverPeach={pts:path.pts,total:path.total,dist:0,t:0,x:path.pts[0].x,y:path.pts[0].y};
     }
+    const octoCarry = (state.enemies||[]).find(e2=>e2.special==='octopus' && !e2.dead); // 生きている大ダコはWaveをまたいで持ち越す
     state.enemies = [];
     state.bossActive = false;
     state.bossDefeated = null;
@@ -3710,23 +3716,32 @@
     state.spawnedThisWave = 0;
     state.killsThisWave = 0;
     state.waveCleared = false;
-    // Stage3-Wave4(room14): 海に巨大なタコ。8本足で、足を伸ばして打撃してくる。
+    // Stage3の海(room12〜15): 巨大なタコ。room12で現れ、倒されるまでWaveをまたいで居座る。
     // ボス並みに硬いが、倒さなくてもWaveは進める(討伐は任意)
-    if(state.room===14 && state.seaCols){
+    if(state.room>=12 && state.room<=15 && state.seaCols && !state.octoDone){
       const ox=state.width*(.3+Math.random()*.4);
       const col=state.seaCols.find(c2=>ox>=c2.x&&ox<c2.x+52)||state.seaCols[0];
-      const oct=makeFighter(ox, Math.min(state.height-46,col.seaTop+66), '#8a4a9e', false, 9500);
-      oct.special='octopus';
-      oct.movementType='flying'; // 海の進入判定に引っ掛からない(海に浮かんでいる)
-      oct.maxHp=Math.round(state.config.enemy.hp*1200); // 耐久アップ(ボス超級・旧400)
-      oct.hp=oct.maxHp;
-      oct.width=120; oct.height=110;
-      oct.octoPhase=Math.random()*6.28;
-      oct.octoArms=[];
-      oct.active=true;
-      oct.spawnDelay=0;
-      state.octoDeadShown=false;
-      state.enemies.push(oct);
+      if(octoCarry){
+        // 前のWaveから泳いで付いてきた
+        octoCarry.x=ox;
+        octoCarry.y=Math.min(state.height-46,col.seaTop+66);
+        octoCarry.octoArms=[];
+        octoCarry.vx=0; octoCarry.vy=0;
+        state.enemies.push(octoCarry);
+      } else if(state.room<=14){
+        const oct=makeFighter(ox, Math.min(state.height-46,col.seaTop+66), '#8a4a9e', false, 9500);
+        oct.special='octopus';
+        oct.movementType='flying'; // 海の進入判定に引っ掛からない(海に浮かんでいる)
+        oct.maxHp=Math.round(state.config.enemy.hp*1200); // 耐久はボス超級
+        oct.hp=oct.maxHp;
+        oct.width=120; oct.height=110;
+        oct.octoPhase=Math.random()*6.28;
+        oct.octoArms=[];
+        oct.active=true;
+        oct.spawnDelay=0;
+        state.octoDeadShown=false;
+        state.enemies.push(oct);
+      }
     }
     state.waveTimeLeft = 3600; // 制限時間60秒
     state.waveTimeTotal = 3600;
@@ -3842,7 +3857,7 @@
       boss.height *= type.size;
       boss.scale = type.size;
       boss.heads = type.heads;
-      boss.maxHp = Math.round(state.config.enemy.hp * (type.name === '鬼' ? 700 : type.name === 'キジ' ? 270 : type.name === 'イヌ' ? 100 : 18) * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // HP調整: キジ・鬼はさらに5倍(54→270, 140→700)
+      boss.maxHp = Math.round(state.config.enemy.hp * (type.name === '鬼' ? 467 : type.name === 'キジ' ? 180 : type.name === 'イヌ' ? 100 : 18) * (state.room>=11?1.5:1) * (1 + (state.room-1)*.18)); // HP調整: キジ・鬼は2/3に(270→180, 700→467)
       boss.hp = boss.maxHp;
       boss.movementType = type.skill === 'laser' ? 'flying' : 'walking';
       boss.projectileCooldown = 45;
@@ -4368,6 +4383,26 @@
             burst(pr.x,pr.y,5,'#8fffd8');
           }
         }
+        // 羽根手裏剣: 定期的に最寄りの敵へ3枚の羽根を飛ばす(モモの8割の威力・貫通1)
+        a.featherCd=Math.max(0,(a.featherCd??30)-1);
+        if(a.featherCd<=0){
+          let ktgt=null, ktd=520;
+          for(const en of state.enemies){
+            if(en.dead||en.active===false) continue;
+            const dd=Math.hypot(en.x-a.x,(en.y-24)-a.y);
+            if(dd<ktd){ ktd=dd; ktgt=en; }
+          }
+          if(ktgt){
+            const kbase=Math.atan2((ktgt.y-24)-a.y,ktgt.x-a.x);
+            for(const koff of [-.18,0,.18]){
+              state.projectiles.push({kind:'projectile',sourceType:'companion',arrow:true,x:a.x,y:a.y-10,
+                vx:Math.cos(kbase+koff)*9,vy:Math.sin(kbase+koff)*9,radius:6,life:70,
+                damage:Math.round(dmg*.8),pierceLeft:1,owner:{isPlayer:true},color:'#8fffd8'});
+            }
+            a.featherCd=42;
+            playSfx('shot');
+          } else a.featherCd=20;
+        }
         // 敵の弾き飛ばし(同一の敵へは0.5秒に1回)
         for(const en of state.enemies){
           if(en.dead || en.active===false) continue;
@@ -4375,7 +4410,7 @@
           const kdx=en.x-a.x, kdy=(en.y-24)-a.y, kd=Math.hypot(kdx,kdy)||1;
           if(kd<50+(en.isBoss?en.width*.3:0)){
             en.lastKijiHitAt=state.time;
-            const kdmg=Math.round(dmg*.4);
+            const kdmg=Math.round(dmg*.7); // 接触ダメージ強化(旧0.4)
             en.hp-=kdmg;
             showDamageNumber(en.x,en.y-en.height*.65,kdmg,'#8fffd8');
             addCombo();
@@ -8232,6 +8267,7 @@
       const octDead=state.enemies.find(x=>x.special==='octopus' && x.dead);
       if(octDead){
         state.octoDeadShown=true;
+        state.octoDone=true; // 討伐済み: 以後のWaveには出ない
         showScorePop(octDead.x,octDead.y-80,'大ダコを倒した!',true);
         burst(octDead.x,octDead.y-40,30,'#c05a3a');
         state.explosionEffects.push({x:octDead.x,y:octDead.y-30,radius:14,maxRadius:160,life:18,maxLife:18,color:'#2c2c38'}); // 墨
