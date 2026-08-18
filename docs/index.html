@@ -157,6 +157,23 @@
     </div>
   </a>
 
+  <a class="pkg" href="./fingerdance/">
+    <div class="pkgTop">
+      <span class="sys"><span class="sysMark">A</span>アストラ ゲーム システム</span>
+      <span class="code">AGS-FGD</span>
+    </div>
+    <div class="pkgBand">
+      <div class="t">フィンガーダンス</div>
+      <div class="s">ゆびさきアクション</div>
+    </div>
+    <div class="pkgArt"><canvas id="artFingerdance" width="120" height="88"></canvas></div>
+    <div class="pkgManual">とりあつかいせつめいしょ</div>
+    <div class="pkgBottom">
+      <span class="logo">ASTRA</span>
+      <span class="play">▶ あそぶ</span>
+    </div>
+  </a>
+
 </div>
 
 <div id="visitorCounter" title="アクセスカウンター">
@@ -209,6 +226,57 @@
   x.fillStyle = '#f0c95c'; x.fillRect(91, 50, 16, 3);
   x.fillStyle = '#202020'; x.fillRect(96, 54, 2, 2);
   x.fillRect(93, 70, 4, 5); x.fillRect(100, 70, 4, 5);
+})();
+
+// パッケージ表紙のドット絵(フィンガーダンス)
+(() => {
+  const cv = document.getElementById('artFingerdance');
+  const x = cv.getContext('2d');
+  const W = 120, H = 88;
+  const COL = ['#ff5d8f', '#ffa94d', '#ffe066', '#63e6be', '#74c0fc'];
+  // 背景
+  x.fillStyle = '#12162a'; x.fillRect(0, 0, W, H);
+  // レーンの仕切り
+  x.fillStyle = '#232941';
+  for (let i = 1; i < 5; i++) x.fillRect(i * 24, 0, 1, H);
+  // 上から降りてくるドット(奥ほど暗く)
+  const rows = [
+    [0, 0, 1, 0, 1],
+    [1, 0, 0, 1, 0],
+    [0, 1, 1, 0, 0],
+    [1, 0, 1, 0, 1],
+  ];
+  rows.forEach((row, r) => {
+    const y = 12 + r * 14;
+    const dim = 0.34 + r * 0.16; // 手前ほど明るい
+    row.forEach((on, i) => {
+      const cx = i * 24 + 12;
+      if (on) {
+        x.globalAlpha = dim; x.fillStyle = COL[i];
+        x.fillRect(cx - 4, y - 4, 8, 8);
+        x.fillRect(cx - 3, y - 5, 6, 10); x.fillRect(cx - 5, y - 3, 10, 6);
+        x.globalAlpha = 1;
+      } else {
+        x.fillStyle = '#1d2338';
+        x.fillRect(cx - 4, y - 4, 8, 8);
+      }
+    });
+  });
+  // 判定ライン
+  x.fillStyle = '#e8ecf7'; x.fillRect(0, 70, W, 2);
+  // ライン上の大きいドット(押している状態)
+  [1, 0, 1, 1, 0].forEach((on, i) => {
+    const cx = i * 24 + 12, cy = 79;
+    if (on) {
+      x.fillStyle = COL[i];
+      x.fillRect(cx - 6, cy - 5, 12, 10); x.fillRect(cx - 5, cy - 6, 10, 12);
+    } else {
+      x.fillStyle = '#2c3350';
+      x.fillRect(cx - 6, cy - 5, 12, 10); x.fillRect(cx - 5, cy - 6, 10, 12);
+      x.fillStyle = '#141828';
+      x.fillRect(cx - 4, cy - 3, 8, 6); x.fillRect(cx - 3, cy - 4, 6, 8);
+    }
+  });
 })();
 
 // 手裏剣アイコン(ドット絵)

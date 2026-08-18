@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<title>フィンガーダンス</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="フィンガーダンス">
+<meta name="theme-color" content="#0b0d14">
+<meta name="description" content="5本の指が思いどおりに動かない。タイムアタックとリズムの2モードで遊ぶ指トレーニングゲーム。">
+<style>
+  :root{
+    --bg:#0b0d14;
+    --bg2:#121622;
+    --line:#232941;
+    --txt:#e8ecf7;
+    --dim:#8590ad;
+    --c1:#ff5d8f;
+    --c2:#ffa94d;
+    --c3:#ffe066;
+    --c4:#63e6be;
+    --c5:#74c0fc;
+    --good:#63e6be;
+    --bad:#ff6b6b;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(1200px 800px at 50% -10%, #1a2036 0%, var(--bg) 60%);
+    color:var(--txt);
+    font-family:"Helvetica Neue",-apple-system,BlinkMacSystemFont,"Hiragino Sans","Yu Gothic",sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    overflow:hidden;
+    -webkit-user-select:none;user-select:none;
+    touch-action:manipulation;
+  }
+  #app{width:min(940px,100vw);height:min(700px,100vh);position:relative;padding:18px}
+  .screen{position:absolute;inset:18px;display:none;flex-direction:column}
+  .screen.on{display:flex}
+
+  /* ---------- MENU ---------- */
+  h1{
+    font-size:clamp(38px,8vw,72px);font-weight:800;letter-spacing:.12em;
+    background:linear-gradient(92deg,var(--c1),var(--c2),var(--c3),var(--c4),var(--c5));
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    text-align:center;line-height:1.05;
+  }
+  .sub{text-align:center;color:var(--dim);margin-top:10px;font-size:14px;letter-spacing:.06em}
+  .menu-wrap{flex:1;display:flex;flex-direction:column;justify-content:center;gap:26px}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  .card{
+    background:linear-gradient(160deg,#171d2e,#111524);
+    border:1px solid var(--line);border-radius:16px;padding:20px;cursor:pointer;
+    transition:.18s transform,.18s border-color,.18s box-shadow;
+  }
+  .card:hover{transform:translateY(-3px);border-color:#46507a;box-shadow:0 12px 30px rgba(0,0,0,.45)}
+  .card h3{font-size:19px;margin-bottom:8px;letter-spacing:.04em}
+  .card p{font-size:13px;color:var(--dim);line-height:1.7}
+  .card .tag{display:inline-block;font-size:11px;padding:3px 9px;border-radius:999px;background:#232a44;color:#9fb0d8;margin-bottom:10px;letter-spacing:.08em}
+  .keyhint{
+    text-align:center;color:var(--dim);font-size:12.5px;line-height:2;letter-spacing:.03em;
+    border-top:1px solid var(--line);padding-top:16px;
+  }
+  kbd{
+    display:inline-block;min-width:26px;padding:2px 7px;margin:0 2px;
+    background:#1c2236;border:1px solid #333c5e;border-bottom-width:2px;border-radius:6px;
+    font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#cdd7f0;
+  }
+
+  /* ---------- shared HUD ---------- */
+  .hud{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--dim);letter-spacing:.06em}
+  .hud b{color:var(--txt);font-size:20px;font-variant-numeric:tabular-nums;font-weight:700}
+  .hud .cell{display:flex;flex-direction:column;gap:2px}
+  .hud .cell.r{text-align:right}
+  .back{margin-top:9px;align-self:flex-end;font-size:11.5px;color:#5d678a;cursor:pointer;padding:4px 12px;border:1px solid var(--line);border-radius:8px;letter-spacing:.08em}
+  .back:hover{color:var(--txt);border-color:#46507a}
+
+  /* ---------- TIME ATTACK ---------- */
+  #ta{--rowh:70px}
+  .taField{
+    flex:1;position:relative;overflow:hidden;margin:12px 0;border-radius:14px;
+    background:linear-gradient(180deg,#0c1020,#141a2c);border:1px solid var(--line);
+  }
+  .taLanes{position:absolute;inset:0;display:flex}
+  .taLanes>div{flex:1;border-right:1px solid rgba(255,255,255,.045)}
+  .taLanes>div:last-child{border-right:none}
+  .taFade{position:absolute;left:0;right:0;top:0;height:96px;background:linear-gradient(180deg,#0c1020,transparent);pointer-events:none;z-index:3}
+  .taBand{
+    position:absolute;left:0;right:0;bottom:12px;height:var(--rowh);
+    background:rgba(255,255,255,.055);
+    border-top:2px solid rgba(255,255,255,.34);
+    border-bottom:1px solid rgba(255,255,255,.10);
+    box-shadow:0 -10px 34px -14px rgba(255,255,255,.35);
+  }
+  .taScroll{
+    position:absolute;left:0;right:0;bottom:12px;height:0;z-index:2;
+    transition:transform .17s cubic-bezier(.2,.85,.3,1);
+  }
+  .prow{position:absolute;left:0;right:0;height:var(--rowh);display:flex;align-items:center;transition:.17s opacity}
+  .prow>.cell{flex:1;display:flex;justify-content:center}
+  .prow .dot{width:34px;height:34px;border-width:2px;font-size:0}
+  .prow.cur .dot{width:46px;height:46px;border-width:3px;font-size:12px}
+  .prow.done{opacity:0}
+  .patternRow{display:flex;gap:clamp(10px,2.4vw,20px)}
+  .dot{
+    width:clamp(56px,12vw,86px);height:clamp(56px,12vw,86px);border-radius:50%;
+    border:3px solid #2c3350;background:#141828;
+    display:flex;align-items:center;justify-content:center;
+    font-size:15px;color:#59637f;font-weight:700;letter-spacing:.02em;
+    transition:.09s width,.09s height,.09s background,.09s border-color,.09s box-shadow;
+  }
+  .dot.down{color:#0b0d14}
+  .dot.f1.down{background:var(--c1);border-color:var(--c1);box-shadow:0 0 26px -4px var(--c1)}
+  .dot.f2.down{background:var(--c2);border-color:var(--c2);box-shadow:0 0 26px -4px var(--c2)}
+  .dot.f3.down{background:var(--c3);border-color:var(--c3);box-shadow:0 0 26px -4px var(--c3)}
+  .dot.f4.down{background:var(--c4);border-color:var(--c4);box-shadow:0 0 26px -4px var(--c4)}
+  .dot.f5.down{background:var(--c5);border-color:var(--c5);box-shadow:0 0 26px -4px var(--c5)}
+  .label{font-size:12px;color:var(--dim);letter-spacing:.18em;text-align:center;margin-bottom:14px}
+  .block{display:flex;flex-direction:column;align-items:center}
+  .yours .dot{width:clamp(40px,8.5vw,60px);height:clamp(40px,8.5vw,60px);border-width:2px;font-size:11px}
+  .nextWrap{display:flex;align-items:center;gap:clamp(10px,2.2vw,20px)}
+  .nextArrow{color:#39415f;font-size:15px}
+  .patternRow.next{gap:6px;opacity:.72}
+  .patternRow.next .dot{
+    width:clamp(17px,3.4vw,23px);height:clamp(17px,3.4vw,23px);
+    border-width:2px;font-size:0;box-shadow:none!important;
+  }
+  #ta .stage{gap:clamp(16px,3.2vh,30px)}
+  .progressbar{width:100%;height:5px;background:#191e30;border-radius:99px;overflow:hidden}
+  .progressbar i{display:block;height:100%;background:linear-gradient(90deg,var(--c4),var(--c5));width:0;transition:.15s width}
+  .flash{animation:pop .22s ease}
+  @keyframes pop{0%{transform:scale(1)}45%{transform:scale(1.14)}100%{transform:scale(1)}}
+  .countdown{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:90px;font-weight:800;color:var(--txt);background:rgba(11,13,20,.82);z-index:5;letter-spacing:.05em}
+
+  /* ---------- RHYTHM ---------- */
+  #rh .field{flex:1;position:relative;margin:14px 0;border-radius:14px;overflow:hidden;background:linear-gradient(180deg,#0d1120,#141a2c);border:1px solid var(--line)}
+  .lanes{position:absolute;inset:0;display:flex}
+  .lane{flex:1;position:relative;border-right:1px solid rgba(255,255,255,.045)}
+  .lane:last-child{border-right:none}
+  .lane .glow{position:absolute;inset:auto 0 0 0;height:0;background:linear-gradient(180deg,transparent,rgba(255,255,255,.16));transition:.1s height}
+  .lane.hit .glow{height:100%}
+  .hitline{position:absolute;left:0;right:0;height:2px;background:rgba(255,255,255,.28);box-shadow:0 0 18px rgba(255,255,255,.25)}
+  .note{position:absolute;left:8%;width:84%;height:18px;border-radius:6px;will-change:transform}
+  .pads{display:flex;gap:8px}
+  .pad{
+    flex:1;height:64px;border-radius:12px;border:1px solid #2c3350;background:#141828;
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#59637f;
+    transition:.07s all;cursor:pointer;
+  }
+  .pad.on{color:#0b0d14;transform:translateY(2px)}
+  .pad.f1.on{background:var(--c1);border-color:var(--c1)}
+  .pad.f2.on{background:var(--c2);border-color:var(--c2)}
+  .pad.f3.on{background:var(--c3);border-color:var(--c3)}
+  .pad.f4.on{background:var(--c4);border-color:var(--c4)}
+  .pad.f5.on{background:var(--c5);border-color:var(--c5)}
+  #judge{position:absolute;left:0;right:0;top:38%;text-align:center;font-size:34px;font-weight:800;letter-spacing:.1em;opacity:0;pointer-events:none}
+  #combo{position:absolute;left:0;right:0;top:52%;text-align:center;font-size:19px;color:var(--dim);letter-spacing:.14em;opacity:0}
+
+  /* ---------- RESULT ---------- */
+  #res .inner{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+  .rank{font-size:150px;font-weight:900;line-height:1;letter-spacing:.02em}
+  .rank.S{background:linear-gradient(92deg,var(--c3),var(--c1));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .rank.A{color:var(--c4)} .rank.B{color:var(--c5)} .rank.C{color:var(--dim)} .rank.D{color:var(--dim)}
+  .stats{display:flex;gap:34px;margin-top:18px;margin-bottom:26px}
+  .stat{text-align:center}
+  .stat span{display:block;font-size:11px;color:var(--dim);letter-spacing:.14em;margin-bottom:5px}
+  .stat b{font-size:27px;font-variant-numeric:tabular-nums}
+  .btns{display:flex;gap:12px}
+  button{
+    font:inherit;font-size:14px;font-weight:600;letter-spacing:.06em;color:var(--txt);
+    background:#1b2135;border:1px solid #333c5e;border-radius:10px;padding:12px 26px;cursor:pointer;transition:.15s;
+  }
+  button:hover{background:#232b45;border-color:#4a5580}
+  button.primary{background:linear-gradient(92deg,var(--c1),var(--c2));border:none;color:#14101a}
+  button.primary:hover{filter:brightness(1.08)}
+  .best{font-size:12px;color:var(--dim);letter-spacing:.08em}
+  .sel{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+  .sel button{padding:9px 18px;font-size:13px}
+  .sel button.act{background:#2b3350;border-color:#5b67a0}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ================= MENU ================= -->
+<section class="screen on" id="menu">
+  <div class="menu-wrap">
+    <div>
+      <h1>FINGER<br>DANCE</h1>
+      <p class="sub">5本の指が、思いどおりに動かない。</p>
+    </div>
+
+    <div class="cards">
+      <div class="card" data-go="ta">
+        <span class="tag">MODE 01</span>
+        <h3>タイムアタック</h3>
+        <p>表示された指のかたちを、そのまま作るだけ。<br>押すのも、離すのも、ぴったり一致させる。<br>タイミングは自由。速さだけが勝負です。</p>
+      </div>
+      <div class="card" data-go="rh">
+        <span class="tag">MODE 02</span>
+        <h3>リズム</h3>
+        <p>音に合わせてノーツが落ちてくる。<br>タイミングが命の、正統派アレンジ。<br>コンボを繋いでスコアを伸ばしましょう。</p>
+      </div>
+    </div>
+
+    <div class="keyhint">
+      左手でも右手でも遊べます<br>
+      左手 <kbd>Q</kbd><kbd>W</kbd><kbd>E</kbd><kbd>R</kbd><kbd>B</kbd>　／　右手 <kbd>N</kbd><kbd>U</kbd><kbd>I</kbd><kbd>O</kbd><kbd>P</kbd><br>
+      <span style="font-size:11.5px">画面の左から順に対応しています（スマホは画面下のパッド）</span>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TIME ATTACK ================= -->
+<section class="screen" id="ta">
+  <div class="hud">
+    <div class="cell"><span>TIME</span><b id="taTime">0.00</b></div>
+    <div class="cell" style="text-align:center"><span>PATTERN</span><b id="taProg">1 / 20</b></div>
+    <div class="cell r"><span>MISS</span><b id="taMiss">0</b></div>
+  </div>
+  <div class="progressbar" style="margin-top:10px"><i id="taBar"></i></div>
+
+  <div class="taField">
+    <div class="taLanes" id="taLanes"></div>
+    <div class="taBand"></div>
+    <div class="taScroll" id="taScroll"></div>
+    <div class="taFade"></div>
+  </div>
+
+  <div class="pads" id="taPads"></div>
+  <div class="countdown" id="taCount" style="display:none"></div>
+  <div class="back" data-go="menu">やめる</div>
+</section>
+
+<!-- ================= RHYTHM ================= -->
+<section class="screen" id="rh">
+  <div class="hud">
+    <div class="cell"><span>SCORE</span><b id="rhScore">0</b></div>
+    <div class="cell" style="text-align:center"><span>ACCURACY</span><b id="rhAcc">100%</b></div>
+    <div class="cell r"><span>MAX COMBO</span><b id="rhMax">0</b></div>
+  </div>
+
+  <div class="field" id="rhField">
+    <div class="lanes" id="rhLanes"></div>
+    <div class="hitline" id="rhLine"></div>
+    <div id="judge"></div>
+    <div id="combo"></div>
+  </div>
+
+  <div class="pads" id="rhPads"></div>
+  <div class="countdown" id="rhCount" style="display:none"></div>
+  <div class="back" data-go="menu">やめる</div>
+</section>
+
+<!-- ================= RESULT ================= -->
+<section class="screen" id="res">
+  <div class="inner">
+    <div class="label" id="resTitle">RESULT</div>
+    <div class="rank" id="resRank">S</div>
+    <div class="stats" id="resStats"></div>
+    <div class="best" id="resBest"></div>
+    <div class="btns" style="margin-top:22px">
+      <button class="primary" id="resRetry">もう一度</button>
+      <button data-go="menu">メニューへ</button>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+"use strict";
+
+/* ============ 基本設定 ============ */
+const FINGERS = ["小","薬","中","人","親"];          // 指の呼び名
+const KEYMAP  = {                                    // 左手 / 右手 どちらでもOK
+  q:0, w:1, e:2, r:3, b:4,                           // 左：小 薬 中 人 親
+  n:0, u:1, i:2, o:3, p:4                            // 右：N U I O P（左から順）
+};
+const LEFT  = ["Q","W","E","R","B"];
+const RIGHT = ["N","U","I","O","P"];
+
+const $  = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+
+let held = [false,false,false,false,false];   // いま押されている指
+let scene = "menu";                            // menu / ta / rh / res
+let lastPlayed = null;                         // リトライ用
+
+/* ============ サウンド（WebAudioで生成） ============ */
+let AC = null;
+function ac(){ if(!AC) AC = new (window.AudioContext||window.webkitAudioContext)(); if(AC.state==="suspended") AC.resume(); return AC; }
+function beep(freq, dur=0.08, type="triangle", gain=0.16){
+  try{
+    const c=ac(), o=c.createOscillator(), g=c.createGain();
+    o.type=type; o.frequency.value=freq;
+    g.gain.setValueAtTime(0,c.currentTime);
+    g.gain.linearRampToValueAtTime(gain,c.currentTime+0.008);
+    g.gain.exponentialRampToValueAtTime(0.0001,c.currentTime+dur);
+    o.connect(g).connect(c.destination); o.start(); o.stop(c.currentTime+dur+0.02);
+  }catch(e){}
+}
+function kick(t=0){
+  try{
+    const c=ac(), o=c.createOscillator(), g=c.createGain(), at=c.currentTime+t;
+    o.frequency.setValueAtTime(150,at); o.frequency.exponentialRampToValueAtTime(45,at+0.11);
+    g.gain.setValueAtTime(0.5,at); g.gain.exponentialRampToValueAtTime(0.001,at+0.18);
+    o.connect(g).connect(c.destination); o.start(at); o.stop(at+0.2);
+  }catch(e){}
+}
+function hat(t=0){
+  try{
+    const c=ac(), len=1024, buf=c.createBuffer(1,len,c.sampleRate), d=buf.getChannelData(0);
+    for(let i=0;i<len;i++) d[i]=(Math.random()*2-1);
+    const s=c.createBufferSource(); s.buffer=buf;
+    const f=c.createBiquadFilter(); f.type="highpass"; f.frequency.value=7000;
+    const g=c.createGain(), at=c.currentTime+t;
+    g.gain.setValueAtTime(0.09,at); g.gain.exponentialRampToValueAtTime(0.001,at+0.05);
+    s.connect(f).connect(g).connect(c.destination); s.start(at); s.stop(at+0.06);
+  }catch(e){}
+}
+
+/* ============ 画面遷移 ============ */
+function go(id){
+  $$(".screen").forEach(s=>s.classList.remove("on"));
+  $("#"+id).classList.add("on");
+  scene = id;
+}
+document.addEventListener("click", e=>{
+  const t = e.target.closest("[data-go]");
+  if(!t) return;
+  const dest = t.dataset.go;
+  stopAll();
+  if(dest==="ta") startTA();
+  else if(dest==="rh") startRH();
+  else go("menu");
+});
+
+/* ============ 指パッドUI（共通） ============ */
+function buildPads(container, cls){
+  container.innerHTML = "";
+  for(let i=0;i<5;i++){
+    const d=document.createElement("div");
+    d.className = `pad f${i+1}`;
+    d.dataset.i = i;
+    d.innerHTML = `${LEFT[i]} / ${RIGHT[i]}`;
+    container.appendChild(d);
+  }
+  // タッチ操作
+  const down = i => { if(!held[i]){ held[i]=true; onFinger(i,true);} };
+  const up   = i => { if(held[i]){ held[i]=false; onFinger(i,false);} };
+  container.querySelectorAll(".pad").forEach(p=>{
+    const i = +p.dataset.i;
+    p.addEventListener("pointerdown", e=>{ e.preventDefault(); down(i); });
+    p.addEventListener("pointerup",   e=>{ e.preventDefault(); up(i); });
+    p.addEventListener("pointercancel",()=>up(i));
+    p.addEventListener("pointerleave", ()=>up(i));
+  });
+}
+function paintPads(){
+  $$("#taPads .pad, #rhPads .pad").forEach(p=>{
+    p.classList.toggle("on", held[+p.dataset.i]);
+  });
+}
+
+/* ============ キーボード入力 ============ */
+addEventListener("keydown", e=>{
+  if(e.repeat) return;
+  const k = e.key.toLowerCase();
+  if(k in KEYMAP){ e.preventDefault(); const i=KEYMAP[k]; if(!held[i]){ held[i]=true; onFinger(i,true);} }
+  if(k==="escape"){ stopAll(); go("menu"); }
+});
+addEventListener("keyup", e=>{
+  const k = e.key.toLowerCase();
+  if(k in KEYMAP){ e.preventDefault(); const i=KEYMAP[k]; if(held[i]){ held[i]=false; onFinger(i,false);} }
+});
+addEventListener("blur", ()=>{ held=[false,false,false,false,false]; paintPads(); });
+
+function onFinger(i, isDown){
+  ac();
+  paintPads();
+  if(scene==="ta") taInput(i,isDown);
+  else if(scene==="rh" && isDown) rhInput(i);
+}
+
+/* =======================================================
+   MODE 01 : TIME ATTACK
+   ======================================================= */
+const TA_LEN = 20, ROW_H = 70;   // ROW_H は CSS の --rowh と合わせること
+let taPatterns=[], taIdx=0, taMiss=0, taT0=0, taRAF=null, taRunning=false, taOverTimer=null;
+
+function randomPattern(prev){
+  // 2〜4本を押す形。前のパターンと必ず2箇所以上ちがうようにして"混乱"させる
+  for(let tries=0;tries<200;tries++){
+    const n = 2 + Math.floor(Math.random()*3);
+    const idx=[0,1,2,3,4].sort(()=>Math.random()-0.5).slice(0,n);
+    const p=[false,false,false,false,false];
+    idx.forEach(i=>p[i]=true);
+    if(!prev) return p;
+    let diff=0; for(let i=0;i<5;i++) if(p[i]!==prev[i]) diff++;
+    if(diff>=2) return p;
+  }
+  return [true,false,true,false,true];
+}
+
+function startTA(){
+  taPatterns=[]; let prev=null;
+  for(let i=0;i<TA_LEN;i++){ prev = randomPattern(prev); taPatterns.push(prev); }
+  taIdx=0; taMiss=0; taRunning=false; clearTimeout(taOverTimer);
+  held=[false,false,false,false,false];
+
+  buildPads($("#taPads"));
+  $("#taLanes").innerHTML  = FINGERS.map(()=>`<div></div>`).join("");
+  // 全パターンを縦に積む（下から上へ = 上から降りてくる）
+  $("#taScroll").innerHTML = taPatterns.map((p,k)=>
+    `<div class="prow" data-k="${k}" style="bottom:${k*ROW_H}px">` +
+      p.map((v,i)=>`<div class="cell"><div class="dot f${i+1}${v?" down":""}"></div></div>`).join("") +
+    `</div>`
+  ).join("");
+  $("#taScroll").style.transition="none";
+  paintPads(); drawTA();
+  requestAnimationFrame(()=>{ $("#taScroll").style.transition=""; });
+  go("ta");
+
+  countdown($("#taCount"), ()=>{
+    taRunning=true; taT0=performance.now();
+    taRAF = requestAnimationFrame(taTick);
+  });
+}
+
+function drawTA(){
+  $("#taScroll").style.transform = `translateY(${taIdx*ROW_H}px)`;
+  $$("#taScroll .prow").forEach(row=>{
+    const k = +row.dataset.k, d = k - taIdx;
+    row.classList.toggle("cur", d===0);
+    row.classList.toggle("done", d<0);
+    row.style.opacity = d<0 ? 0 : d===0 ? 1 : Math.max(.25, 1 - d*0.16);
+  });
+  $("#taProg").textContent = `${Math.min(taIdx+1,TA_LEN)} / ${TA_LEN}`;
+  $("#taMiss").textContent = taMiss;
+  $("#taBar").style.width = (taIdx/TA_LEN*100)+"%";
+}
+
+function taInput(){
+  if(!taRunning){ drawTA(); return; }
+  drawTA();
+  const tgt = taPatterns[taIdx];
+  const match = tgt.every((v,i)=>v===held[i]);
+  if(match){
+    beep(520+taIdx*14, 0.09, "triangle", 0.18);
+    const cur = $(`#taScroll .prow[data-k="${taIdx}"]`);
+    if(cur){ cur.classList.remove("flash"); void cur.offsetWidth; cur.classList.add("flash"); }
+    taIdx++;
+    if(taIdx>=TA_LEN){ finishTA(); return; }
+    drawTA();
+  }else{
+    // 余計な指が「下りたまま」の状態が続いたときだけミス（持ち替えの途中は許容）
+    const over = held.some((v,i)=>v && !tgt[i]);
+    clearTimeout(taOverTimer);
+    if(over){
+      taOverTimer = setTimeout(()=>{
+        if(!taRunning) return;
+        const t = taPatterns[taIdx];
+        if(t && held.some((v,i)=>v && !t[i])){
+          taMiss++; beep(150,0.07,"square",0.10); $("#taMiss").textContent=taMiss;
+        }
+      }, 320);
+    }
+  }
+}
+
+function taTick(){
+  if(!taRunning) return;
+  $("#taTime").textContent = ((performance.now()-taT0)/1000).toFixed(2);
+  taRAF = requestAnimationFrame(taTick);
+}
+
+function finishTA(){
+  taRunning=false; cancelAnimationFrame(taRAF); clearTimeout(taOverTimer);
+  const sec = (performance.now()-taT0)/1000;
+  $("#taTime").textContent = sec.toFixed(2);
+  $("#taBar").style.width="100%";
+  beep(880,0.12,"triangle",0.2); setTimeout(()=>beep(1180,0.18,"triangle",0.2),110);
+
+  // ペナルティ込みの評価タイム
+  const score = sec + taMiss*0.5;
+  let rank = score<=16 ? "S" : score<=22 ? "A" : score<=30 ? "B" : score<=42 ? "C" : "D";
+
+  const key="fd_ta_best";
+  const prevBest = parseFloat(localStorage.getItem(key)||"0");
+  let bestTxt = "";
+  if(!prevBest || sec<prevBest){ localStorage.setItem(key, sec.toFixed(2)); bestTxt = "★ ベスト記録を更新しました！"; }
+  else bestTxt = `ベスト記録：${prevBest.toFixed(2)} 秒`;
+
+  showResult({
+    title:"TIME ATTACK",
+    rank,
+    stats:[["TIME", sec.toFixed(2)+"s"],["MISS", taMiss],["PATTERNS", TA_LEN]],
+    best:bestTxt,
+    retry:startTA
+  });
+}
+
+/* =======================================================
+   MODE 02 : RHYTHM
+   ======================================================= */
+const BPM = 132, BEAT = 60/BPM, APPROACH = 1.55; // ノーツが落ちてくる秒数
+let rhChart=[], rhNotes=[], rhT0=0, rhRAF=null, rhRunning=false;
+let rhScore=0, rhCombo=0, rhMax=0, rhHit=0, rhPerfect=0, rhTotal=0, rhMiss=0;
+let rhAudioTimer=null;
+
+function buildChart(){
+  const c=[]; const bars=16;
+  for(let bar=0; bar<bars; bar++){
+    for(let step=0; step<8; step++){        // 8分音符グリッド
+      const t = (bar*4 + step*0.5)*BEAT + 2.0;
+      let n = 0;
+      if(step%2===0) n = 1;                                  // 表拍は必ず
+      else if(bar>=4 && Math.random()<0.45) n = 1;           // 裏拍は途中から
+      if(bar>=8 && step%4===0 && Math.random()<0.5) n = 2;   // 後半は同時押し
+      if(bar>=12 && Math.random()<0.25) n = Math.max(n,2);
+      if(!n) continue;
+      const lanes=[0,1,2,3,4].sort(()=>Math.random()-0.5).slice(0,n);
+      lanes.forEach(l=>c.push({t, lane:l, hit:false, dead:false, el:null}));
+    }
+  }
+  return c.sort((a,b)=>a.t-b.t);
+}
+
+function startRH(){
+  rhChart = buildChart();
+  rhNotes = rhChart.map(n=>({...n}));
+  rhScore=0; rhCombo=0; rhMax=0; rhHit=0; rhPerfect=0; rhMiss=0;
+  rhTotal = rhNotes.length;
+  held=[false,false,false,false,false];
+
+  buildPads($("#rhPads"));
+  $("#rhLanes").innerHTML = FINGERS.map((f,i)=>`<div class="lane" data-i="${i}"><div class="glow"></div></div>`).join("");
+  $("#rhField").querySelectorAll(".note").forEach(n=>n.remove());
+  updateRhHud();
+  paintPads();
+  go("rh");
+
+  const H = ()=> $("#rhField").clientHeight;
+  $("#rhLine").style.bottom = "34px";
+
+  countdown($("#rhCount"), ()=>{
+    ac();
+    rhRunning=true; rhT0=performance.now();
+    scheduleBeats();
+    rhRAF = requestAnimationFrame(rhTick);
+  });
+}
+
+function scheduleBeats(){
+  // メトロノーム的なビートを流す（16小節ぶん）
+  let beatIdx=0;
+  const total = 16*8;
+  rhAudioTimer = setInterval(()=>{
+    if(!rhRunning){ clearInterval(rhAudioTimer); return; }
+    const now = (performance.now()-rhT0)/1000 - 2.0;
+    const b = Math.floor(now/(BEAT/2));
+    while(beatIdx<=b && beatIdx<total){
+      if(beatIdx%4===0) kick();
+      if(beatIdx%2===1) hat();
+      beatIdx++;
+    }
+    if(beatIdx>=total) clearInterval(rhAudioTimer);
+  }, 20);
+}
+
+const COLORS=["--c1","--c2","--c3","--c4","--c5"];
+function rhTick(){
+  if(!rhRunning) return;
+  const now = (performance.now()-rhT0)/1000;
+  const field = $("#rhField");
+  const H = field.clientHeight;
+  const lineY = H - 34;   // ヒットライン位置（下から34px）
+
+  rhNotes.forEach(n=>{
+    const dt = n.t - now;
+    if(n.hit || n.dead){ if(n.el){ n.el.remove(); n.el=null; } return; }
+    if(dt > APPROACH){ return; }
+    if(dt < -0.22){                        // 見逃し
+      n.dead=true; rhMiss++; breakCombo(); judge("MISS", "var(--bad)");
+      if(n.el){ n.el.remove(); n.el=null; }
+      updateRhHud(); return;
+    }
+    if(!n.el){
+      const e=document.createElement("div");
+      e.className="note";
+      e.style.background = `var(${COLORS[n.lane]})`;
+      e.style.boxShadow = `0 0 16px -2px var(${COLORS[n.lane]})`;
+      const laneEl = $("#rhLanes").children[n.lane];
+      laneEl.appendChild(e);
+      n.el=e;
+    }
+    const p = 1 - dt/APPROACH;             // 0=出現 1=ライン
+    n.el.style.top = (p*lineY - 9)+"px";
+  });
+
+  if(now > rhChart[rhChart.length-1].t + 1.2){ finishRH(); return; }
+  rhRAF = requestAnimationFrame(rhTick);
+}
+
+function rhInput(lane){
+  if(!rhRunning) return;
+  const laneEl = $("#rhLanes").children[lane];
+  laneEl.classList.add("hit"); setTimeout(()=>laneEl.classList.remove("hit"),90);
+
+  const now = (performance.now()-rhT0)/1000;
+  let best=null, bd=1e9;
+  rhNotes.forEach(n=>{
+    if(n.hit||n.dead||n.lane!==lane) return;
+    const d=Math.abs(n.t-now);
+    if(d<bd){ bd=d; best=n; }
+  });
+  if(!best || bd>0.20){ return; }          // 空打ちはノーペナルティ
+
+  best.hit=true;
+  if(best.el){ best.el.remove(); best.el=null; }
+  rhHit++; rhCombo++; rhMax=Math.max(rhMax,rhCombo);
+
+  if(bd<=0.055){ rhPerfect++; rhScore += 300 + Math.min(rhCombo,50)*4; judge("PERFECT","var(--c3)"); beep(880,0.06,"triangle",0.14); }
+  else if(bd<=0.11){ rhScore += 200 + Math.min(rhCombo,50)*3; judge("GREAT","var(--c4)"); beep(700,0.06,"triangle",0.12); }
+  else { rhScore += 100; judge("GOOD","var(--c5)"); beep(560,0.06,"triangle",0.10); }
+  updateRhHud();
+}
+
+function breakCombo(){ rhCombo=0; }
+function judge(txt,color){
+  const j=$("#judge"); j.textContent=txt; j.style.color=color;
+  j.style.opacity=1; j.style.transform="scale(1.06)";
+  clearTimeout(j._t); j._t=setTimeout(()=>{ j.style.opacity=0; j.style.transform="scale(1)"; },260);
+  const c=$("#combo");
+  if(rhCombo>2){ c.textContent = rhCombo+" COMBO"; c.style.opacity=1; }
+  else c.style.opacity=0;
+}
+function updateRhHud(){
+  $("#rhScore").textContent = rhScore.toLocaleString();
+  const done = rhHit+rhMiss;
+  $("#rhAcc").textContent = done? Math.round(rhHit/done*100)+"%" : "100%";
+  $("#rhMax").textContent = rhMax;
+}
+
+function finishRH(){
+  rhRunning=false; cancelAnimationFrame(rhRAF); clearInterval(rhAudioTimer);
+  $("#rhField").querySelectorAll(".note").forEach(n=>n.remove());
+  const acc = rhTotal? rhHit/rhTotal : 0;
+  let rank = acc>=0.96 ? "S" : acc>=0.90 ? "A" : acc>=0.78 ? "B" : acc>=0.6 ? "C" : "D";
+  beep(880,0.12,"triangle",0.2); setTimeout(()=>beep(1180,0.18,"triangle",0.2),110);
+
+  const key="fd_rh_best";
+  const prev = parseInt(localStorage.getItem(key)||"0",10);
+  let bestTxt;
+  if(rhScore>prev){ localStorage.setItem(key, rhScore); bestTxt="★ ハイスコアを更新しました！"; }
+  else bestTxt = `ハイスコア：${prev.toLocaleString()}`;
+
+  showResult({
+    title:"RHYTHM",
+    rank,
+    stats:[["SCORE", rhScore.toLocaleString()],["ACCURACY", Math.round(acc*100)+"%"],["MAX COMBO", rhMax],["PERFECT", rhPerfect]],
+    best:bestTxt,
+    retry:startRH
+  });
+}
+
+/* ============ 共通：カウントダウン / 結果 / 停止 ============ */
+function countdown(el, done){
+  el.style.display="flex";
+  let n=3;
+  el.textContent=n; beep(440,0.09,"triangle",0.14);
+  const id=setInterval(()=>{
+    n--;
+    if(n===0){ el.textContent="GO"; beep(760,0.16,"triangle",0.18); }
+    else if(n<0){ clearInterval(id); el.style.display="none"; done(); return; }
+    else { el.textContent=n; beep(440,0.09,"triangle",0.14); }
+  }, 700);
+  el._id = id;
+}
+
+function showResult({title,rank,stats,best,retry}){
+  $("#resTitle").textContent = title;
+  const r=$("#resRank"); r.className="rank "+rank; r.textContent=rank;
+  $("#resStats").innerHTML = stats.map(([k,v])=>`<div class="stat"><span>${k}</span><b>${v}</b></div>`).join("");
+  $("#resBest").textContent = best;
+  lastPlayed = retry;
+  go("res");
+}
+$("#resRetry").addEventListener("click", ()=>{ if(lastPlayed) lastPlayed(); });
+
+function stopAll(){
+  taRunning=false; rhRunning=false;
+  cancelAnimationFrame(taRAF); cancelAnimationFrame(rhRAF);
+  clearInterval(rhAudioTimer);
+  $$(".countdown").forEach(c=>{ if(c._id) clearInterval(c._id); c.style.display="none"; });
+  $("#rhField").querySelectorAll(".note").forEach(n=>n.remove());
+  held=[false,false,false,false,false];
+}
+</script>
+</body>
+</html>
