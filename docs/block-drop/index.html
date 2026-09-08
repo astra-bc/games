@@ -12,6 +12,10 @@
 @media(max-height:680px) and (min-width:641px){body{padding:14px}:root{--cell:24px}.topbar{margin-bottom:16px}.controls-panel .control-row{padding:7px 10px}.hold-panel{height:105px}.hold-panel canvas{height:48px}.next-panel canvas{height:49px}.stat{padding:9px 8px}.right-rail{gap:9px}.stat-value{font-size:25px}.bottom{padding-top:13px}.footer-note{display:none}}
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
 @media(max-width:380px){:root{--cell:min(22px,calc((100dvh - 200px)/20),calc((100vw - 112px)/10))}body{padding:12px}.topbar{margin-bottom:14px}.brand h1{font-size:16px}.game-layout{grid-template-columns:calc(var(--cell)*10) 66px;grid-template-rows:74px 1fr;gap:8px}.board-wrap{grid-column:1;grid-row:1 / span 2}.left-rail{grid-column:2;grid-row:1}.hold-panel{height:74px}.hold-panel canvas{height:38px}.hold-hint{font-size:7px}.right-rail{grid-column:2;grid-row:2;gap:6px}.next-panel canvas{height:32px}#next-1,#next-2{display:none}.stat{padding:6px 3px}.stat-value{font-size:19px}.stat-score .stat-value{font-size:13px}.stat .panel-title{padding-bottom:3px}.personal-best{display:none}.panel-title{font-size:8px;padding-top:7px}.overlay{padding:10px}.overlay h2{font-size:18px;margin-bottom:10px}.overlay p{font-size:9px;line-height:1.7;margin-bottom:14px}.overlay .mini-logo{margin-bottom:15px;grid-template-columns:repeat(3,12px);grid-template-rows:repeat(2,12px)}.primary,.secondary{font-size:10px;padding:10px 4px}.overlay small{font-size:8px;margin-top:12px}.touch-controls button{height:39px}.touch-controls button small{font-size:8px}.bottom{padding-top:12px;gap:8px}.status-line{font-size:9px}}
+/* 操作パターンは画面幅にかかわらず切り替えられる。 */
+.controls-picker{display:flex;align-items:center;gap:7px;margin-left:auto;font-size:10px;color:var(--muted);white-space:nowrap}.controls-picker select{height:34px;width:102px;padding:0 8px;border:1px solid var(--line);border-radius:6px;background:var(--bg);color:var(--ink);font:12px/1 ui-monospace,SFMono-Regular,monospace;cursor:pointer}.controls-picker select:focus-visible{outline:3px solid #fff;outline-offset:3px}
+@media(max-width:640px){:root{--cell:min(27px,calc((100dvh - 284px)/20),calc((100vw - 180px)/10))}.topbar{display:grid;grid-template-columns:1fr auto;row-gap:10px}.brand{grid-column:1;grid-row:1}.tools{grid-column:2;grid-row:1}.controls-picker{grid-column:1 / -1;grid-row:2;justify-self:end}.controls-picker select{height:30px}}
+@media(max-width:380px){:root{--cell:min(22px,calc((100dvh - 240px)/20),calc((100vw - 112px)/10))}}
 </style>
 </head>
 <body>
@@ -24,23 +28,24 @@
 <main class="app" aria-label="BLOCK DROP テトリス">
  <header class="topbar">
   <div class="brand"><div class="logo" aria-hidden="true"><i></i><i></i><i></i><i></i></div><h1>BLOCK DROP</h1></div>
+  <label class="controls-picker"><span>操作</span><select id="control-scheme" aria-label="操作パターン"><option value="wasd">WASD</option><option value="arrows">矢印キー</option></select></label>
   <div class="tools"><button class="icon-button" id="sound" aria-label="サウンドをオン" title="サウンドをオン"><svg><use href="#sound-off"/></svg></button><button class="icon-button" id="pause" aria-label="一時停止" title="一時停止（P / Esc）" disabled><svg><use href="#pause-icon"/></svg></button></div>
  </header>
  <div class="game-layout">
   <aside class="left-rail" aria-label="ホールドと操作方法">
    <section class="panel hold-panel"><h2 class="panel-title">HOLD</h2><canvas id="hold" aria-label="ホールドなし"></canvas><p class="hold-hint" id="hold-hint">C / Shift</p></section>
    <section class="panel controls-panel"><h2 class="panel-title">CONTROLS</h2>
-    <div class="control-row"><span class="key-pair"><kbd>←</kbd><kbd>→</kbd></span><span>左右に移動</span></div>
-    <div class="control-row"><kbd>↓</kbd><span>低速落下</span></div>
+    <div class="control-row"><span class="key-pair"><kbd data-key="left">A</kbd><kbd data-key="right">D</kbd></span><span>左右に移動</span></div>
+    <div class="control-row"><kbd data-key="soft">S</kbd><span>低速落下</span></div>
     <div class="control-row"><kbd>Space</kbd><span>一気に落下</span></div>
-    <div class="control-row"><kbd>↑ / X</kbd><span>右回転</span></div>
+    <div class="control-row"><kbd data-key="cw">W / X</kbd><span>右回転</span></div>
     <div class="control-row"><kbd>Z</kbd><span>左回転</span></div>
     <div class="control-row"><kbd>C</kbd><span>ホールド</span></div>
     <div class="control-row"><kbd>P</kbd><span>一時停止</span></div>
    </section>
   </aside>
   <section class="board-wrap" aria-label="ゲーム盤面">
-   <canvas id="board" role="img" aria-label="10列20行のゲーム盤面。矢印キーで移動、XとZで回転、スペースで落下。"></canvas>
+   <canvas id="board" role="img" aria-label="10列20行のゲーム盤面。A・Dで左右移動、Sで低速落下、WとZで回転、スペースで落下。"></canvas>
    <div class="toast" id="toast" aria-hidden="true"><strong></strong><span></span><small></small></div>
    <div class="overlay" id="overlay">
     <div class="mini-logo" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
@@ -62,10 +67,10 @@ Tスピンで高得点を狙える。</p>
  </div>
  <div class="bottom">
   <div class="progress-track"><span id="progress-count">0 / 10</span><div class="progress-bar"><i id="progress"></i></div><span>NEXT LEVEL</span></div>
-  <p class="status-line" id="status" role="status" aria-live="polite">Z / Xで回転。Tスピンを狙おう。</p>
+  <p class="status-line" id="status" role="status" aria-live="polite">A / Dで移動、W / Zで回転。</p>
   <div class="touch-controls" aria-label="タッチ操作">
-   <button data-action="left" aria-label="左へ移動">←</button><button data-action="right" aria-label="右へ移動">→</button><button data-action="ccw" aria-label="左回転">Z</button><button data-action="cw" aria-label="右回転">X</button><button class="drop" data-action="drop" aria-label="ハードドロップ">⇓<small>DROP</small></button>
-   <button data-action="soft" aria-label="ソフトドロップ">↓</button><button class="hold-touch" data-action="hold" aria-label="ホールド">C<small>HOLD</small></button>
+   <button data-action="left" data-key="left" aria-label="左へ移動">A</button><button data-action="right" data-key="right" aria-label="右へ移動">D</button><button data-action="ccw" aria-label="左回転">Z</button><button data-action="cw" data-key="cw" aria-label="右回転">W</button><button class="drop" data-action="drop" aria-label="ハードドロップ">⇓<small>DROP</small></button>
+   <button data-action="soft" data-key="soft" aria-label="ソフトドロップ">S</button><button class="hold-touch" data-action="hold" aria-label="ホールド">C<small>HOLD</small></button>
   </div>
  </div>
  <div class="footer-note">SRS ROTATION · 7-BAG · T-SPIN · BACK-TO-BACK</div>
@@ -278,8 +283,12 @@ if(typeof module!=='undefined' && module.exports) module.exports={BlockDrop,PIEC
   const $=id=>document.getElementById(id);
   const game=new BlockDrop();
   const COLORS={I:'#78cddd',J:'#6898f4',L:'#f1ad70',O:'#f3ce65',S:'#65d0ad',T:'#ad87e8',Z:'#fa8987'};
-  const state={practice:false,practiceWon:false,sound:false,audio:null,best:0,toastUntil:0,flash:null,previous:0,overlayKey:'',previewKey:'',heldKeys:new Map(),particles:[]};
-  try{state.best=Math.max(0,Number(localStorage.getItem('block-drop-best-v1'))||0);state.sound=localStorage.getItem('block-drop-sound-v1')==='on';}catch{}
+  const SCHEMES={
+    wasd:{keys:{KeyA:'left',KeyD:'right',KeyS:'soft',KeyW:'cw'},labels:{left:'A',right:'D',soft:'S',cw:'W'}},
+    arrows:{keys:{ArrowLeft:'left',ArrowRight:'right',ArrowDown:'soft',ArrowUp:'cw'},labels:{left:'←',right:'→',soft:'↓',cw:'↑'}},
+  };
+  const state={scheme:'wasd',practice:false,practiceWon:false,sound:false,audio:null,best:0,toastUntil:0,flash:null,previous:0,overlayKey:'',previewKey:'',heldKeys:new Map(),particles:[]};
+  try{state.best=Math.max(0,Number(localStorage.getItem('block-drop-best-v1'))||0);state.sound=localStorage.getItem('block-drop-sound-v1')==='on';if(localStorage.getItem('block-drop-controls-v1')==='arrows')state.scheme='arrows';}catch{}
   const reduceMotion=matchMedia('(prefers-reduced-motion: reduce)').matches;
   const board=$('board'),ctx=board.getContext('2d');
   let width=300,cell=30;
@@ -334,11 +343,19 @@ if(typeof module!=='undefined' && module.exports) module.exports={BlockDrop,PIEC
   function updateSound(){$('sound').querySelector('use').setAttribute('href',state.sound?'#sound-on':'#sound-off');$('sound').setAttribute('aria-label',state.sound?'サウンドをオフ':'サウンドをオン');$('sound').title=state.sound?'サウンドをオフ':'サウンドをオン';$('sound').setAttribute('aria-pressed',String(state.sound));}
   function announce(text){$('status').textContent=text;}
   function clearInputs(){state.heldKeys.clear();}
+  function defaultHint(){const k=SCHEMES[state.scheme].labels;return `${k.left} / ${k.right}で移動、${k.cw} / Zで回転。`;}
+  function practiceHint(){return `${SCHEMES[state.scheme].labels.cw}で右回転 → Spaceで固定。Tスピンダブル！`;}
+  function updateControls(){
+    const k=SCHEMES[state.scheme].labels;
+    $('control-scheme').value=state.scheme;
+    document.querySelectorAll('[data-key]').forEach(el=>{el.textContent=k[el.dataset.key]+(el.tagName==='KBD'&&el.dataset.key==='cw'?' / X':'');});
+    board.setAttribute('aria-label',`10列20行のゲーム盤面。${k.left}・${k.right}で左右移動、${k.soft}で低速落下、${k.cw}とZで回転、スペースで落下。`);
+  }
   function start(practice=false){
     clearInputs();state.practice=practice;state.practiceWon=false;state.toastUntil=0;state.flash=null;state.particles=[];state.overlayKey='';state.previewKey='';
     game.start();
-    if(practice){game.board[17][3]='J';game.board[18]=Array.from({length:10},(_,x)=>[3,4,5].includes(x)?null:'S');game.board[19]=Array.from({length:10},(_,x)=>x===4?null:'J');game.spawn('T');game.rotate(1);while(game.down()){};announce('Xで右回転 → Spaceで固定。Tスピンダブル！');}
-    else announce('Z / Xで回転。Tスピンを狙おう。');
+    if(practice){game.board[17][3]='J';game.board[18]=Array.from({length:10},(_,x)=>[3,4,5].includes(x)?null:'S');game.board[19]=Array.from({length:10},(_,x)=>x===4?null:'J');game.spawn('T');game.rotate(1);while(game.down()){};announce(practiceHint());}
+    else announce(defaultHint());
     $('status').classList.toggle('practice',practice);sound('start');render();
   }
   function pause(){if(state.practiceWon)return;game.pause();clearInputs();render();}
@@ -402,17 +419,19 @@ if(typeof module!=='undefined' && module.exports) module.exports={BlockDrop,PIEC
     act(action);
     if(['left','right','soft'].includes(action)&&game.status==='running')state.heldKeys.set(key,{action,next:performance.now()+(action==='soft'?40:150)});
   }
-  const bindings={ArrowLeft:'left',ArrowRight:'right',ArrowDown:'soft',ArrowUp:'cw',KeyX:'cw',KeyZ:'ccw',KeyC:'hold',ShiftLeft:'hold',ShiftRight:'hold',Space:'drop'};
+  const commonBindings={KeyX:'cw',KeyZ:'ccw',KeyC:'hold',ShiftLeft:'hold',ShiftRight:'hold',Space:'drop'};
   document.addEventListener('keydown',e=>{
     if(e.metaKey||e.ctrlKey||e.altKey||e.isComposing)return;
+    if(e.target instanceof HTMLSelectElement)return;
     if(e.code==='Tab')return;
     // Keep Enter/Space activation native when navigating a button with Tab.
     if(e.target instanceof HTMLButtonElement && (e.code==='Enter'||e.code==='Space'))return;
-    if(bindings[e.code]||['KeyP','Escape','Enter'].includes(e.code))e.preventDefault();
+    const action=SCHEMES[state.scheme].keys[e.code]||commonBindings[e.code];
+    if(action||['KeyP','Escape','Enter'].includes(e.code))e.preventDefault();
     if(e.repeat)return;
     if(e.code==='Enter'){if(game.status!=='running')mainAction();return;}
     if(e.code==='KeyP'||e.code==='Escape'){pause();return;}
-    if(bindings[e.code])beginInput(e.code,bindings[e.code]);
+    if(action)beginInput(e.code,action);
   });
   document.addEventListener('keyup',e=>state.heldKeys.delete(e.code));
   document.querySelectorAll('[data-action]').forEach(button=>{
@@ -421,6 +440,12 @@ if(typeof module!=='undefined' && module.exports) module.exports={BlockDrop,PIEC
     button.addEventListener('click',e=>{if(e.detail===0)act(button.dataset.action);});
   });
   function releaseFocusAfterPointer(event){if(event.detail>0)event.currentTarget.blur();}
+  $('control-scheme').addEventListener('change',e=>{
+    if(!Object.hasOwn(SCHEMES,e.target.value))return;
+    clearInputs();state.scheme=e.target.value;
+    try{localStorage.setItem('block-drop-controls-v1',state.scheme);}catch{}
+    updateControls();announce(state.practice&&!state.practiceWon?practiceHint():defaultHint());e.target.blur();
+  });
   $('main-action').addEventListener('click',e=>{mainAction();releaseFocusAfterPointer(e);});
   $('alt-action').addEventListener('click',e=>{altAction();releaseFocusAfterPointer(e);});
   $('pause').addEventListener('click',e=>{pause();releaseFocusAfterPointer(e);});
@@ -436,7 +461,7 @@ if(typeof module!=='undefined' && module.exports) module.exports={BlockDrop,PIEC
     }
     render(now);requestAnimationFrame(loop);
   }
-  game.start();game.status='idle';updateSound();resize();requestAnimationFrame(loop);
+  game.start();game.status='idle';updateSound();updateControls();announce(defaultHint());resize();requestAnimationFrame(loop);
 })();
 </script>
 </body>
