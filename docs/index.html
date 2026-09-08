@@ -191,6 +191,23 @@
     </div>
   </a>
 
+  <a class="pkg" href="./block-drop/">
+    <div class="pkgTop">
+      <span class="sys"><span class="sysMark">A</span>アストラ ゲーム システム</span>
+      <span class="code">AGS-BDP</span>
+    </div>
+    <div class="pkgBand">
+      <div class="t">ブロックドロップ</div>
+      <div class="s">Tスピン対応パズル</div>
+    </div>
+    <div class="pkgArt"><canvas id="artBlockDrop" width="120" height="88" role="img" aria-label="ネイビーの盤面にカラフルなブロックが積み上がるBLOCK DROP"></canvas></div>
+    <div class="pkgManual">とりあつかいせつめいしょ</div>
+    <div class="pkgBottom">
+      <span class="logo">ASTRA</span>
+      <span class="play">▶ あそぶ</span>
+    </div>
+  </a>
+
 </div>
 
 <div id="visitorCounter" title="アクセスカウンター">
@@ -336,6 +353,37 @@
   x.fillStyle = '#dbe3de'; x.fillRect(66, 48, 21, 2);
   x.fillStyle = '#fff0ae'; x.fillRect(67, 43, 3, 3); x.fillRect(62, 47, 4, 2);
   x.fillRect(70, 38, 2, 5); x.fillRect(73, 45, 4, 2);
+})();
+
+// パッケージ表紙のドット絵(BLOCK DROP)
+(() => {
+  const x = document.getElementById('artBlockDrop').getContext('2d');
+  const colors = ['#78cddd', '#6898f4', '#f1ad70', '#f3ce65', '#65d0ad', '#ad87e8', '#fa8987'];
+  x.fillStyle = '#07152c'; x.fillRect(0, 0, 120, 88);
+  x.fillStyle = '#445b80'; x.fillRect(38, 3, 44, 82);
+  x.fillStyle = '#0b1d39'; x.fillRect(40, 4, 40, 80);
+  x.fillStyle = '#172c48';
+  for (let i = 1; i < 10; i++) x.fillRect(40 + i * 4, 4, 1, 80);
+  for (let i = 1; i < 20; i++) x.fillRect(40, 4 + i * 4, 40, 1);
+  const tile = (px, py, color, size = 4) => {
+    x.fillStyle = colors[color]; x.fillRect(px, py, size - 1, size - 1);
+    x.fillStyle = '#ffffff44'; x.fillRect(px, py, size - 1, 1);
+  };
+  // Tミノと着地位置
+  [[4, 6], [3, 7], [4, 7], [5, 7]].forEach(([cx, cy]) => tile(40 + cx * 4, 4 + cy * 4, 5));
+  x.strokeStyle = '#ad87e8'; x.lineWidth = 1;
+  [[3, 17], [4, 17], [5, 17], [4, 18]].forEach(([cx, cy]) => x.strokeRect(40.5 + cx * 4, 4.5 + cy * 4, 2, 2));
+  const rows = [
+    [1, 1, 3, -1, -1, -1, 4, 4, 2, 2],
+    [1, 6, 3, 3, -1, 5, 5, 4, 0, 0],
+    [6, 6, 3, 2, 2, 2, 5, 4, 0, 0],
+  ];
+  rows.forEach((row, cy) => row.forEach((color, cx) => { if (color >= 0) tile(40 + cx * 4, 72 + cy * 4, color); }));
+  // 左にホールド、右に次のミノ
+  [[1, 0], [2, 0], [0, 1], [1, 1]].forEach(([cx, cy]) => tile(9 + cx * 5, 18 + cy * 5, 4, 5));
+  [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(([cx, cy]) => tile(94 + cx * 5, 18 + cy * 5, 3, 5));
+  [[0, 0], [0, 1], [1, 1], [2, 1]].forEach(([cx, cy]) => tile(91 + cx * 5, 38 + cy * 5, 1, 5));
+  [[0, 0], [1, 0], [2, 0], [3, 0]].forEach(([cx, cy]) => tile(89 + cx * 5, 58 + cy * 5, 0, 5));
 })();
 
 // 手裏剣アイコン(ドット絵)
