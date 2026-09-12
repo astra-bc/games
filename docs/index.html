@@ -208,6 +208,23 @@
     </div>
   </a>
 
+  <a class="pkg" href="https://eva-pachinko-simulator.pages.dev/">
+    <div class="pkgTop">
+      <span class="sys"><span class="sysMark">A</span>アストラ ゲーム システム</span>
+      <span class="code">AGS-PCH</span>
+    </div>
+    <div class="pkgBand">
+      <div class="t">パチンコ</div>
+      <div class="s">収支シミュレーター</div>
+    </div>
+    <div class="pkgArt"><canvas id="artPachinko" width="120" height="88" role="img" aria-label="金色の枠と光る盤面のパチンコ台"></canvas></div>
+    <div class="pkgManual">とりあつかいせつめいしょ</div>
+    <div class="pkgBottom">
+      <span class="logo">ASTRA</span>
+      <span class="play">▶ あそぶ</span>
+    </div>
+  </a>
+
 </div>
 
 <div id="visitorCounter" title="アクセスカウンター">
@@ -384,6 +401,44 @@
   [[0, 0], [1, 0], [0, 1], [1, 1]].forEach(([cx, cy]) => tile(94 + cx * 5, 18 + cy * 5, 3, 5));
   [[0, 0], [0, 1], [1, 1], [2, 1]].forEach(([cx, cy]) => tile(91 + cx * 5, 38 + cy * 5, 1, 5));
   [[0, 0], [1, 0], [2, 0], [3, 0]].forEach(([cx, cy]) => tile(89 + cx * 5, 58 + cy * 5, 0, 5));
+})();
+
+// パッケージ表紙のドット絵(パチンコ)
+(() => {
+  const cv = document.getElementById('artPachinko');
+  const x = cv.getContext('2d');
+  const W = 120, H = 88;
+  // ホールの暗い背景と筐体
+  x.fillStyle = '#121629'; x.fillRect(0, 0, W, H);
+  x.fillStyle = '#293052'; x.fillRect(6, 5, W - 12, H - 10);
+  x.fillStyle = '#d9a62e'; x.fillRect(12, 8, W - 24, H - 16);
+  x.fillStyle = '#7b261f'; x.fillRect(16, 12, W - 32, H - 24);
+  x.fillStyle = '#151a31'; x.fillRect(21, 17, W - 42, 49);
+  // 盤面のライト
+  x.fillStyle = '#47d7ff';
+  x.fillRect(24, 20, 5, 5); x.fillRect(91, 20, 5, 5);
+  x.fillStyle = '#f35c9b';
+  x.fillRect(24, 56, 5, 5); x.fillRect(91, 56, 5, 5);
+  // 液晶の大当り図柄
+  x.fillStyle = '#242c4a'; x.fillRect(34, 24, 52, 32);
+  x.fillStyle = '#fff0a6';
+  x.fillRect(45, 28, 20, 5); x.fillRect(60, 32, 5, 6);
+  x.fillRect(56, 37, 5, 6); x.fillRect(52, 42, 5, 6);
+  x.fillRect(48, 47, 5, 6);
+  x.fillStyle = '#ff5b43';
+  x.fillRect(68, 28, 8, 5); x.fillRect(73, 33, 5, 16);
+  // 釘と玉
+  x.fillStyle = '#c9d7df';
+  for (let row = 0; row < 3; row++) {
+    for (let col = 0; col < 7; col++) {
+      x.fillRect(29 + col * 10 + (row % 2) * 4, 60 + row * 5, 2, 2);
+    }
+  }
+  x.fillStyle = '#ffffff'; x.fillRect(83, 62, 4, 4);
+  x.fillStyle = '#8bd7ff'; x.fillRect(84, 62, 2, 2);
+  // ハンドル
+  x.fillStyle = '#4b526b'; x.fillRect(89, 70, 15, 9);
+  x.fillStyle = '#d9a62e'; x.fillRect(93, 72, 7, 7);
 })();
 
 // 手裏剣アイコン(ドット絵)
