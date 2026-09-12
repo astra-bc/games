@@ -3,16 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
-<title>フィンガーダンス</title>
+<title>FINGERS STUMBLED</title>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" href="icon-192.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black">
-<meta name="apple-mobile-web-app-title" content="フィンガーダンス">
+<meta name="apple-mobile-web-app-title" content="FINGERS STUMBLED">
 <meta name="theme-color" content="#0b0d14">
-<meta name="description" content="5本の指が思いどおりに動かない。タイムアタックとリズムの2モードで遊ぶ指トレーニングゲーム。">
+<meta name="description" content="5本の指が思いどおりに動かない。タイムアタックとリズムの2モードで遊ぶ指トレーニングゲーム。キー配置は自由に変更できます。">
 <style>
   :root{
     --bg:#0b0d14;
@@ -71,6 +71,30 @@
     background:#1c2236;border:1px solid #333c5e;border-bottom-width:2px;border-radius:6px;
     font-family:ui-monospace,Menlo,monospace;font-size:12px;color:#cdd7f0;
   }
+
+  /* ---------- KEY CONFIG ---------- */
+  .cfgBtn{
+    margin-top:14px;font-size:12px;letter-spacing:.08em;padding:8px 20px;
+    background:#1b2135;border:1px solid #333c5e;border-radius:9px;color:#aab6d8;cursor:pointer;
+  }
+  .cfgBtn:hover{background:#232b45;border-color:#4a5580;color:var(--txt)}
+  .cfgWrap{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px}
+  .cfgList{display:flex;flex-direction:column;gap:9px;width:min(520px,100%)}
+  .cfgRow{display:flex;align-items:center;gap:12px;background:#141a2a;border:1px solid var(--line);border-radius:11px;padding:9px 13px}
+  .cfgSwatch{width:15px;height:15px;border-radius:50%;flex:none}
+  .cfgName{flex:1;font-size:13px;color:var(--dim);letter-spacing:.08em}
+  .cfgSlot{
+    min-width:78px;height:38px;border-radius:8px;border:1px solid #333c5e;background:#1a2032;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;
+    font-family:ui-monospace,Menlo,monospace;font-size:13px;color:#cdd7f0;letter-spacing:.04em;
+    transition:.13s;padding:0 10px;
+  }
+  .cfgSlot:hover{border-color:#4a5580;background:#212940}
+  .cfgSlot.empty{color:#4e5878}
+  .cfgSlot.listening{border-color:var(--c3);color:var(--c3);background:#2a2a1c;animation:blink .9s infinite}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:.45}}
+  .cfgNote{font-size:12px;color:var(--dim);line-height:1.9;text-align:center;letter-spacing:.03em}
+  .cfgNote.warn{color:var(--c2)}
 
   /* ---------- shared HUD ---------- */
   .hud{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--dim);letter-spacing:.06em}
@@ -191,7 +215,7 @@
 <section class="screen on" id="menu">
   <div class="menu-wrap">
     <div>
-      <h1>FINGER<br>DANCE</h1>
+      <h1>FINGERS<br>STUMBLED</h1>
       <p class="sub">5本の指が、思いどおりに動かない。</p>
     </div>
 
@@ -209,9 +233,28 @@
     </div>
 
     <div class="keyhint">
-      左手でも右手でも遊べます<br>
-      左手 <kbd>Q</kbd><kbd>W</kbd><kbd>E</kbd><kbd>R</kbd><kbd>B</kbd>　／　右手 <kbd>N</kbd><kbd>U</kbd><kbd>I</kbd><kbd>O</kbd><kbd>P</kbd><br>
-      <span style="font-size:11.5px">画面の左から順に対応しています（スマホは画面下のパッド）</span>
+      <div id="menuKeys">左手でも右手でも遊べます</div>
+      <span style="font-size:11.5px">画面の左から順に対応しています（スマホは画面下のパッド）</span><br>
+      <button class="cfgBtn" data-go="cfg">キー設定を変える</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= KEY CONFIG ================= -->
+<section class="screen" id="cfg">
+  <div class="cfgWrap">
+    <div>
+      <div class="label" style="margin-bottom:6px">KEY CONFIG</div>
+      <p class="sub" style="margin:0 0 4px">レーンごとに、好きなキーを2つまで割り当てられます。</p>
+    </div>
+
+    <div class="cfgList" id="cfgList"></div>
+
+    <p class="cfgNote" id="cfgNote">枠をクリックしてから、割り当てたいキーを押してください。<br>すでに使われているキーを押すと、そちらの割り当ては外れます。</p>
+
+    <div class="btns" style="justify-content:center">
+      <button id="cfgReset">初期設定に戻す</button>
+      <button class="primary" data-go="menu">メニューへ戻る</button>
     </div>
   </div>
 </section>
@@ -278,12 +321,37 @@
 
 /* ============ 基本設定 ============ */
 const FINGERS = ["小","薬","中","人","親"];          // 指の呼び名
-const KEYMAP  = {                                    // 左手 / 右手 どちらでもOK
-  q:0, w:1, e:2, r:3, b:4,                           // 左：小 薬 中 人 親
-  n:0, u:1, i:2, o:3, p:4                            // 右：N U I O P（左から順）
-};
-const LEFT  = ["Q","W","E","R","B"];
-const RIGHT = ["N","U","I","O","P"];
+// レーンごとのキー割り当て（1レーンにつき最大2つ）。左手 / 右手 どちらでもOK
+const DEFAULT_KEYS = [["q","n"],["w","u"],["e","i"],["r","o"],["b","p"]];
+const KEY_STORE = "fd_keycfg";
+let keyCfg = loadKeys();
+let KEYMAP = {};                                     // key -> lane
+let LEFT = [], RIGHT = [];                           // 表示用ラベル
+
+function loadKeys(){
+  try{
+    const raw = JSON.parse(localStorage.getItem(KEY_STORE));
+    if(Array.isArray(raw) && raw.length===5 && raw.every(a=>Array.isArray(a)))
+      return raw.map(a=>a.slice(0,2));
+  }catch(e){}
+  return DEFAULT_KEYS.map(a=>a.slice());
+}
+function saveKeys(){ try{ localStorage.setItem(KEY_STORE, JSON.stringify(keyCfg)); }catch(e){} }
+
+function keyLabel(k){
+  if(!k) return "—";
+  const named = {" ":"Space", ";":";", ",":",", ".":".", "/":"/", "-":"-",
+                 arrowleft:"←", arrowright:"→", arrowup:"↑", arrowdown:"↓",
+                 shift:"Shift", control:"Ctrl", alt:"Alt", tab:"Tab", enter:"Enter", backspace:"BS"};
+  return named[k] || k.toUpperCase();
+}
+function rebuildKeymap(){
+  KEYMAP = {};
+  keyCfg.forEach((keys,lane)=>keys.forEach(k=>{ if(k) KEYMAP[k]=lane; }));
+  LEFT  = keyCfg.map(a=>keyLabel(a[0]));
+  RIGHT = keyCfg.map(a=>keyLabel(a[1]));
+}
+rebuildKeymap();
 
 const $  = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
@@ -339,7 +407,8 @@ document.addEventListener("click", e=>{
   stopAll();
   if(dest==="ta") startTA();
   else if(dest==="rh") startRH();
-  else go("menu");
+  else if(dest==="cfg") openCfg();
+  else { cfgListening=null; drawMenuKeys(); go("menu"); }
 });
 
 /* ============ 指パッドUI（共通） ============ */
@@ -349,7 +418,7 @@ function buildPads(container, cls){
     const d=document.createElement("div");
     d.className = `pad f${i+1}`;
     d.dataset.i = i;
-    d.innerHTML = `${LEFT[i]} / ${RIGHT[i]}`;
+    d.innerHTML = keyCfg[i].filter(Boolean).map(keyLabel).join(" / ") || "—";
     container.appendChild(d);
   }
   // タッチ操作
@@ -373,8 +442,13 @@ function paintPads(){
 addEventListener("keydown", e=>{
   if(e.repeat) return;
   const k = e.key.toLowerCase();
+  // キー設定中は、押されたキーを割り当てとして横取りする
+  if(cfgListening){
+    if(k!=="escape"){ e.preventDefault(); assignKey(k); return; }
+    cfgListening=null; drawCfg(); return;
+  }
   if(k in KEYMAP){ e.preventDefault(); const i=KEYMAP[k]; if(!held[i]){ held[i]=true; onFinger(i,true);} }
-  if(k==="escape"){ stopAll(); go("menu"); }
+  if(k==="escape" && scene!=="menu"){ stopAll(); drawMenuKeys(); go("menu"); }
 });
 addEventListener("keyup", e=>{
   const k = e.key.toLowerCase();
@@ -388,6 +462,72 @@ function onFinger(i, isDown){
   if(scene==="ta") taInput(i,isDown);
   else if(scene==="rh" && isDown) rhInput(i);
 }
+
+/* =======================================================
+   KEY CONFIG : レーンごとに好きなキーを割り当てる
+   ======================================================= */
+const LANE_COLORS = ["--c1","--c2","--c3","--c4","--c5"];
+let cfgListening = null;                 // {lane, slot} or null
+
+function openCfg(){ cfgListening=null; drawCfg(); go("cfg"); }
+
+function drawCfg(){
+  $("#cfgList").innerHTML = keyCfg.map((keys,lane)=>`
+    <div class="cfgRow">
+      <div class="cfgSwatch" style="background:var(${LANE_COLORS[lane]})"></div>
+      <div class="cfgName">レーン ${lane+1}</div>
+      ${[0,1].map(slot=>{
+        const k = keys[slot];
+        const on = cfgListening && cfgListening.lane===lane && cfgListening.slot===slot;
+        return `<div class="cfgSlot${k?"":" empty"}${on?" listening":""}" data-lane="${lane}" data-slot="${slot}">${on?"押して…":keyLabel(k)}</div>`;
+      }).join("")}
+    </div>`).join("");
+
+  const note = $("#cfgNote");
+  if(cfgListening){
+    note.classList.add("warn");
+    note.innerHTML = "割り当てたいキーを押してください。<br>Esc でキャンセルします。";
+  }else{
+    note.classList.remove("warn");
+    note.innerHTML = "枠をクリックしてから、割り当てたいキーを押してください。<br>すでに使われているキーを押すと、そちらの割り当ては外れます。";
+  }
+}
+
+$("#cfgList").addEventListener("click", e=>{
+  const slot = e.target.closest(".cfgSlot");
+  if(!slot) return;
+  cfgListening = { lane:+slot.dataset.lane, slot:+slot.dataset.slot };
+  drawCfg();
+});
+
+function assignKey(k){
+  const {lane, slot} = cfgListening;
+  // 同じキーが他で使われていたら、そちらを空ける
+  keyCfg.forEach(keys=>{ keys.forEach((v,i)=>{ if(v===k) keys[i]=null; }); });
+  keyCfg[lane][slot] = k;
+  cfgListening = null;
+  rebuildKeymap(); saveKeys(); drawCfg();
+  beep(660,0.07,"triangle",0.14);
+}
+
+$("#cfgReset").addEventListener("click", ()=>{
+  keyCfg = DEFAULT_KEYS.map(a=>a.slice());
+  cfgListening = null;
+  rebuildKeymap(); saveKeys(); drawCfg();
+  beep(440,0.09,"triangle",0.14);
+});
+
+function drawMenuKeys(){
+  const rows = keyCfg.map(keys=>keys.filter(Boolean));
+  const a = rows.map(r=>r[0]).filter(Boolean);
+  const b = rows.map(r=>r[1]).filter(Boolean);
+  const kb = list => list.map(k=>`<kbd>${keyLabel(k)}</kbd>`).join("");
+  let html = "";
+  if(a.length) html += `${kb(a)}`;
+  if(b.length) html += `　／　${kb(b)}`;
+  $("#menuKeys").innerHTML = html || "キーが割り当てられていません";
+}
+drawMenuKeys();
 
 /* =======================================================
    MODE 01 : TIME ATTACK
